@@ -35,9 +35,9 @@ Every presentation or report built with this skill must obey the **8 Anti-Cheat 
   - `30%` Scaffolding: Deep Navy (`#0f2b48`), Slate (`#334155`), Steel (`#64748b`), Hairlines (`#cbd5e1`), Subtle Tint (`#f1f5f9`).
   - `10%` Signal Accent: Cobalt (`#0284c7`), Amber (`#d97706`), Emerald (`#059669`), Signal Crimson (`#dc2626` — risk/surge only).
 - **Dark Executive Mode (16:9 Slide Decks):**
-  - `60%` Canvas: Deep Obsidian (`#0b0f19`) — **MUST be painted full-bleed in `onFirstPage`/`onLaterPages` BEFORE flowables render**, never relying on default white PDF paper!
-  - `30%` Scaffolding: Subtle Tonal Band (`#111827`), Hairlines (`#1e293b`), Crisp White (`#f8fafc`), Silver Body (`#cbd5e1`), Muted Slate (`#94a3b8`).
-  - `10%` Signal Accent: Electric Cobalt (`#38bdf8`), Amber (`#f59e0b`), Emerald (`#34d399`), Signal Crimson (`#f87171`).
+  - `60%` Canvas: Deep Obsidian (`#0b0f19`) or Midnight Navy (`#051c2c`) — **MUST be painted full-bleed in `onFirstPage`/`onLaterPages` BEFORE flowables render**, never relying on default white PDF paper!
+  - `30%` Scaffolding & High-Contrast Text: Subtle Tonal Band (`#111827` / `#0a253a`), Hairlines (`#243247`), Pure White Titles (`#ffffff`), Crisp Light Body (`>= #e2e8f0` at `>= 9.5–10 pt`), Secondary Captions (`>= #cbd5e1`, never dim `#64748b`–`#94a3b8` prose on dark). Always place a subtle horizontal dark scrim behind cover typography when parametric wireframe waves or bright artwork sit near text.
+  - `10%` Signal Accent: Electric Cobalt (`#38bdf8`), Bright Amber (`#fbbf24`), Emerald (`#34d399`), Signal Crimson (`#f87171`).
 
 ### Law 2: Hairline & Whitespace Gravity (Zero Boxed Cards)
 - Never trap metrics or prose inside heavy rectangular `BOX` strokes or `INNERGRID` web dashboard boxes.

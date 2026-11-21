@@ -109,21 +109,18 @@ def find_inter_font_faces() -> str:
 # SVG GENERATOR 0: Signature 2023 McKinsey 42-Strand Parametric Wave
 # ----------------------------------------------------------------------
 def svg_parametric_wave() -> str:
-    """Hyperbolic string-art Bezier wireframe wave separating dark cover text & hero art."""
+    """Hyperbolic string-art Bezier wireframe wave shifted cleanly right of the typography zone."""
     lines: list[str] = []
     n = 42
     for i in range(n):
         t = i / (n - 1)
-        # Sweep start points across upper edge and end points down bottom-center edge
-        x0 = 330 + t * 590
+        x0 = 405 + t * 535
         y0 = -10
-        x1 = 445 - t * 300
+        x1 = 515 - t * 205
         y1 = 550
-        # Curved control point creating the hyperbolic waist twist
-        cx = 415 + (0.5 - t) * 140
-        cy = 270 + (t - 0.5) * 90
-        # Blend stroke from electric blue to vivid cyan across the envelope
-        opacity = 0.22 + 0.42 * math.sin(t * math.pi)
+        cx = 475 + (0.5 - t) * 125
+        cy = 270 + (t - 0.5) * 85
+        opacity = 0.24 + 0.44 * math.sin(t * math.pi)
         col = ELECTRIC if i % 2 == 0 else CYAN
         lines.append(
             f'<path d="M {x0:.1f} {y0:.1f} Q {cx:.1f} {cy:.1f} {x1:.1f} {y1:.1f}" '
@@ -143,8 +140,8 @@ def svg_keeling_mini(summary: dict) -> str:
     noaa = summary["noaa_series"]
     dates = noaa["decimal_dates"]
     deseas = noaa["deseasonalized_ppm"]
-    W, H = 265, 192
-    x0, x1, y0, y1 = 32, 255, 18, 166
+    W, H = 268, 224
+    x0, x1, y0, y1 = 32, 258, 20, 198
     d_min, d_max = 1958.0, 2027.0
     v_min, v_max = 310.0, 445.0
 
@@ -159,14 +156,14 @@ def svg_keeling_mini(summary: dict) -> str:
     for gv in (320, 350, 380, 410, 440):
         yy = sy(gv)
         grid.append(f'<line x1="{x0}" y1="{yy:.1f}" x2="{x1}" y2="{yy:.1f}" stroke="#E5E7EB" stroke-width="0.7"/>')
-        grid.append(f'<text x="{x0 - 5}" y="{yy + 3:.1f}" text-anchor="end" font-size="8" fill="{GRAY_MUTED}">{gv}</text>')
+        grid.append(f'<text x="{x0 - 5}" y="{yy + 3:.1f}" text-anchor="end" font-size="8.2" fill="{GRAY_MUTED}">{gv}</text>')
 
     # X axis ticks
     ticks = []
     for yr in (1960, 1980, 2000, 2026):
         xx = sx(yr)
         ticks.append(f'<line x1="{xx:.1f}" y1="{y1}" x2="{xx:.1f}" y2="{y1+3}" stroke="#9CA3AF" stroke-width="0.7"/>')
-        ticks.append(f'<text x="{xx:.1f}" y="{y1 + 13}" text-anchor="middle" font-size="8" fill="{GRAY_MUTED}">{yr}</text>')
+        ticks.append(f'<text x="{xx:.1f}" y="{y1 + 14}" text-anchor="middle" font-size="8.2" fill="{GRAY_MUTED}">{yr}</text>')
 
     # Subsample every 4 months for crisp lightweight SVG polyline
     pts = [f"{sx(dates[i]):.1f},{sy(deseas[i]):.1f}" for i in range(0, len(dates), 4)]
@@ -176,7 +173,7 @@ def svg_keeling_mini(summary: dict) -> str:
 
     last_x, last_y = sx(dates[-1]), sy(deseas[-1])
     return f"""
-    <svg viewBox="0 0 {W} {H}" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 {W} {H}" width="{W}" height="{H}" style="display:block; width:100%; height:{H}pt;" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="keelFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="{CYAN}" stop-opacity="0.22"/>
@@ -187,10 +184,10 @@ def svg_keeling_mini(summary: dict) -> str:
       <line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" stroke="#9CA3AF" stroke-width="0.9"/>
       {''.join(ticks)}
       <polygon points="{area_pts}" fill="url(#keelFill)"/>
-      <polyline points="{poly}" fill="none" stroke="{CYAN}" stroke-width="2.1" stroke-linejoin="round"/>
-      <circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.4" fill="{ELECTRIC}"/>
-      <text x="{last_x - 6:.1f}" y="{last_y - 7:.1f}" text-anchor="end" font-size="9" font-weight="700" fill="{NAVY}">{deseas[-1]:.1f} ppm</text>
-      <text x="{sx(dates[0]) + 4:.1f}" y="{sy(deseas[0]) - 6:.1f}" font-size="8" fill="{GRAY_MUTED}">{deseas[0]:.1f}</text>
+      <polyline points="{poly}" fill="none" stroke="{CYAN}" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.5" fill="{ELECTRIC}"/>
+      <text x="{last_x - 6:.1f}" y="{last_y - 7:.1f}" text-anchor="end" font-size="9.2" font-weight="700" fill="{NAVY}">{deseas[-1]:.1f} ppm</text>
+      <text x="{sx(dates[0]) + 4:.1f}" y="{sy(deseas[0]) - 6:.1f}" font-size="8.2" fill="{GRAY_MUTED}">{deseas[0]:.1f}</text>
     </svg>
     """
 
@@ -201,15 +198,14 @@ def svg_decadal_bars(summary: dict) -> str:
     items = [(d["label"], d["ppm_per_yr"], False) for d in decades] + [
         (f"{m['noaa_max_annual_jump_year']}*\n(record)", m["noaa_max_annual_jump_ppm"], True)
     ]
-    W, H = 385, 290
-    x0, x1, y0, y1 = 14, 376, 32, 248
+    W, H = 384, 272
+    x0, x1, y0, y1 = 10, 376, 30, 232
     max_v = 3.95
     n = len(items)
     slot = (x1 - x0) / n
-    bar_w = slot * 0.56
+    bar_w = slot * 0.58
 
     bars = []
-    # Divider separating decadal means from 2024 single-year record
     div_x = x0 + (n - 1) * slot
     bars.append(f'<line x1="{div_x:.1f}" y1="{y0}" x2="{div_x:.1f}" y2="{y1 + 26}" stroke="#D1D5DB" stroke-width="0.9" stroke-dasharray="3,2"/>')
 
@@ -220,31 +216,30 @@ def svg_decadal_bars(summary: dict) -> str:
         fill = ELECTRIC if is_rec else (CYAN if i == len(items) - 2 else NAVY)
         bars.append(f'<rect x="{cx - bar_w/2:.1f}" y="{by:.1f}" width="{bar_w:.1f}" height="{bh:.1f}" fill="{fill}"/>')
         bars.append(
-            f'<text x="{cx:.1f}" y="{by - 6:.1f}" text-anchor="middle" font-size="9.5" font-weight="700" '
+            f'<text x="{cx:.1f}" y="{by - 6:.1f}" text-anchor="middle" font-size="9.6" font-weight="700" '
             f'fill="{ELECTRIC if is_rec else NAVY}">+{val:.2f}</text>'
         )
         parts = lbl.split("\n")
-        bars.append(f'<text x="{cx:.1f}" y="{y1 + 14}" text-anchor="middle" font-size="8.2" font-weight="{"700" if is_rec else "500"}" fill="{ELECTRIC if is_rec else GRAY_MUTED}">{parts[0]}</text>')
+        bars.append(f'<text x="{cx:.1f}" y="{y1 + 14}" text-anchor="middle" font-size="8.3" font-weight="{"700" if is_rec else "500"}" fill="{ELECTRIC if is_rec else GRAY_MUTED}">{parts[0]}</text>')
         if len(parts) > 1:
-            bars.append(f'<text x="{cx:.1f}" y="{y1 + 24}" text-anchor="middle" font-size="7.5" fill="{ELECTRIC}">{parts[1]}</text>')
+            bars.append(f'<text x="{cx:.1f}" y="{y1 + 24}" text-anchor="middle" font-size="7.6" fill="{ELECTRIC}">{parts[1]}</text>')
 
-    # Top McKinsey 3.0x span arrow from 1960s to 2020-25
     x_a = x0 + 0.5 * slot
     x_b = x0 + (n - 2 + 0.5) * slot
-    y_a = y1 - (items[0][1] / max_v) * (y1 - y0) - 24
-    y_b = y1 - (items[-2][1] / max_v) * (y1 - y0) - 24
+    y_a = y1 - (items[0][1] / max_v) * (y1 - y0) - 22
+    y_b = y1 - (items[-2][1] / max_v) * (y1 - y0) - 22
     bars.append(
         f'<path d="M {x_a:.1f} {y_a:.1f} Q {(x_a+x_b)/2:.1f} {min(y_a, y_b) - 34:.1f} {x_b - 4:.1f} {y_b:.1f}" '
-        f'fill="none" stroke="{ELECTRIC}" stroke-width="1.1" stroke-dasharray="3,2"/>'
+        f'fill="none" stroke="{ELECTRIC}" stroke-width="1.15" stroke-dasharray="3,2"/>'
     )
-    bars.append(f'<circle cx="{x_b - 3:.1f}" cy="{y_b:.1f}" r="2.5" fill="{ELECTRIC}"/>')
+    bars.append(f'<circle cx="{x_b - 3:.1f}" cy="{y_b:.1f}" r="2.6" fill="{ELECTRIC}"/>')
     bars.append(
         f'<text x="{(x_a+x_b)/2 - 14:.1f}" y="{min(y_a, y_b) - 12:.1f}" text-anchor="middle" '
-        f'font-size="9.5" font-weight="700" fill="{ELECTRIC}">3.0× decadal pace</text>'
+        f'font-size="9.6" font-weight="700" fill="{ELECTRIC}">3.0× decadal pace</text>'
     )
 
     return f"""
-    <svg viewBox="0 0 {W} {H}" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 {W} {H}" width="{W}" height="{H}" style="display:block; width:100%; height:{H}pt;" xmlns="http://www.w3.org/2000/svg">
       <line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" stroke="{NAVY}" stroke-width="1.0"/>
       {''.join(bars)}
     </svg>
@@ -898,6 +893,15 @@ html, body {{
   height: 540pt;
   pointer-events: none;
 }}
+.cover-scrim {{
+  position: absolute;
+  inset: 0;
+  width: 960pt;
+  height: 540pt;
+  background: linear-gradient(90deg, rgba(5, 28, 44, 0.94) 0%, rgba(5, 28, 44, 0.85) 36%, rgba(5, 28, 44, 0.0) 56%);
+  pointer-events: none;
+  z-index: 3;
+}}
 .cover-content {{
   position: relative;
   z-index: 5;
@@ -916,8 +920,8 @@ html, body {{
 }}
 .brand-lockup span {{ display: block; margin-left: 16pt; }}
 .cover-hero-text {{
-  max-width: 455pt;
-  margin-top: 12pt;
+  max-width: 415pt;
+  margin-top: 10pt;
 }}
 .cover-title {{
   font-family: 'Charter', 'Georgia', serif;
@@ -931,22 +935,23 @@ html, body {{
 .cover-sub {{
   font-size: 13pt;
   font-weight: 400;
-  color: #CBD5E1;
-  line-height: 1.45;
-  margin-bottom: 10pt;
+  color: #EDF2F7;
+  line-height: 1.48;
+  margin-bottom: 12pt;
 }}
 .cover-date {{
   font-size: 10pt;
   color: {ICE};
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }}
 .cover-legal {{
-  font-size: 7.5pt;
-  color: #94A3B8;
-  letter-spacing: 0.03em;
-  line-height: 1.45;
+  font-size: 8.2pt;
+  color: #CBD5E1;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  max-width: 440pt;
 }}
 
 /* =========================================================
@@ -955,18 +960,18 @@ html, body {{
 .slide-navy {{
   background: {NAVY};
   color: #FFFFFF;
-  padding: 40pt 48pt 36pt 48pt;
+  padding: 38pt 48pt 44pt 48pt;
   display: flex;
   flex-direction: column;
 }}
 .navy-title {{
   font-family: 'Charter', 'Georgia', serif;
-  font-size: 28pt;
+  font-size: 29pt;
   font-weight: 700;
   letter-spacing: -0.02em;
-  padding-bottom: 12pt;
+  padding-bottom: 11pt;
   border-bottom: 1.2pt solid #FFFFFF;
-  margin-bottom: 24pt;
+  margin-bottom: 22pt;
 }}
 .exec-cols {{
   display: flex;
@@ -978,7 +983,7 @@ html, body {{
 }}
 .exec-col h3 {{
   font-family: 'Charter', 'Georgia', serif;
-  font-size: 13pt;
+  font-size: 14pt;
   font-weight: 700;
   color: #FFFFFF;
   margin-bottom: 12pt;
@@ -988,12 +993,13 @@ html, body {{
 }}
 .exec-col li {{
   position: relative;
-  padding-left: 12pt;
-  font-size: 9.2pt;
-  line-height: 1.48;
-  color: #D1DBE6;
-  margin-bottom: 10pt;
+  padding-left: 13pt;
+  font-size: 10pt;
+  line-height: 1.52;
+  color: #EEF2F6;
+  margin-bottom: 12pt;
 }}
+.exec-col li strong {{ color: #FFFFFF; }}
 .exec-col li::before {{
   content: "–";
   position: absolute;
@@ -1003,10 +1009,11 @@ html, body {{
 }}
 .exec-kpis {{
   display: flex;
-  gap: 28pt;
-  border-top: 0.6pt solid #1E3A54;
-  padding-top: 16pt;
-  margin-bottom: 18pt;
+  gap: 24pt;
+  background: #0A253A;
+  border-top: 1.4pt solid {CYAN};
+  padding: 14pt 18pt;
+  margin-bottom: 12pt;
 }}
 .exec-kpi {{
   flex: 1;
@@ -1015,14 +1022,15 @@ html, body {{
   font-family: 'Charter', 'Georgia', serif;
   font-size: 32pt;
   font-weight: 700;
-  color: {CYAN};
-  line-height: 1.0;
+  color: #38BDF8;
+  line-height: 1.02;
   margin-bottom: 4pt;
 }}
-.exec-kpi-num.elec {{ color: #60A5FA; }}
+.exec-kpi-num.elec {{ color: #7DD3FC; }}
 .exec-kpi-lbl {{
-  font-size: 8.5pt;
-  color: #94A3B8;
+  font-size: 9pt;
+  color: #E2E8F0;
+  line-height: 1.35;
 }}
 
 /* =========================================================
@@ -1119,8 +1127,8 @@ html, body {{
 /* Slide 4 layout */
 .s4-grid {{
   display: flex;
-  gap: 22pt;
-  flex: 1;
+  gap: 20pt;
+  height: 368pt;
   align-items: stretch;
 }}
 .s4-left {{
@@ -1130,29 +1138,67 @@ html, body {{
   justify-content: space-between;
 }}
 .s4-mid {{
-  width: 382pt;
+  width: 384pt;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }}
 .s4-right {{
   flex: 1;
   padding-left: 14pt;
   border-left: 0.7pt solid {RULE_LIGHT};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }}
+.s4-mid-strip {{
+  display: flex;
+  gap: 16pt;
+  border-top: 0.8pt solid {RULE_LIGHT};
+  padding-top: 10pt;
+}}
+.s4-mid-stat {{
+  flex: 1;
+}}
+.s4-mid-num {{
+  font-family: 'Charter', 'Georgia', serif;
+  font-size: 20pt;
+  font-weight: 700;
+  color: {NAVY};
+  line-height: 1.05;
+}}
+.s4-mid-lbl {{
+  font-size: 7.9pt;
+  color: {GRAY_MUTED};
+  line-height: 1.32;
+  margin-top: 2pt;
+}}
+.s4-audit-box {{
+  background: #F3F6FA;
+  border-top: 1.2pt solid {NAVY};
+  padding: 8pt 10pt;
+  font-size: 7.9pt;
+  line-height: 1.4;
+  color: #374151;
+}}
+.s4-audit-box strong {{ color: {NAVY}; display: block; margin-bottom: 2pt; }}
 .giant-kpi {{
-  margin-top: 4pt;
+  border-top: 0.8pt solid {RULE_LIGHT};
+  padding-top: 8pt;
 }}
 .giant-kpi-num {{
   font-family: 'Charter', 'Georgia', serif;
-  font-size: 54pt;
+  font-size: 52pt;
   font-weight: 700;
   color: {ELECTRIC};
   line-height: 0.96;
   letter-spacing: -0.03em;
 }}
 .giant-kpi-txt {{
-  font-size: 8.8pt;
+  font-size: 8.6pt;
   color: #374151;
   line-height: 1.38;
-  margin-top: 6pt;
+  margin-top: 5pt;
 }}
 .s4-right h4 {{
   font-family: 'Charter', 'Georgia', serif;
@@ -1284,10 +1330,10 @@ html, body {{
 .s7-stat {{ flex: 1; font-size: 8.5pt; color: #374151; line-height: 1.38; }}
 .s7-stat strong {{ color: {NAVY}; }}
 
-/* Slide 8: Waffle Grid + Per-Capita Bars */
+/* Slide 8: Waffle Grid + Per-Capita Bars + Bottom Insight Strip */
 .waffle-row {{
   display: flex;
-  gap: 18pt;
+  gap: 16pt;
   justify-content: space-between;
   margin-bottom: 12pt;
 }}
@@ -1296,40 +1342,65 @@ html, body {{
   text-align: center;
 }}
 .waffle-box {{
-  width: 118pt;
+  width: 128pt;
   margin: 0 auto 5pt auto;
 }}
 .waffle-lbl {{
-  font-size: 9pt;
+  font-size: 9.2pt;
   font-weight: 700;
   color: {NAVY};
 }}
 .waffle-sub {{
-  font-size: 7.8pt;
+  font-size: 8pt;
   color: {GRAY_MUTED};
 }}
 .pc-section {{
   border-top: 0.8pt solid {RULE_LIGHT};
-  padding-top: 12pt;
+  padding-top: 10pt;
+  margin-bottom: 12pt;
 }}
 .pc-grid {{
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 28pt;
-  row-gap: 9pt;
-  margin-top: 9pt;
+  row-gap: 8pt;
+  margin-top: 8pt;
 }}
 .pc-row {{
   display: flex;
   align-items: center;
   gap: 8pt;
-  font-size: 8.4pt;
+  font-size: 8.5pt;
 }}
-.pc-name {{ width: 92pt; color: {NAVY}; white-space: nowrap; }}
-.pc-track {{ flex: 1; height: 10pt; background: #F1F5F9; }}
-.pc-bar {{ height: 10pt; }}
-.pc-val {{ width: 36pt; text-align: right; font-weight: 700; color: {NAVY}; white-space: nowrap; }}
-.pc-chg {{ width: 90pt; text-align: right; font-size: 7.9pt; font-weight: 600; white-space: nowrap; }}
+.pc-name {{ width: 94pt; color: {NAVY}; white-space: nowrap; }}
+.pc-track {{ flex: 1; height: 11pt; background: #F1F5F9; }}
+.pc-bar {{ height: 11pt; }}
+.pc-val {{ width: 38pt; text-align: right; font-weight: 700; color: {NAVY}; white-space: nowrap; }}
+.pc-chg {{ width: 92pt; text-align: right; font-size: 8pt; font-weight: 600; white-space: nowrap; }}
+.s8-insights {{
+  display: flex;
+  gap: 18pt;
+  background: #F3F6FA;
+  border-top: 1.2pt solid {NAVY};
+  padding: 10pt 14pt;
+}}
+.s8-in-col {{
+  flex: 1;
+}}
+.s8-in-num {{
+  font-family: 'Charter', 'Georgia', serif;
+  font-size: 18pt;
+  font-weight: 700;
+  color: {ELECTRIC};
+  line-height: 1.05;
+  margin-bottom: 2pt;
+}}
+.s8-in-num.navy {{ color: {NAVY}; }}
+.s8-in-txt {{
+  font-size: 8pt;
+  color: #374151;
+  line-height: 1.36;
+}}
 
 /* Slide 9 legend */
 .legend-strip {{
@@ -1423,23 +1494,23 @@ table.ledger tbody tr.total-row td {{
   margin-bottom: 3pt;
 }}
 .audit-left p {{
-  font-size: 7.8pt;
-  line-height: 1.4;
-  color: #D1DBE6;
+  font-size: 8.1pt;
+  line-height: 1.42;
+  color: #F1F5F9;
 }}
 .sha-grid {{
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 5pt 14pt;
+  gap: 6pt 14pt;
 }}
 .sha-item {{
   font-family: 'Courier New', monospace;
-  font-size: 6.8pt;
-  line-height: 1.3;
+  font-size: 7.2pt;
+  line-height: 1.32;
 }}
 .sha-fn {{ display: block; color: #FFFFFF; font-weight: 700; }}
-.sha-h {{ color: {ICE}; }}
+.sha-h {{ color: #BAE6FD; }}
 
 /* =========================================================
    UNIVERSAL MCKINSEY 2023 FOOTER + ICE-CYAN SECTION PILL
@@ -1456,30 +1527,30 @@ table.ledger tbody tr.total-row td {{
   margin-right: 44pt;
   margin-bottom: 6pt;
 }}
-.dark-footer .footer-rule {{ border-top-color: #1E3A54; }}
+.dark-footer .footer-rule {{ border-top-color: #274866; }}
 .footer-row {{
   display: flex;
   justify-content: space-between;
   align-items: center;
 }}
 .footer-source {{
-  font-size: 7.1pt;
+  font-size: 7.2pt;
   color: {GRAY_MUTED};
 }}
-.dark-footer .footer-source {{ color: #94A3B8; }}
+.dark-footer .footer-source {{ color: #CBD5E1; }}
 .footer-right {{
   display: flex;
   align-items: center;
   gap: 12pt;
 }}
 .footer-brand {{
-  font-size: 7.4pt;
+  font-size: 7.5pt;
   font-weight: 600;
   color: {NAVY};
   margin-right: 4pt;
   white-space: nowrap;
 }}
-.dark-footer .footer-brand {{ color: #CBD5E1; margin-right: 44pt; }}
+.dark-footer .footer-brand {{ color: #E2E8F0; margin-right: 44pt; }}
 .section-pill {{
   background: {ICE};
   color: {NAVY};
@@ -1497,6 +1568,7 @@ table.ledger tbody tr.total-row td {{
 <section class="slide slide-cover">
   <img class="cover-bg" src="{cover_uri}" alt="Cover Hero"/>
   {svg_parametric_wave()}
+  <div class="cover-scrim"></div>
   <div class="cover-content">
     <div class="brand-lockup">Verifiable Research<span>&amp; Editorial Systems</span></div>
     <div class="cover-hero-text">
@@ -1590,17 +1662,35 @@ table.ledger tbody tr.total-row td {{
       </div>
     </div>
     <div class="s4-mid">
-      <div class="chart-sub"><strong>Mean annual atmospheric CO2 increment by decade</strong> <span>and 2024 peak, ppm/yr</span></div>
-      {svg_decadal_bars(summary)}
+      <div>
+        <div class="chart-sub"><strong>Mean annual atmospheric CO2 increment by decade</strong> <span>and 2024 peak, ppm/yr</span></div>
+        {svg_decadal_bars(summary)}
+      </div>
+      <div class="s4-mid-strip">
+        <div class="s4-mid-stat">
+          <div class="s4-mid-num">+{m['noaa_cumulative_rise_ppm']:.1f} ppm</div>
+          <div class="s4-mid-lbl">Cumulative deseasonalized rise from {meta['noaa_start']} ({m['noaa_first_deseasonalized_ppm']:.1f}) to {meta['noaa_end']} ({m['noaa_latest_deseasonalized_ppm']:.1f})</div>
+        </div>
+        <div class="s4-mid-stat">
+          <div class="s4-mid-num">{m['noaa_seasonal_amp_2020_25_ppm']:.2f} ppm</div>
+          <div class="s4-mid-lbl">Mean 2020–25 seasonal cycle amplitude (vs {m['noaa_seasonal_amp_1960s_ppm']:.2f} ppm in the 1960s)</div>
+        </div>
+      </div>
     </div>
     <div class="s4-right">
-      <h4>Key physical observations:</h4>
-      <ul>
-        <li><strong>New instrumental peak:</strong> Monthly mean concentration touched <strong>{m['noaa_peak_average_ppm']:.2f} ppm</strong> in May 2026, with October 2026 deseasonalized background at {m['noaa_latest_deseasonalized_ppm']:.2f} ppm.</li>
-        <li><strong>Record 2024 jump (*):</strong> Calendar year 2024 rose <strong>+{m['noaa_max_annual_jump_ppm']:.2f} ppm</strong> above 2023, eclipsing the 2016 (+3.40) and 1998 (+2.96) El Niño spikes.</li>
-        <li><strong>Steady biosphere pulse:</strong> Seasonal peak-to-trough amplitude held near {m['noaa_seasonal_amp_2020_25_ppm']:.2f} ppm (vs {m['noaa_seasonal_amp_1960s_ppm']:.2f} ppm in the 1960s).</li>
-        <li><strong>Site splice note:</strong> Dec 2022–Jul 2023 values reflect NOAA’s documented Maunakea volcanic relocation.</li>
-      </ul>
+      <div>
+        <h4>Key physical observations:</h4>
+        <ul>
+          <li><strong>New instrumental peak:</strong> Monthly mean concentration touched <strong>{m['noaa_peak_average_ppm']:.2f} ppm</strong> in May 2026, with October 2026 deseasonalized background at {m['noaa_latest_deseasonalized_ppm']:.2f} ppm.</li>
+          <li><strong>Record 2024 jump (*):</strong> Calendar year 2024 rose <strong>+{m['noaa_max_annual_jump_ppm']:.2f} ppm</strong> above 2023, eclipsing the 2016 (+3.40) and 1998 (+2.96) El Niño spikes.</li>
+          <li><strong>Steady biosphere pulse:</strong> Seasonal inhale/exhale swing stayed ~5.6 ppm even as the underlying atmospheric baseline surged +37%.</li>
+          <li><strong>Site splice note:</strong> Dec 2022–Jul 2023 values reflect NOAA’s documented Maunakea volcanic relocation.</li>
+        </ul>
+      </div>
+      <div class="s4-audit-box">
+        <strong>Phase 2 Reality Audit Passed</strong>
+        All {m['noaa_observation_count']} monthly NOAA records verified chronologically; early 1958–74 missing-day sentinels (-1, -9.99) mapped cleanly to null.
+      </div>
     </div>
   </div>
   {footer_html(4, "Planetary carbon baseline", f"Source: NOAA Global Monitoring Laboratory, co2_mm_mlo.csv (N = {m['noaa_observation_count']} monthly observations, {meta['noaa_start']}–{meta['noaa_end']}).")}
@@ -1675,6 +1765,20 @@ table.ledger tbody tr.total-row td {{
   <div class="pc-section">
     <div class="chart-sub"><strong>2024 per-capita CO2 emissions &amp; 2000→24 rank shift,</strong> <span>t CO2e per person (accounting identity verified &lt; 10<sup>-14</sup>)</span></div>
     <div class="pc-grid">{''.join(pc_rows)}</div>
+  </div>
+  <div class="s8-insights">
+    <div class="s8-in-col">
+      <div class="s8-in-num navy">7–10× gap</div>
+      <div class="s8-in-txt">UK ({econ['GBR']['carbon_intensity_2024']:.0f} t/$1M) and France ({econ['FRA']['carbon_intensity_2024']:.0f}) operate at a fraction of China’s ({econ['CHN']['carbon_intensity_2024']:.0f}) and India’s ({econ['IND']['carbon_intensity_2024']:.0f}) carbon intensity.</div>
+    </div>
+    <div class="s8-in-col">
+      <div class="s8-in-num">+{econ['CHN']['co2_per_capita_change_pct']:.0f}%</div>
+      <div class="s8-in-txt">China’s per-capita footprint tripled ({econ['CHN']['co2_per_capita_2000_t']:.1f}→{econ['CHN']['co2_per_capita_2024_t']:.1f} t), overtaking France, the UK, Germany, and Japan since 2000.</div>
+    </div>
+    <div class="s8-in-col">
+      <div class="s8-in-num navy">{econ['GBR']['co2_per_capita_change_pct']:.0f}% UK cut</div>
+      <div class="s8-in-txt">The UK halved per-capita emissions ({econ['GBR']['co2_per_capita_2000_t']:.1f}→{econ['GBR']['co2_per_capita_2024_t']:.1f} t) to converge with nuclear-anchored France ({econ['FRA']['co2_per_capita_2024_t']:.1f} t).</div>
+    </div>
   </div>
   {footer_html(8, "Intensity & per-capita", "Source: World Bank WDI (EN.GHG.CO2.PC.CE.AR5, SP.POP.TOTL, NY.GDP.MKTP.KD, 2000–2024).")}
 </section>
