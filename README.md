@@ -8,17 +8,21 @@ Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cu
 
 ## Live Demo Outputs (100% Real Public Data — Zero Mocks)
 
-Both showcase PDFs in [`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/) are compiled from live **NOAA Global Monitoring Laboratory** (`1958–2026`, 824 monthly observations) and **World Bank WDI** (`2000–2025`, 8 major economies) datasets—sealed with SHA-256 hashes, checked against physical & accounting identities, registered in a 129-tuple provenance ledger, verified via an AST anti-circular veto gate, and audited with PyMuPDF.
+All showcase decks and reports are compiled from live **NOAA Global Monitoring Laboratory** (`1958–2026`, 824 monthly observations) and **World Bank WDI** (`2000–2025`, 8 major economies) datasets—sealed with SHA-256 hashes, validated against physical & exact accounting identities, registered in an atomic provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF.
 
-### 16:9 Dark Executive Presentation ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf))
+### Demo 1 — 9-Slide Dual-Theme Visual Keynote ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
 
-| Cover Hero & Thesis | Atmospheric Baseline & 3.0× Acceleration |
+Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf)) and a Light Swiss-Ivory boardroom deck ([`CARBON_KEYNOTE_16x9_LIGHT.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf)) from a single `--theme dark|light` compiler across 7 distinct 300-DPI exhibits (165 verified provenance tuples):
+
+| Swiss Ivory Cover Hero | Dark Obsidian — Biosphere & Record 2024 Surge |
 | :---: | :---: |
-| ![Deck Slide 1](demos/global-carbon-telemetry/previews/deck_slide_01.png) | ![Deck Slide 2](demos/global-carbon-telemetry/previews/deck_slide_02.png) |
-| **Decoupling Matrix & Carbon Intensity** | **Tufte Ledger with Inline Sparklines & Sacred `[N/A]`** |
-| ![Deck Slide 4](demos/global-carbon-telemetry/previews/deck_slide_04.png) | ![Deck Slide 5](demos/global-carbon-telemetry/previews/deck_slide_05.png) |
+| ![Keynote Light Slide 1](demos/carbon-keynote-9slide/previews/light_slide_01.png) | ![Keynote Dark Slide 3](demos/carbon-keynote-9slide/previews/dark_slide_03.png) |
+| **Marimekko Pop × Per-Capita & Rank Inversion (Light)** | **24-Year Annual YoY Momentum Matrix Heatmap (Dark)** |
+| ![Keynote Light Slide 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) | ![Keynote Dark Slide 7](demos/carbon-keynote-9slide/previews/dark_slide_07.png) |
 
-### Institutional Letter Report — Swiss Ivory ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf))
+### Demo 2 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
+
+Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)) and 6-slide Dark Executive summary deck ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf)):
 
 | Cover Hero & Asymmetric Brief | Structural Bifurcation Spread | Decoupling & Few Bullet Graphs | Verified Ledger & SHA-256 Colophon |
 | :---: | :---: | :---: | :---: |
@@ -74,6 +78,7 @@ pip install -r requirements.txt
 # (Falls back cleanly to Helvetica if omitted)
 export INTER_FONT_DIR=/path/to/inter/ttf
 
+bash demos/carbon-keynote-9slide/run_pipeline.sh
 bash demos/global-carbon-telemetry/run_pipeline.sh
 ```
 
