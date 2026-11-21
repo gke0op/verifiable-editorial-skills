@@ -1,0 +1,1292 @@
+[
+  {
+    "metric_id": "noaa_first_deseasonalized_ppm",
+    "value": 314.44,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "row 1958-03 (deseasonalized)",
+    "exact_extracted_quote": "1958,3,1958.2027,315.71,314.44",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_latest_average_ppm",
+    "value": 426.69,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "row 2026-10 (average)",
+    "exact_extracted_quote": "2026,10,2026.7917,426.69,429.98",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_latest_deseasonalized_ppm",
+    "value": 429.98,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "row 2026-10 (deseasonalized)",
+    "exact_extracted_quote": "2026,10,2026.7917,426.69,429.98",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_peak_average_ppm",
+    "value": 432.34,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "row 2026-05 (all-time monthly mean peak)",
+    "exact_extracted_quote": "2026,5,2026.375,432.34,429.04",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_cumulative_rise_ppm",
+    "value": 115.54,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "deseasonalized delta 1958-03 -> 2026-10",
+    "exact_extracted_quote": "429.98 - 314.44 = 115.54",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_observation_count",
+    "value": 824,
+    "unit": "months",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "all valid rows 1958-03..2026-10",
+    "exact_extracted_quote": "count=824 monthly records",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_1960s",
+    "value": 0.8773,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 1960 (316.91) -> 1970 (325.68)",
+    "exact_extracted_quote": "(325.6817 - 316.9083) / 10 = 0.8773",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_1970s",
+    "value": 1.3081,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 1970 (325.68) -> 1980 (338.76)",
+    "exact_extracted_quote": "(338.7625 - 325.6817) / 10 = 1.3081",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_1980s",
+    "value": 1.569,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 1980 (338.76) -> 1990 (354.45)",
+    "exact_extracted_quote": "(354.4525 - 338.7625) / 10 = 1.569",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_1990s",
+    "value": 1.5254,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 1990 (354.45) -> 2000 (369.71)",
+    "exact_extracted_quote": "(369.7067 - 354.4525) / 10 = 1.5254",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_2000s",
+    "value": 2.0395,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 2000 (369.71) -> 2010 (390.10)",
+    "exact_extracted_quote": "(390.1017 - 369.7067) / 10 = 2.0395",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_2010s",
+    "value": 2.4112,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 2010 (390.10) -> 2020 (414.21)",
+    "exact_extracted_quote": "(414.2133 - 390.1017) / 10 = 2.4112",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_growth_rate_2020_25",
+    "value": 2.6272,
+    "unit": "ppm/yr",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "annual mean slope 2020 (414.21) -> 2025 (427.35)",
+    "exact_extracted_quote": "(427.3492 - 414.2133) / 5 = 2.6272",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "noaa_recent_seasonal_amplitude_ppm",
+    "value": 5.516,
+    "unit": "ppm",
+    "source_document": "data/raw/noaa_co2_mm_mlo.csv",
+    "source_locator": "mean annual (max - min) monthly ppm across complete years 2021-2025",
+    "exact_extracted_quote": "2021-2025 yearly amplitudes=[5.83, 5.23, 5.5, 4.88, 6.14], mean=5.516",
+    "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "panel8_co2_2000_mt",
+    "value": 13990.7231,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(EN.GHG.CO2.MT.CE.AR5, 8 economies, year=2000)",
+    "exact_extracted_quote": "sum_2000=13990.7231 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "panel8_co2_2024_mt",
+    "value": 23521.2633,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(EN.GHG.CO2.MT.CE.AR5, 8 economies, year=2024)",
+    "exact_extracted_quote": "sum_2024=23521.2633 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "panel8_co2_change_2000_2024_pct",
+    "value": 68.1204,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "pct change of 8-economy CO2 total 2000 -> 2024",
+    "exact_extracted_quote": "(23521.2633 - 13990.7231) / 13990.7231 * 100 = 68.1204%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "oecd5_co2_2000_mt",
+    "value": 8996.5473,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(USA,DEU,JPN,GBR,FRA, year=2000)",
+    "exact_extracted_quote": "oecd5_2000=8996.5473 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "oecd5_co2_2024_mt",
+    "value": 6751.2374,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(USA,DEU,JPN,GBR,FRA, year=2024)",
+    "exact_extracted_quote": "oecd5_2024=6751.2374 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "oecd5_co2_change_2000_2024_pct",
+    "value": -24.9575,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "OECD-5 CO2 pct change 2000 -> 2024",
+    "exact_extracted_quote": "(6751.2374 - 8996.5473) / 8996.5473 * 100 = -24.9575%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "oecd5_gdp_growth_2000_2024_pct",
+    "value": 48.7727,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "OECD-5 constant-2015 GDP pct change 2000 -> 2024",
+    "exact_extracted_quote": "(37155674104483.25 - 24974800549984.72) / 24974800549984.72 * 100 = 48.7727%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "em3_co2_2000_mt",
+    "value": 4994.1758,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(CHN,IND,BRA, year=2000)",
+    "exact_extracted_quote": "em3_2000=4994.1758 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "em3_co2_2024_mt",
+    "value": 16770.0259,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "sum(CHN,IND,BRA, year=2024)",
+    "exact_extracted_quote": "em3_2024=16770.0259 Mt CO2e",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "em3_co2_change_2000_2024_pct",
+    "value": 235.7917,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "Emerging-3 (CHN,IND,BRA) CO2 pct change 2000 -> 2024",
+    "exact_extracted_quote": "(16770.0259 - 4994.1758) / 4994.1758 * 100 = 235.7917%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "em3_gdp_growth_2000_2024_pct",
+    "value": 397.66,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "Emerging-3 constant-2015 GDP pct change 2000 -> 2024",
+    "exact_extracted_quote": "(23946753525518.74 - 4811869843813.25) / 4811869843813.25 * 100 = 397.66%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_co2_2000_mt",
+    "value": 5928.7614,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA year=2000",
+    "exact_extracted_quote": "USA 2000 value=5928.7614",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_co2_2024_mt",
+    "value": 4632.1649,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA year=2024",
+    "exact_extracted_quote": "USA 2024 value=4632.1649",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA year=2025",
+    "exact_extracted_quote": "USA 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_co2_change_pct",
+    "value": -21.8696,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA pct change 2000->2024",
+    "exact_extracted_quote": "(4632.1649 - 5928.7614) / 5928.7614 * 100 = -21.8696%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_co2_per_capita_2024_t",
+    "value": 13.6239,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "USA year=2024",
+    "exact_extracted_quote": "USA 2024 value=13.6238622652793",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_gdp_growth_2000_2024_pct",
+    "value": 65.7093,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "USA constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(22731468331925.10 - 13717679619695.10) / 13717679619695.10 * 100 = 65.7093%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_carbon_intensity_2000",
+    "value": 432.1986,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=5928.7614 Mt, gdp=13717679619695.10 USD -> 432.1986",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_carbon_intensity_2024",
+    "value": 203.7776,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=4632.1649 Mt, gdp=22731468331925.10 USD -> 203.7776",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_carbon_intensity_change_pct",
+    "value": -52.8509,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(203.7776 - 432.1986) / 432.1986 * 100 = -52.8509%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_renewables_2000_pct",
+    "value": 5.4,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "USA year=2000",
+    "exact_extracted_quote": "USA 2000 value=5.4",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_renewables_2021_pct",
+    "value": 10.9,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "USA year=2021",
+    "exact_extracted_quote": "USA 2021 value=10.9",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "USA year=2024",
+    "exact_extracted_quote": "USA 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "usa_panel8_share_2024_pct",
+    "value": 19.6935,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "USA 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "4632.1649 / 23521.2633 * 100 = 19.6935%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_co2_2000_mt",
+    "value": 3647.8773,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN year=2000",
+    "exact_extracted_quote": "CHN 2000 value=3647.8773",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_co2_2024_mt",
+    "value": 13124.728,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN year=2024",
+    "exact_extracted_quote": "CHN 2024 value=13124.728",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN year=2025",
+    "exact_extracted_quote": "CHN 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_co2_change_pct",
+    "value": 259.7908,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN pct change 2000->2024",
+    "exact_extracted_quote": "(13124.728 - 3647.8773) / 3647.8773 * 100 = 259.7908%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_co2_per_capita_2024_t",
+    "value": 9.3151,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "CHN year=2024",
+    "exact_extracted_quote": "CHN 2024 value=9.31508933799393",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_gdp_growth_2000_2024_pct",
+    "value": 554.3378,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "CHN constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(18484494644731.60 - 2824916263542.96) / 2824916263542.96 * 100 = 554.3378%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_carbon_intensity_2000",
+    "value": 1291.3223,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=3647.8773 Mt, gdp=2824916263542.96 USD -> 1291.3223",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_carbon_intensity_2024",
+    "value": 710.0399,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=13124.728 Mt, gdp=18484494644731.60 USD -> 710.0399",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_carbon_intensity_change_pct",
+    "value": -45.0145,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(710.0399 - 1291.3223) / 1291.3223 * 100 = -45.0145%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_renewables_2000_pct",
+    "value": 29.6,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "CHN year=2000",
+    "exact_extracted_quote": "CHN 2000 value=29.6",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_renewables_2021_pct",
+    "value": 15.2,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "CHN year=2021",
+    "exact_extracted_quote": "CHN 2021 value=15.2",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "CHN year=2024",
+    "exact_extracted_quote": "CHN 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "chn_panel8_share_2024_pct",
+    "value": 55.7994,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "CHN 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "13124.728 / 23521.2633 * 100 = 55.7994%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_co2_2000_mt",
+    "value": 871.3847,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU year=2000",
+    "exact_extracted_quote": "DEU 2000 value=871.3847",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_co2_2024_mt",
+    "value": 579.9356,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU year=2024",
+    "exact_extracted_quote": "DEU 2024 value=579.9356",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU year=2025",
+    "exact_extracted_quote": "DEU 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_co2_change_pct",
+    "value": -33.4467,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU pct change 2000->2024",
+    "exact_extracted_quote": "(579.9356 - 871.3847) / 871.3847 * 100 = -33.4467%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_co2_per_capita_2024_t",
+    "value": 6.944,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "DEU year=2024",
+    "exact_extracted_quote": "DEU 2024 value=6.94395663386317",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_gdp_growth_2000_2024_pct",
+    "value": 27.4115,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "DEU constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(3677048776153.86 - 2885963533943.47) / 2885963533943.47 * 100 = 27.4115%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_carbon_intensity_2000",
+    "value": 301.9389,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=871.3847 Mt, gdp=2885963533943.47 USD -> 301.9389",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_carbon_intensity_2024",
+    "value": 157.7177,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=579.9356 Mt, gdp=3677048776153.86 USD -> 157.7177",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_carbon_intensity_change_pct",
+    "value": -47.765,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(157.7177 - 301.9389) / 301.9389 * 100 = -47.765%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_renewables_2000_pct",
+    "value": 3.7,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "DEU year=2000",
+    "exact_extracted_quote": "DEU 2000 value=3.7",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_renewables_2021_pct",
+    "value": 17.6,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "DEU year=2021",
+    "exact_extracted_quote": "DEU 2021 value=17.6",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "DEU year=2024",
+    "exact_extracted_quote": "DEU 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "deu_panel8_share_2024_pct",
+    "value": 2.4656,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "DEU 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "579.9356 / 23521.2633 * 100 = 2.4656%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_co2_2000_mt",
+    "value": 996.8909,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND year=2000",
+    "exact_extracted_quote": "IND 2000 value=996.8909",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_co2_2024_mt",
+    "value": 3153.8291,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND year=2024",
+    "exact_extracted_quote": "IND 2024 value=3153.8291",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND year=2025",
+    "exact_extracted_quote": "IND 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_co2_change_pct",
+    "value": 216.3665,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND pct change 2000->2024",
+    "exact_extracted_quote": "(3153.8291 - 996.8909) / 996.8909 * 100 = 216.3665%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_co2_per_capita_2024_t",
+    "value": 2.1737,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "IND year=2024",
+    "exact_extracted_quote": "IND 2024 value=2.17365173535787",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_gdp_growth_2000_2024_pct",
+    "value": 328.9787,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "IND constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(3434122552914.77 - 800534479629.68) / 800534479629.68 * 100 = 328.9787%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_carbon_intensity_2000",
+    "value": 1245.2817,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=996.8909 Mt, gdp=800534479629.68 USD -> 1245.2817",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_carbon_intensity_2024",
+    "value": 918.3799,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=3153.8291 Mt, gdp=3434122552914.77 USD -> 918.3799",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_carbon_intensity_change_pct",
+    "value": -26.2512,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(918.3799 - 1245.2817) / 1245.2817 * 100 = -26.2512%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_renewables_2000_pct",
+    "value": 46.9,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "IND year=2000",
+    "exact_extracted_quote": "IND 2000 value=46.9",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_renewables_2021_pct",
+    "value": 34.9,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "IND year=2021",
+    "exact_extracted_quote": "IND 2021 value=34.9",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "IND year=2024",
+    "exact_extracted_quote": "IND 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "ind_panel8_share_2024_pct",
+    "value": 13.4084,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "IND 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "3153.8291 / 23521.2633 * 100 = 13.4084%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_co2_2000_mt",
+    "value": 1243.5768,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN year=2000",
+    "exact_extracted_quote": "JPN 2000 value=1243.5768",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_co2_2024_mt",
+    "value": 972.267,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN year=2024",
+    "exact_extracted_quote": "JPN 2024 value=972.267",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN year=2025",
+    "exact_extracted_quote": "JPN 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_co2_change_pct",
+    "value": -21.8169,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN pct change 2000->2024",
+    "exact_extracted_quote": "(972.267 - 1243.5768) / 1243.5768 * 100 = -21.8169%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_co2_per_capita_2024_t",
+    "value": 7.8424,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "JPN year=2024",
+    "exact_extracted_quote": "JPN 2024 value=7.84242057238933",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_gdp_growth_2000_2024_pct",
+    "value": 16.7992,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "JPN constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(4708167683577.82 - 4030991750950.90) / 4030991750950.90 * 100 = 16.7992%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_carbon_intensity_2000",
+    "value": 308.5039,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=1243.5768 Mt, gdp=4030991750950.90 USD -> 308.5039",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_carbon_intensity_2024",
+    "value": 206.5065,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=972.267 Mt, gdp=4708167683577.82 USD -> 206.5065",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_carbon_intensity_change_pct",
+    "value": -33.0619,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(206.5065 - 308.5039) / 308.5039 * 100 = -33.0619%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_renewables_2000_pct",
+    "value": 3.7,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "JPN year=2000",
+    "exact_extracted_quote": "JPN 2000 value=3.7",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_renewables_2021_pct",
+    "value": 8.8,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "JPN year=2021",
+    "exact_extracted_quote": "JPN 2021 value=8.8",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "JPN year=2024",
+    "exact_extracted_quote": "JPN 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "jpn_panel8_share_2024_pct",
+    "value": 4.1336,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "JPN 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "972.267 / 23521.2633 * 100 = 4.1336%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_co2_2000_mt",
+    "value": 551.9584,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR year=2000",
+    "exact_extracted_quote": "GBR 2000 value=551.9584",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_co2_2024_mt",
+    "value": 292.4194,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR year=2024",
+    "exact_extracted_quote": "GBR 2024 value=292.4194",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR year=2025",
+    "exact_extracted_quote": "GBR 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_co2_change_pct",
+    "value": -47.0215,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR pct change 2000->2024",
+    "exact_extracted_quote": "(292.4194 - 551.9584) / 551.9584 * 100 = -47.0215%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_co2_per_capita_2024_t",
+    "value": 4.2208,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "GBR year=2024",
+    "exact_extracted_quote": "GBR 2024 value=4.22077337220883",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_gdp_growth_2000_2024_pct",
+    "value": 43.3961,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "GBR constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(3318626965006.66 - 2314307169243.88) / 2314307169243.88 * 100 = 43.3961%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_carbon_intensity_2000",
+    "value": 238.4983,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=551.9584 Mt, gdp=2314307169243.88 USD -> 238.4983",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_carbon_intensity_2024",
+    "value": 88.1146,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=292.4194 Mt, gdp=3318626965006.66 USD -> 88.1146",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_carbon_intensity_change_pct",
+    "value": -63.0544,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(88.1146 - 238.4983) / 238.4983 * 100 = -63.0544%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_renewables_2000_pct",
+    "value": 1.0,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "GBR year=2000",
+    "exact_extracted_quote": "GBR 2000 value=1.0",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_renewables_2021_pct",
+    "value": 12.2,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "GBR year=2021",
+    "exact_extracted_quote": "GBR 2021 value=12.2",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "GBR year=2024",
+    "exact_extracted_quote": "GBR 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "gbr_panel8_share_2024_pct",
+    "value": 1.2432,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "GBR 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "292.4194 / 23521.2633 * 100 = 1.2432%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_co2_2000_mt",
+    "value": 400.866,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA year=2000",
+    "exact_extracted_quote": "FRA 2000 value=400.866",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_co2_2024_mt",
+    "value": 274.4505,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA year=2024",
+    "exact_extracted_quote": "FRA 2024 value=274.4505",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA year=2025",
+    "exact_extracted_quote": "FRA 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_co2_change_pct",
+    "value": -31.5356,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA pct change 2000->2024",
+    "exact_extracted_quote": "(274.4505 - 400.866) / 400.866 * 100 = -31.5356%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_co2_per_capita_2024_t",
+    "value": 4.0036,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "FRA year=2024",
+    "exact_extracted_quote": "FRA 2024 value=4.00355772602595",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_gdp_growth_2000_2024_pct",
+    "value": 34.282,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "FRA constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(2720362347819.81 - 2025858476151.37) / 2025858476151.37 * 100 = 34.282%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_carbon_intensity_2000",
+    "value": 197.8746,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=400.866 Mt, gdp=2025858476151.37 USD -> 197.8746",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_carbon_intensity_2024",
+    "value": 100.8875,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=274.4505 Mt, gdp=2720362347819.81 USD -> 100.8875",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_carbon_intensity_change_pct",
+    "value": -49.0144,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(100.8875 - 197.8746) / 197.8746 * 100 = -49.0144%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_renewables_2000_pct",
+    "value": 9.3,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "FRA year=2000",
+    "exact_extracted_quote": "FRA 2000 value=9.3",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_renewables_2021_pct",
+    "value": 16.2,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "FRA year=2021",
+    "exact_extracted_quote": "FRA 2021 value=16.2",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "FRA year=2024",
+    "exact_extracted_quote": "FRA 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "fra_panel8_share_2024_pct",
+    "value": 1.1668,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "FRA 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "274.4505 / 23521.2633 * 100 = 1.1668%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_co2_2000_mt",
+    "value": 349.4076,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA year=2000",
+    "exact_extracted_quote": "BRA 2000 value=349.4076",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_co2_2024_mt",
+    "value": 491.4688,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA year=2024",
+    "exact_extracted_quote": "BRA 2024 value=491.4688",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_co2_2025_mt",
+    "value": null,
+    "unit": "Mt CO2e",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA year=2025",
+    "exact_extracted_quote": "BRA 2025 value=None (unreported in WDI)",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_co2_change_pct",
+    "value": 40.6577,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA pct change 2000->2024",
+    "exact_extracted_quote": "(491.4688 - 349.4076) / 349.4076 * 100 = 40.6577%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_co2_per_capita_2024_t",
+    "value": 2.3183,
+    "unit": "t CO2e/capita",
+    "source_document": "data/raw/wb_co2_per_capita.json",
+    "source_locator": "BRA year=2024",
+    "exact_extracted_quote": "BRA 2024 value=2.31826466114939",
+    "raw_file_sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_gdp_growth_2000_2024_pct",
+    "value": 70.946,
+    "unit": "%",
+    "source_document": "data/raw/wb_gdp_const2015.json",
+    "source_locator": "BRA constant-2015 GDP growth 2000->2024",
+    "exact_extracted_quote": "(2028136327872.37 - 1186419100640.61) / 1186419100640.61 * 100 = 70.946%",
+    "raw_file_sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_carbon_intensity_2000",
+    "value": 294.506,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA year=2000 CO2/GDP",
+    "exact_extracted_quote": "co2=349.4076 Mt, gdp=1186419100640.61 USD -> 294.506",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_carbon_intensity_2024",
+    "value": 242.3253,
+    "unit": "t CO2e / $1M const-2015 USD",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA year=2024 CO2/GDP",
+    "exact_extracted_quote": "co2=491.4688 Mt, gdp=2028136327872.37 USD -> 242.3253",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_carbon_intensity_change_pct",
+    "value": -17.718,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA carbon intensity change 2000->2024",
+    "exact_extracted_quote": "(242.3253 - 294.506) / 294.506 * 100 = -17.718%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_renewables_2000_pct",
+    "value": 42.7,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "BRA year=2000",
+    "exact_extracted_quote": "BRA 2000 value=42.7",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_renewables_2021_pct",
+    "value": 46.5,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "BRA year=2021",
+    "exact_extracted_quote": "BRA 2021 value=46.5",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_renewables_2024_pct",
+    "value": null,
+    "unit": "%",
+    "source_document": "data/raw/wb_renewables_share.json",
+    "source_locator": "BRA year=2024",
+    "exact_extracted_quote": "BRA 2024 value=None (unreported in WDI)",
+    "raw_file_sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
+    "parser_script": "scripts/process_data.py"
+  },
+  {
+    "metric_id": "bra_panel8_share_2024_pct",
+    "value": 2.0895,
+    "unit": "%",
+    "source_document": "data/raw/wb_co2_total_mt.json",
+    "source_locator": "BRA 2024 share of 8-economy CO2",
+    "exact_extracted_quote": "491.4688 / 23521.2633 * 100 = 2.0895%",
+    "raw_file_sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
+    "parser_script": "scripts/process_data.py"
+  }
+]
