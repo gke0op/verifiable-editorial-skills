@@ -122,7 +122,30 @@ Use a subclass of `reportlab.pdfgen.canvas.Canvas` saving page state dicts in `s
 
 ---
 
-## 5. Supporting References & Runnable Examples
+## 5. 2023 Consulting Flagship Mode (WeasyPrint + Pure Vector Inline SVG)
+
+For keynote-grade decks modeled on flagship 2023 institutional publications (*Quantum Technology Monitor*, *The Economic Potential of Generative AI*, *Global Economics Intelligence*, *The State of Organizations*), pair **WeasyPrint (`@page { size: 960pt 540pt; margin: 0; }`)** with **100% pure-vector inline `<svg>` exhibits**:
+
+1. **Dark-Hero / Pure-White-Data Polarity Cadence (Never Monotone):**
+   - **Cover Hero:** Deep Midnight Navy (`#051C2C`) transitioning to Cobalt (`#0A2E8A`), overlaid with a **42-strand parametric hyperbolic Bezier wireframe wave** (`#2251FF` / `#00A9F4`) and clean editorial hero art on the right.
+   - **Executive Summary:** Full-bleed `#051C2C`, crisp `28 pt` white serif headline over a `1.2 pt` white horizontal rule, 3 airy sans columns, and 3 giant cyan/blue serif KPIs.
+   - **Split Chapter Dividers:** Top `48%` full-bleed luminous artwork anchored by a `120 pt` bold white serif numeral (`1`, `2`), bottom `52%` pure white with `220 pt` left-indented serif chapter headline and 2-column framing copy.
+   - **Data Exhibit Slides:** Pure `#FFFFFF` canvas, `19.5–22 pt` bold serif action title above a `1.1 pt` `#051C2C` rule, subtle bottom footnote separator, and a **bottom-right `#9AE6FF` ice-cyan section progress pill**.
+2. **High-Contrast Editorial Serif + Geometric Sans Pairing:**
+   - **Display Serif (`Charter` / `Georgia` / `Baskerville` Bold):** Cover titles, section numerals, slide action titles, giant `54 pt` `#2251FF` KPI callouts, and center donut totals.
+   - **Data Sans (`Inter` / `Helvetica Neue`):** Chart annotations, subtitles, ledger cells, footnotes, and implications copy.
+3. **The 4-Tier McKinsey Blue Chromatic Ramp (Zero Rainbow Clutter):**
+   - `#051C2C` Midnight Navy (anchor totals, baselines, deep contractions) → `#06319C` Deep Royal → `#2251FF` Electric Blue (focal deltas, giant KPIs, expansion surges) → `#00A9F4` Vivid Cyan → `#9AE6FF` Ice Cyan (secondary shares & section pills).
+4. **Signature Vector SVG Exhibit Archetypes:**
+   - **Mass-Balance Waterfall / Bridge Chart:** Anchor bars (`#051C2C`), floating additions (`#2251FF`) and reductions (`#00A9F4`), dashed step connectors, top square-bracket span callouts, and floating serif net delta.
+   - **Small-Multiples Wall + Grey `»` Implications Sidebar:** Grouped `5 + 3` indexed trajectory cards paired with a right-hand `#EFEFEF` sidebar bridged by a circular `#051C2C` `»` chevron badge (`3 pt` white ring).
+   - **10×10 Rounded-Square Waffle Unit Matrix:** Bottom-up filled `10×10` grids (`#E5E7EB` track, 4-tier blue fill) with centered bold numerals inside the gray negative space.
+   - **Donut Ring + 100% Stacked Share Shift:** 5-step blue donut (`2 px` white slice dividers, serif center total) paired with `2000` vs `2024` columns linked by translucent flow ribbons.
+   - **WeasyPrint SVG Guardrails:** Inside flex containers, always give inline `<svg>` explicit `width`/`height` in `pt` (and set `.slide { height: 539.5pt; break-after: page; break-inside: avoid; }`) to prevent sub-pixel blank spill pages or `300 px` SVG collapse. Never use SVG 2 `paint-order="stroke"` on `<text>` in WeasyPrint (it strokes *over* the text fill); use clean label offsets or an explicit backdrop `<rect>` instead.
+
+---
+
+## 6. Supporting References & Runnable Examples
 - `references/design_laws_and_lexicon.md` — Extended design grammar, Gestalt spacing, and institutional style lexicon.
 - `references/image_generation_recipes.md` — Fixed-spec visual continuity prompts for multi-asset cover/architecture illustrations.
 - `examples/reportlab_premium_template.py` — Clean, runnable dual-mode (`--mode dark|light`) & dual-format (`--format 16x9|letter`) starter template with full-bleed background painting, safe Inter registration, hairline KPI strips, and Tufte ledgers.

@@ -53,12 +53,12 @@ def audit_pdf(
 
         for img in page.get_images(full=True):
             for r in page.get_image_rects(img[0]):
-                if r.width < pw * 0.98 and r.height < ph * 0.98:
+                if r.width < pw * 0.95 and r.height < ph * 0.95:
                     boxes.append((r.x0, r.y0, r.x1, r.y1))
 
         for d in page.get_drawings():
             r = d["rect"]
-            if r.width >= pw * 0.95 and r.height >= ph * 0.95:
+            if r.width >= pw * 0.95 or r.height >= ph * 0.95:
                 continue
             if r.y0 >= top_folio_y and r.y1 <= bot_folio_y and (r.height > 1.5 or r.width > 40):
                 boxes.append((r.x0, r.y0, r.x1, r.y1))

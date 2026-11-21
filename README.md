@@ -10,7 +10,17 @@ Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cu
 
 All showcase decks and reports are compiled from live **NOAA Global Monitoring Laboratory** (`1958–2026`, 824 monthly observations) and **World Bank WDI** (`2000–2025`, 8 major economies) datasets—sealed with SHA-256 hashes, validated against physical & exact accounting identities, registered in an atomic provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF.
 
-### Demo 1 — 9-Slide Dual-Theme Visual Keynote ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
+### Demo 1 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
+
+Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum Technology Monitor*, *The Economic Potential of Generative AI*, *Global Economics Intelligence*, *The State of Organizations*): dark-midnight `#051C2C` hero & executive summary with a 42-strand parametric Bezier wave, split chapter divider, editorial serif (`Charter`/`Georgia`) + `Inter` pairing, 4-tier blue chromatic ramp, and 100% pure-vector inline SVG exhibits ([`MCKINSEY_2023_FLAGSHIP_DECK.pdf`](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf)):
+
+| Midnight Cover + Parametric Wave | Signature Mass-Balance Waterfall Bridge |
+| :---: | :---: |
+| ![Flagship Slide 1](demos/mckinsey-2023-flagship/previews/flagship_slide_01.png) | ![Flagship Slide 5](demos/mckinsey-2023-flagship/previews/flagship_slide_05.png) |
+| **8-Economy Small Multiples + `»` Implications Sidebar** | **10×10 Waffle Unit-Matrix + Per-Capita Shift** |
+| ![Flagship Slide 6](demos/mckinsey-2023-flagship/previews/flagship_slide_06.png) | ![Flagship Slide 8](demos/mckinsey-2023-flagship/previews/flagship_slide_08.png) |
+
+### Demo 2 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
 
 Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf)) and a Light Swiss-Ivory boardroom deck ([`CARBON_KEYNOTE_16x9_LIGHT.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf)) from a single `--theme dark|light` compiler across 7 distinct 300-DPI exhibits (165 verified provenance tuples):
 
@@ -20,7 +30,7 @@ Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK
 | **Marimekko Pop × Per-Capita & Rank Inversion (Light)** | **24-Year Annual YoY Momentum Matrix Heatmap (Dark)** |
 | ![Keynote Light Slide 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) | ![Keynote Dark Slide 7](demos/carbon-keynote-9slide/previews/dark_slide_07.png) |
 
-### Demo 2 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
+### Demo 3 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
 
 Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)) and 6-slide Dark Executive summary deck ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf)):
 
@@ -78,6 +88,7 @@ pip install -r requirements.txt
 # (Falls back cleanly to Helvetica if omitted)
 export INTER_FONT_DIR=/path/to/inter/ttf
 
+bash demos/mckinsey-2023-flagship/run_pipeline.sh
 bash demos/carbon-keynote-9slide/run_pipeline.sh
 bash demos/global-carbon-telemetry/run_pipeline.sh
 ```
