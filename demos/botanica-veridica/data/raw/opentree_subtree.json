@@ -1,0 +1,29 @@
+{
+  "broken": {},
+  "newick": "(((((((((((((((((((((((((((((((((((((((((Adansonia_digitata_ott659136)mrcaott659136ott5233050)mrcaott84768ott659136)'Adansonia (genus in kingdom Archaeplastida) ott659137')mrcaott5545ott84768)mrcaott5545ott183883)mrcaott5545ott5562)mrcaott5545ott682920)mrcaott3190ott5545)mrcaott3190ott253263)mrcaott3190ott578280)mrcaott3190ott5548)mrcaott3190ott123043)Malvaceae_ott279960)mrcaott3190ott8010)mrcaott1697ott3190)mrcaott1697ott247869)Malvales_ott229284)mrcaott1697ott292616)mrcaott378ott1697)mrcaott96ott378)mrcaott2ott96)mrcaott2ott29446)mrcaott2ott345)mrcaott2ott50744)mrcaott2ott371)mrcaott2ott1276)mrcaott2ott607)mrcaott2ott2464)mrcaott2ott8384)mrcaott2ott20991,((((((Dionaea_muscipula_ott14971)'Dionaea (genus in kingdom Archaeplastida) ott14965')mrcaott14971ott857648)Droseraceae_ott14966)mrcaott6468ott14957)mrcaott2492ott6468)Caryophyllales_ott216628)mrcaott2ott557)mrcaott2ott248)mrcaott2ott10053)mrcaott2ott8379)mrcaott2ott969)mrcaott2ott2441)Mesangiospermae_ott5298374)mrcaott2ott35778,(((((((Victoria_amazonica_ott133752)'Victoria (genus in kingdom Archaeplastida) ott10937')mrcaott10939ott442293)mrcaott2645ott10939)mrcaott2645ott219553)Nymphaeaceae_ott583541)mrcaott2645ott10943)Nymphaeales_ott927972)mrcaott2ott2645)Magnoliopsida_ott99252,(((((((((((((Sequoia_sempervirens_ott538150)Sequoia_ott212370)mrcaott538150ott810380)mrcaott47954ott538150)mrcaott8456ott47954)mrcaott8456ott751748)mrcaott8456ott238581)Cupressaceae_ott620757)mrcaott8456ott10224)Cupressales_ott5435764)mrcaott237ott8456,(((((Welwitschia_mirabilis_ott47947)Welwitschia_ott47948)Welwitschiaceae_ott47949)Welwitschiales_ott47950)mrcaott22198ott47947)Gnetidae_ott5422413)mrcaott237ott22198)mrcaott237ott8444,(((((Ginkgo_biloba_ott994084)Ginkgo_ott950165)Ginkgoaceae_ott616599)Ginkgoales_ott616598)Ginkgoidae_ott5422412)mrcaott11392ott994084)Acrogymnospermae_ott5296507)Spermatophyta_ott10218;",
+  "supporting_studies": [
+    "ot_311@tree1",
+    "ot_1624@Tr85668",
+    "ot_2291@tree7",
+    "ot_2304@tree2",
+    "ot_502@tree1",
+    "ot_535@tree1",
+    "pg_2712@tree6296",
+    "pg_2820@tree6566",
+    "pg_2539@tree6294",
+    "ot_2304@tree4",
+    "ot_1176@tree1",
+    "ot_1417@Tr94055",
+    "ot_2116@tree1",
+    "ot_859@tree1",
+    "pg_1242@tree2507",
+    "ot_1489@tree2",
+    "ot_1960@tree2",
+    "ot_3073@tree1",
+    "pg_225@tree5991",
+    "pg_412@tree2166",
+    "ot_1489@tree4",
+    "pg_2642@tree6161",
+    "pg_787@tree1489"
+  ]
+}

@@ -1,22 +1,23 @@
 ---
 name: verifiable-pdf-pipeline
 description: >-
-  Turnkey open-data verification pipeline for publication-grade PDF presentations and institutional reports.
-  Enforces 8 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests, Pydantic domain
-  bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling, and compilation latching.
+  Turnkey open-data verification pipeline for publication-grade PDF presentations, institutional reports, and
+  scientific monographs. Enforces 9 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
+  Pydantic domain bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling,
+  compilation latching, scientific taxonomy verification, and background-sampled WCAG contrast auditing.
 ---
 
 # Verifiable Factual PDF & Data Presentation Pipeline
 
-This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes data presentations, institutional whitepapers, and executive dossiers. It enforces an absolute **Zero-Mock Data Invariant** backed by automated verification gates.
+This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes data presentations, institutional whitepapers, scientific natural-history monographs, and executive dossiers. It enforces an absolute **Zero-Mock Data Invariant** backed by automated verification gates.
 
 Every published number must be streamed from genuine upstream sources into immutable raw files, validated against physical and accounting invariants, registered in an atomic provenance ledger, independently re-parsed from raw inputs without circular assertions, and visually audited post-render.
 
 ---
 
-## The 8 Inviolable Anti-Cheat Rules
+## The 9 Inviolable Anti-Cheat Rules
 
-These rules apply unconditionally across domains—macroeconomics, climate telemetry, energy grids, logistics, finance, semiconductors, or healthcare:
+These rules apply unconditionally across domains—macroeconomics, climate telemetry, botany/biodiversity, energy grids, logistics, finance, semiconductors, or healthcare:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -53,6 +54,13 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 │ Rule 8: Primary Regulatory & Statutory Proof                           │
 │         No statute, tax, or mandate cited without official gazette ID  │
 │         and explicit scope (active law vs. proposed legislation).      │
+├────────────────────────────────────────────────────────────────────────┤
+│ Rule 9: Scientific Taxonomy & Registry Verification                    │
+│         In biological/natural-history publications, every binomial,    │
+│         botanical/zoological authority, Family, Order, phylogenetic    │
+│         node, and IUCN code must be reconciled verbatim from live      │
+│         authoritative registries (GBIF Backbone, Open Tree of Life,    │
+│         iNaturalist) — unlinked statuses stay explicit [N/A].          │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -161,6 +169,8 @@ Copy and adapt the tested, production-hardened scripts in `templates/`:
 - **`templates/validate_reality.py`**: Pydantic v2 domain validator with sentinel-to-null handling and cross-field physics/accounting checks.
 - **`templates/verify_integrity.py`**: Full Phase 4 Veto Gate implementing SHA-256 manifest verification, a Python `ast` Rule 3 literal-assertion linter, 100% provenance ledger coverage verification, and raw-source cross-checking.
 - **`templates/audit_pdf.py`**: Post-render PyMuPDF (`fitz`) layout auditor measuring combined text blocks, embedded images, and non-background vector drawings across both **Letter portrait (`612×792 pt`)** and **16:9 widescreen (`960×540 pt`)** layouts, plus automatic PNG preview export.
+- **`templates/audit_contrast.py`**: Background-sampled **WCAG 2.1 contrast auditor** that strips `BT...ET` text streams in an in-memory PDF clone, renders a text-free background raster at 72 DPI, and samples actual pixels behind every text span's bounding box (accurately auditing dark modes, gradients, and photo overlays).
+- **`templates/render_spreads.py`**: Facing-spread contact-sheet assembler that stitches interior facing pages (`[2|3]`, `[4|5]`, …) onto an archival desk mat with a realistic central spine-gutter shadow for true spread-level visual QA.
 
 ## Compilation Latch Pattern (Rule 6)
 

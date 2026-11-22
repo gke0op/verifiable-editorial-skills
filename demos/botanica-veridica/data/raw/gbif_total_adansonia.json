@@ -1,0 +1,97 @@
+{
+  "count": 14290,
+  "facets": [
+    {
+      "counts": [
+        {
+          "count": 12229,
+          "name": "HUMAN_OBSERVATION"
+        },
+        {
+          "count": 1667,
+          "name": "PRESERVED_SPECIMEN"
+        },
+        {
+          "count": 198,
+          "name": "LIVING_SPECIMEN"
+        },
+        {
+          "count": 109,
+          "name": "MATERIAL_SAMPLE"
+        },
+        {
+          "count": 57,
+          "name": "OCCURRENCE"
+        },
+        {
+          "count": 16,
+          "name": "MACHINE_OBSERVATION"
+        },
+        {
+          "count": 9,
+          "name": "MATERIAL_CITATION"
+        },
+        {
+          "count": 5,
+          "name": "FOSSIL_SPECIMEN"
+        }
+      ],
+      "field": "BASIS_OF_RECORD"
+    },
+    {
+      "counts": [
+        {
+          "count": 4475,
+          "name": "BJ"
+        },
+        {
+          "count": 1669,
+          "name": "ZA"
+        },
+        {
+          "count": 1212,
+          "name": "TZ"
+        },
+        {
+          "count": 1022,
+          "name": "MW"
+        },
+        {
+          "count": 627,
+          "name": "BW"
+        },
+        {
+          "count": 580,
+          "name": "SN"
+        },
+        {
+          "count": 547,
+          "name": "ZW"
+        },
+        {
+          "count": 542,
+          "name": "BF"
+        },
+        {
+          "count": 351,
+          "name": "KE"
+        },
+        {
+          "count": 327,
+          "name": "NA"
+        },
+        {
+          "count": 219,
+          "name": "ZM"
+        },
+        {
+          "count": 199,
+          "name": "MZ"
+        }
+      ],
+      "field": "COUNTRY"
+    }
+  ],
+  "source_url": "https://api.gbif.org/v1/occurrence/search?taxonKey=5406695&limit=0&facet=basisOfRecord&facet=country&facetLimit=12",
+  "taxonKey": 5406695
+}

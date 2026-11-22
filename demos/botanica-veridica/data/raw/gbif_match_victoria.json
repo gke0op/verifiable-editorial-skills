@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Victoria amazonica",
+  "class": "Magnoliopsida",
+  "classKey": 220,
+  "confidence": 99,
+  "family": "Nymphaeaceae",
+  "familyKey": 2423,
+  "genus": "Victoria",
+  "genusKey": 7486634,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Nymphaeales",
+  "orderKey": 636,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Victoria amazonica (Poepp.) Sowerby",
+  "species": "Victoria amazonica",
+  "speciesKey": 5553148,
+  "status": "ACCEPTED",
+  "usageKey": 5553148
+}

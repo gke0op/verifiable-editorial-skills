@@ -1,0 +1,57 @@
+{
+  "page": 1,
+  "per_page": 5,
+  "results": [
+    {
+      "ancestor_ids": [
+        48460,
+        47126,
+        211194,
+        151883,
+        153151,
+        64618,
+        53818,
+        53821
+      ],
+      "ancestry": "48460/47126/211194/151883/153151/64618/53818",
+      "atlas_id": 11942,
+      "complete_species_count": null,
+      "current_synonymous_taxon_ids": null,
+      "default_photo": {
+        "attribution": "(c) Emanuele Biggi, all rights reserved, uploaded by Emanuele Biggi",
+        "attribution_name": "Emanuele Biggi",
+        "flags": [],
+        "id": 8752258,
+        "license_code": null,
+        "medium_url": "https://static.inaturalist.org/photos/8752258/medium.jpg",
+        "original_dimensions": {
+          "height": 1536,
+          "width": 2048
+        },
+        "square_url": "https://static.inaturalist.org/photos/8752258/square.jpg",
+        "url": "https://static.inaturalist.org/photos/8752258/square.jpg"
+      },
+      "extinct": false,
+      "flag_counts": {
+        "resolved": 2,
+        "unresolved": 0
+      },
+      "iconic_taxon_id": 47126,
+      "iconic_taxon_name": "Plantae",
+      "id": 53821,
+      "is_active": true,
+      "matched_term": "Welwitschia mirabilis mirabilis",
+      "name": "Welwitschia mirabilis",
+      "observations_count": 1465,
+      "parent_id": 53818,
+      "preferred_common_name": "Welwitschia",
+      "provisional": false,
+      "rank": "species",
+      "rank_level": 10,
+      "taxon_changes_count": 1,
+      "taxon_schemes_count": 1,
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Welwitschia"
+    }
+  ],
+  "total_results": 1
+}

@@ -1,0 +1,229 @@
+{
+  "pdf": "BOTANICA_VERIDICA_MONOGRAPH.pdf",
+  "page_count": 10,
+  "bookmark_count": 10,
+  "total_links": 75,
+  "plate_pages_min_photo_pct": 55.93,
+  "plate_pages_avg_photo_pct": 63.64,
+  "wcag_total_violations": 0,
+  "wcag_worst_contrast_ratio": 4.98,
+  "facing_spreads_rendered": [
+    "spread_02_03.png",
+    "spread_04_05.png",
+    "spread_06_07.png",
+    "spread_08_09.png"
+  ],
+  "passed": true,
+  "failures": [],
+  "pages": [
+    {
+      "page": 1,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 99.41,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R",
+        "T"
+      ],
+      "links_count": 45,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 34,
+        "min_contrast_ratio": 11.62,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 2,
+      "is_plate_page": false,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 0,
+      "visible_photo_coverage_pct": 0.0,
+      "bleed_edges": [],
+      "links_count": 0,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 70,
+        "min_contrast_ratio": 5.51,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 3,
+      "is_plate_page": false,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 0,
+      "visible_photo_coverage_pct": 0.0,
+      "bleed_edges": [],
+      "links_count": 0,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 78,
+        "min_contrast_ratio": 4.98,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 4,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 56.0,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 70,
+        "min_contrast_ratio": 5.32,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 5,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 61.07,
+      "bleed_edges": [
+        "B",
+        "R",
+        "T"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 59,
+        "min_contrast_ratio": 5.74,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 6,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 2,
+      "visible_photo_coverage_pct": 55.93,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 48,
+        "min_contrast_ratio": 7.17,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 7,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 56.0,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 58,
+        "min_contrast_ratio": 5.35,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 8,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 56.0,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 71,
+        "min_contrast_ratio": 6.66,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 9,
+      "is_plate_page": true,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 61.08,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R"
+      ],
+      "links_count": 1,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 55,
+        "min_contrast_ratio": 5.8,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    },
+    {
+      "page": 10,
+      "is_plate_page": false,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 0,
+      "visible_photo_coverage_pct": 0.0,
+      "bleed_edges": [],
+      "links_count": 24,
+      "text_overflow": false,
+      "wcag": {
+        "checked_spans": 132,
+        "min_contrast_ratio": 6.01,
+        "violation_count": 0,
+        "violations": []
+      },
+      "pass": true
+    }
+  ]
+}

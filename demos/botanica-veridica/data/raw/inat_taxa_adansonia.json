@@ -1,0 +1,59 @@
+{
+  "page": 1,
+  "per_page": 5,
+  "results": [
+    {
+      "ancestor_ids": [
+        48460,
+        47126,
+        211194,
+        47125,
+        47124,
+        48796,
+        48797,
+        520305,
+        81507,
+        81500
+      ],
+      "ancestry": "48460/47126/211194/47125/47124/48796/48797/520305/81507",
+      "atlas_id": null,
+      "complete_species_count": null,
+      "current_synonymous_taxon_ids": null,
+      "default_photo": {
+        "attribution": "(c) leuli, some rights reserved (CC BY-NC)",
+        "attribution_name": "leuli",
+        "flags": [],
+        "id": 249827419,
+        "license_code": "cc-by-nc",
+        "medium_url": "https://inaturalist-open-data.s3.amazonaws.com/photos/249827419/medium.jpeg",
+        "original_dimensions": {
+          "height": 1536,
+          "width": 2048
+        },
+        "square_url": "https://inaturalist-open-data.s3.amazonaws.com/photos/249827419/square.jpeg",
+        "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/249827419/square.jpeg"
+      },
+      "extinct": false,
+      "flag_counts": {
+        "resolved": 1,
+        "unresolved": 0
+      },
+      "iconic_taxon_id": 47126,
+      "iconic_taxon_name": "Plantae",
+      "id": 81500,
+      "is_active": true,
+      "matched_term": "Adansonia digitata",
+      "name": "Adansonia digitata",
+      "observations_count": 8902,
+      "parent_id": 81507,
+      "preferred_common_name": "African baobab",
+      "provisional": false,
+      "rank": "species",
+      "rank_level": 10,
+      "taxon_changes_count": 1,
+      "taxon_schemes_count": 1,
+      "wikipedia_url": "http://en.wikipedia.org/wiki/Adansonia_digitata"
+    }
+  ],
+  "total_results": 1
+}

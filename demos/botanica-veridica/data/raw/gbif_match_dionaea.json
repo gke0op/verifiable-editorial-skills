@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Dionaea muscipula",
+  "class": "Magnoliopsida",
+  "classKey": 220,
+  "confidence": 99,
+  "family": "Droseraceae",
+  "familyKey": 5399,
+  "genus": "Dionaea",
+  "genusKey": 3191248,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Caryophyllales",
+  "orderKey": 422,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Dionaea muscipula Ellis",
+  "species": "Dionaea muscipula",
+  "speciesKey": 5421410,
+  "status": "ACCEPTED",
+  "usageKey": 5421410
+}

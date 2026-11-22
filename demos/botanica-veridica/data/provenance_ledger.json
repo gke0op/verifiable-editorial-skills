@@ -1,0 +1,583 @@
+{
+  "ginkgo.gbif_usage_key": {
+    "value": 2687885,
+    "source_file": "data/raw/gbif_match_ginkgo.json",
+    "source_sha256": "09d642609bf45d1d0bcb054fa90c2dcce8c193babb8aeee2952ff111a2e6a622",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=2687885 (Ginkgo biloba L.)"
+  },
+  "ginkgo.family": {
+    "value": "Ginkgoaceae",
+    "source_file": "data/raw/gbif_match_ginkgo.json",
+    "source_sha256": "09d642609bf45d1d0bcb054fa90c2dcce8c193babb8aeee2952ff111a2e6a622",
+    "locator": "$.family",
+    "excerpt": "family=Ginkgoaceae"
+  },
+  "ginkgo.order": {
+    "value": "Ginkgoales",
+    "source_file": "data/raw/gbif_match_ginkgo.json",
+    "source_sha256": "09d642609bf45d1d0bcb054fa90c2dcce8c193babb8aeee2952ff111a2e6a622",
+    "locator": "$.order",
+    "excerpt": "order=Ginkgoales"
+  },
+  "ginkgo.opentree_ott_id": {
+    "value": 994084,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Ginkgo biloba].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=994084"
+  },
+  "ginkgo.iucn_effective_code": {
+    "value": "EN",
+    "source_file": "data/raw/gbif_iucn_ginkgo.json",
+    "source_sha256": "0b5585be1d5d65de4a0a9895817c6230e3179e98005c49ec51993ab2993b8356",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=EN, inat=EN"
+  },
+  "ginkgo.gbif_total_occurrences": {
+    "value": 64896,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "$.count",
+    "excerpt": "count=64896"
+  },
+  "ginkgo.gbif_georeferenced_occurrences": {
+    "value": 60010,
+    "source_file": "data/raw/gbif_occ_ginkgo.json",
+    "source_sha256": "d904e7acd03aba75fb2d86f2a5251281a010c84652a88e37285dd670675b9d11",
+    "locator": "$.count",
+    "excerpt": "georeferenced=60010"
+  },
+  "ginkgo.gbif_preserved_specimens": {
+    "value": 4677,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=4677"
+  },
+  "ginkgo.gbif_human_observations": {
+    "value": 55678,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=55678"
+  },
+  "ginkgo.herbarium_share_pct": {
+    "value": 7.21,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "4677/64896=7.21%"
+  },
+  "ginkgo.inat_observations_total": {
+    "value": 49051,
+    "source_file": "data/raw/inat_taxa_ginkgo.json",
+    "source_sha256": "40a121c468dfcbd92e85f994a138aa58675c9a2bcfc7529b696134ad27d60751",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=49051"
+  },
+  "ginkgo.inat_flowering_total": {
+    "value": 0,
+    "source_file": "data/raw/inat_hist_flowering_ginkgo.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=0"
+  },
+  "ginkgo.inat_peak_flowering_month": {
+    "value": null,
+    "source_file": "data/raw/inat_hist_flowering_ginkgo.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=None (n=0)"
+  },
+  "welwitschia.gbif_usage_key": {
+    "value": 5275521,
+    "source_file": "data/raw/gbif_match_welwitschia.json",
+    "source_sha256": "f95c21e0a455f80c699645e29ddfb2ab89c2b15b94c160593681fde24f6cc8c6",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=5275521 (Welwitschia mirabilis Hook.f.)"
+  },
+  "welwitschia.family": {
+    "value": "Welwitschiaceae",
+    "source_file": "data/raw/gbif_match_welwitschia.json",
+    "source_sha256": "f95c21e0a455f80c699645e29ddfb2ab89c2b15b94c160593681fde24f6cc8c6",
+    "locator": "$.family",
+    "excerpt": "family=Welwitschiaceae"
+  },
+  "welwitschia.order": {
+    "value": "Welwitschiales",
+    "source_file": "data/raw/gbif_match_welwitschia.json",
+    "source_sha256": "f95c21e0a455f80c699645e29ddfb2ab89c2b15b94c160593681fde24f6cc8c6",
+    "locator": "$.order",
+    "excerpt": "order=Welwitschiales"
+  },
+  "welwitschia.opentree_ott_id": {
+    "value": 47947,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Welwitschia mirabilis].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=47947"
+  },
+  "welwitschia.iucn_effective_code": {
+    "value": null,
+    "source_file": "data/raw/inat_taxa_welwitschia.json",
+    "source_sha256": "f89579414f3845ff00d3e5b192245b592214d45609ddfa0b44ed1bffd4a71c9d",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=NE, inat=None"
+  },
+  "welwitschia.gbif_total_occurrences": {
+    "value": 1515,
+    "source_file": "data/raw/gbif_total_welwitschia.json",
+    "source_sha256": "43818987da227fe430001affa241929db6c513ee390ca62ab7e97c74ce665111",
+    "locator": "$.count",
+    "excerpt": "count=1515"
+  },
+  "welwitschia.gbif_georeferenced_occurrences": {
+    "value": 996,
+    "source_file": "data/raw/gbif_occ_welwitschia.json",
+    "source_sha256": "3d160ed4967185297382d85e048308fe42fc2ca6b4c483462bdc7649d4e43f2e",
+    "locator": "$.count",
+    "excerpt": "georeferenced=996"
+  },
+  "welwitschia.gbif_preserved_specimens": {
+    "value": 384,
+    "source_file": "data/raw/gbif_total_welwitschia.json",
+    "source_sha256": "43818987da227fe430001affa241929db6c513ee390ca62ab7e97c74ce665111",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=384"
+  },
+  "welwitschia.gbif_human_observations": {
+    "value": 922,
+    "source_file": "data/raw/gbif_total_welwitschia.json",
+    "source_sha256": "43818987da227fe430001affa241929db6c513ee390ca62ab7e97c74ce665111",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=922"
+  },
+  "welwitschia.herbarium_share_pct": {
+    "value": 25.35,
+    "source_file": "data/raw/gbif_total_welwitschia.json",
+    "source_sha256": "43818987da227fe430001affa241929db6c513ee390ca62ab7e97c74ce665111",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "384/1515=25.35%"
+  },
+  "welwitschia.inat_observations_total": {
+    "value": 1465,
+    "source_file": "data/raw/inat_taxa_welwitschia.json",
+    "source_sha256": "f89579414f3845ff00d3e5b192245b592214d45609ddfa0b44ed1bffd4a71c9d",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=1465"
+  },
+  "welwitschia.inat_flowering_total": {
+    "value": 0,
+    "source_file": "data/raw/inat_hist_flowering_welwitschia.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=0"
+  },
+  "welwitschia.inat_peak_flowering_month": {
+    "value": null,
+    "source_file": "data/raw/inat_hist_flowering_welwitschia.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=None (n=0)"
+  },
+  "sequoia.gbif_usage_key": {
+    "value": 2683909,
+    "source_file": "data/raw/gbif_match_sequoia.json",
+    "source_sha256": "d3cc4834ae4675cfc797a84b778b59eda8cf27e56931e3526d73b1283f14d25d",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=2683909 (Sequoia sempervirens (D.Don) Endl.)"
+  },
+  "sequoia.family": {
+    "value": "Cupressaceae",
+    "source_file": "data/raw/gbif_match_sequoia.json",
+    "source_sha256": "d3cc4834ae4675cfc797a84b778b59eda8cf27e56931e3526d73b1283f14d25d",
+    "locator": "$.family",
+    "excerpt": "family=Cupressaceae"
+  },
+  "sequoia.order": {
+    "value": "Pinales",
+    "source_file": "data/raw/gbif_match_sequoia.json",
+    "source_sha256": "d3cc4834ae4675cfc797a84b778b59eda8cf27e56931e3526d73b1283f14d25d",
+    "locator": "$.order",
+    "excerpt": "order=Pinales"
+  },
+  "sequoia.opentree_ott_id": {
+    "value": 538150,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Sequoia sempervirens].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=538150"
+  },
+  "sequoia.iucn_effective_code": {
+    "value": "EN",
+    "source_file": "data/raw/gbif_iucn_sequoia.json",
+    "source_sha256": "969b185144fd48a4e1c51cfcab2bd411306b1ec39d933c8bef3309ee65d7757e",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=EN, inat=EN"
+  },
+  "sequoia.gbif_total_occurrences": {
+    "value": 28346,
+    "source_file": "data/raw/gbif_total_sequoia.json",
+    "source_sha256": "e1f323c46d6ce46e17ad07ba9963f64e420406916dbef1f1e40e577af06ea9bc",
+    "locator": "$.count",
+    "excerpt": "count=28346"
+  },
+  "sequoia.gbif_georeferenced_occurrences": {
+    "value": 25889,
+    "source_file": "data/raw/gbif_occ_sequoia.json",
+    "source_sha256": "a389a9ca4f4d8fb423265e1be5226bf0b4ed3cca4012253ad2467bd49eb42b5c",
+    "locator": "$.count",
+    "excerpt": "georeferenced=25889"
+  },
+  "sequoia.gbif_preserved_specimens": {
+    "value": 3119,
+    "source_file": "data/raw/gbif_total_sequoia.json",
+    "source_sha256": "e1f323c46d6ce46e17ad07ba9963f64e420406916dbef1f1e40e577af06ea9bc",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=3119"
+  },
+  "sequoia.gbif_human_observations": {
+    "value": 24919,
+    "source_file": "data/raw/gbif_total_sequoia.json",
+    "source_sha256": "e1f323c46d6ce46e17ad07ba9963f64e420406916dbef1f1e40e577af06ea9bc",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=24919"
+  },
+  "sequoia.herbarium_share_pct": {
+    "value": 11.0,
+    "source_file": "data/raw/gbif_total_sequoia.json",
+    "source_sha256": "e1f323c46d6ce46e17ad07ba9963f64e420406916dbef1f1e40e577af06ea9bc",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "3119/28346=11.0%"
+  },
+  "sequoia.inat_observations_total": {
+    "value": 43444,
+    "source_file": "data/raw/inat_taxa_sequoia.json",
+    "source_sha256": "dfac14728c87a2ff8d144cedaa844fe231ea0095bbfccd3f6725efcb79a29c3b",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=43444"
+  },
+  "sequoia.inat_flowering_total": {
+    "value": 0,
+    "source_file": "data/raw/inat_hist_flowering_sequoia.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=0"
+  },
+  "sequoia.inat_peak_flowering_month": {
+    "value": null,
+    "source_file": "data/raw/inat_hist_flowering_sequoia.json",
+    "source_sha256": "2aeb14cbf085754d7f57a0ce3872e578ac420768fc56d94543e370780f3659dd",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=None (n=0)"
+  },
+  "victoria.gbif_usage_key": {
+    "value": 5553148,
+    "source_file": "data/raw/gbif_match_victoria.json",
+    "source_sha256": "9feddcd12de87dd64eeb4b383c0e84d9e3af5fa60b89de75e92add34e4acb6dd",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=5553148 (Victoria amazonica (Poepp.) Sowerby)"
+  },
+  "victoria.family": {
+    "value": "Nymphaeaceae",
+    "source_file": "data/raw/gbif_match_victoria.json",
+    "source_sha256": "9feddcd12de87dd64eeb4b383c0e84d9e3af5fa60b89de75e92add34e4acb6dd",
+    "locator": "$.family",
+    "excerpt": "family=Nymphaeaceae"
+  },
+  "victoria.order": {
+    "value": "Nymphaeales",
+    "source_file": "data/raw/gbif_match_victoria.json",
+    "source_sha256": "9feddcd12de87dd64eeb4b383c0e84d9e3af5fa60b89de75e92add34e4acb6dd",
+    "locator": "$.order",
+    "excerpt": "order=Nymphaeales"
+  },
+  "victoria.opentree_ott_id": {
+    "value": 133752,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Victoria amazonica].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=133752"
+  },
+  "victoria.iucn_effective_code": {
+    "value": null,
+    "source_file": "data/raw/inat_taxa_victoria.json",
+    "source_sha256": "116cafe7adb09b1fa653a4dca7edee4c55ea2c391b333f15833733e51861f1b3",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=NE, inat=None"
+  },
+  "victoria.gbif_total_occurrences": {
+    "value": 1012,
+    "source_file": "data/raw/gbif_total_victoria.json",
+    "source_sha256": "a95bf07202adffa1edc2b0e4397bd5df40966e005f553446e84dcbeece54e5c4",
+    "locator": "$.count",
+    "excerpt": "count=1012"
+  },
+  "victoria.gbif_georeferenced_occurrences": {
+    "value": 727,
+    "source_file": "data/raw/gbif_occ_victoria.json",
+    "source_sha256": "0dc3e73969e54e51b964d792b60fcc72dca007ed1e2bc1e4906d92759537b42f",
+    "locator": "$.count",
+    "excerpt": "georeferenced=727"
+  },
+  "victoria.gbif_preserved_specimens": {
+    "value": 321,
+    "source_file": "data/raw/gbif_total_victoria.json",
+    "source_sha256": "a95bf07202adffa1edc2b0e4397bd5df40966e005f553446e84dcbeece54e5c4",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=321"
+  },
+  "victoria.gbif_human_observations": {
+    "value": 636,
+    "source_file": "data/raw/gbif_total_victoria.json",
+    "source_sha256": "a95bf07202adffa1edc2b0e4397bd5df40966e005f553446e84dcbeece54e5c4",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=636"
+  },
+  "victoria.herbarium_share_pct": {
+    "value": 31.72,
+    "source_file": "data/raw/gbif_total_victoria.json",
+    "source_sha256": "a95bf07202adffa1edc2b0e4397bd5df40966e005f553446e84dcbeece54e5c4",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "321/1012=31.72%"
+  },
+  "victoria.inat_observations_total": {
+    "value": 2013,
+    "source_file": "data/raw/inat_taxa_victoria.json",
+    "source_sha256": "116cafe7adb09b1fa653a4dca7edee4c55ea2c391b333f15833733e51861f1b3",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=2013"
+  },
+  "victoria.inat_flowering_total": {
+    "value": 142,
+    "source_file": "data/raw/inat_hist_flowering_victoria.json",
+    "source_sha256": "1a5c2019fa3ff1e62453575b4fb3dd7e8b5029306590b730ea9e272606a9f3e0",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=142"
+  },
+  "victoria.inat_peak_flowering_month": {
+    "value": 3,
+    "source_file": "data/raw/inat_hist_flowering_victoria.json",
+    "source_sha256": "1a5c2019fa3ff1e62453575b4fb3dd7e8b5029306590b730ea9e272606a9f3e0",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=3 (n=18)"
+  },
+  "dionaea.gbif_usage_key": {
+    "value": 5421410,
+    "source_file": "data/raw/gbif_match_dionaea.json",
+    "source_sha256": "2430c106a86af8f59a86c785bfebe1a0a8f31e194ff76c0f9f35207ec00cdc9e",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=5421410 (Dionaea muscipula Ellis)"
+  },
+  "dionaea.family": {
+    "value": "Droseraceae",
+    "source_file": "data/raw/gbif_match_dionaea.json",
+    "source_sha256": "2430c106a86af8f59a86c785bfebe1a0a8f31e194ff76c0f9f35207ec00cdc9e",
+    "locator": "$.family",
+    "excerpt": "family=Droseraceae"
+  },
+  "dionaea.order": {
+    "value": "Caryophyllales",
+    "source_file": "data/raw/gbif_match_dionaea.json",
+    "source_sha256": "2430c106a86af8f59a86c785bfebe1a0a8f31e194ff76c0f9f35207ec00cdc9e",
+    "locator": "$.order",
+    "excerpt": "order=Caryophyllales"
+  },
+  "dionaea.opentree_ott_id": {
+    "value": 14971,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Dionaea muscipula].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=14971"
+  },
+  "dionaea.iucn_effective_code": {
+    "value": "VU",
+    "source_file": "data/raw/gbif_iucn_dionaea.json",
+    "source_sha256": "105be6492ddf223d4aecd4e36c32e6a50c78a5108938b727d1bb5d2f22394737",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=VU, inat=VU"
+  },
+  "dionaea.gbif_total_occurrences": {
+    "value": 3903,
+    "source_file": "data/raw/gbif_total_dionaea.json",
+    "source_sha256": "1ba0c50c9bedb8a2896f22f5e6c88e82931a4cf84b9daac432f30da714155752",
+    "locator": "$.count",
+    "excerpt": "count=3903"
+  },
+  "dionaea.gbif_georeferenced_occurrences": {
+    "value": 2602,
+    "source_file": "data/raw/gbif_occ_dionaea.json",
+    "source_sha256": "86fe72adad38875c2581088e18c8e1c950db4a083995021c47da7ccf587c6b4e",
+    "locator": "$.count",
+    "excerpt": "georeferenced=2602"
+  },
+  "dionaea.gbif_preserved_specimens": {
+    "value": 882,
+    "source_file": "data/raw/gbif_total_dionaea.json",
+    "source_sha256": "1ba0c50c9bedb8a2896f22f5e6c88e82931a4cf84b9daac432f30da714155752",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=882"
+  },
+  "dionaea.gbif_human_observations": {
+    "value": 2804,
+    "source_file": "data/raw/gbif_total_dionaea.json",
+    "source_sha256": "1ba0c50c9bedb8a2896f22f5e6c88e82931a4cf84b9daac432f30da714155752",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=2804"
+  },
+  "dionaea.herbarium_share_pct": {
+    "value": 22.6,
+    "source_file": "data/raw/gbif_total_dionaea.json",
+    "source_sha256": "1ba0c50c9bedb8a2896f22f5e6c88e82931a4cf84b9daac432f30da714155752",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "882/3903=22.6%"
+  },
+  "dionaea.inat_observations_total": {
+    "value": 7533,
+    "source_file": "data/raw/inat_taxa_dionaea.json",
+    "source_sha256": "4c56da25f6dabfc9d52d45bfad3c82bcc839b454e02a852aa99599e5190bbca1",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=7533"
+  },
+  "dionaea.inat_flowering_total": {
+    "value": 329,
+    "source_file": "data/raw/inat_hist_flowering_dionaea.json",
+    "source_sha256": "d95b32c77ec6437a3594da3dd5afe04ed4c6b8dc5516c20a9f92939104393404",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=329"
+  },
+  "dionaea.inat_peak_flowering_month": {
+    "value": 5,
+    "source_file": "data/raw/inat_hist_flowering_dionaea.json",
+    "source_sha256": "d95b32c77ec6437a3594da3dd5afe04ed4c6b8dc5516c20a9f92939104393404",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=5 (n=178)"
+  },
+  "adansonia.gbif_usage_key": {
+    "value": 5406695,
+    "source_file": "data/raw/gbif_match_adansonia.json",
+    "source_sha256": "12e86e8d69e96db63db951b2c8007a80ed1cfa77afd18f60036b0eeb1788f60d",
+    "locator": "$.usageKey",
+    "excerpt": "usageKey=5406695 (Adansonia digitata L.)"
+  },
+  "adansonia.family": {
+    "value": "Malvaceae",
+    "source_file": "data/raw/gbif_match_adansonia.json",
+    "source_sha256": "12e86e8d69e96db63db951b2c8007a80ed1cfa77afd18f60036b0eeb1788f60d",
+    "locator": "$.family",
+    "excerpt": "family=Malvaceae"
+  },
+  "adansonia.order": {
+    "value": "Malvales",
+    "source_file": "data/raw/gbif_match_adansonia.json",
+    "source_sha256": "12e86e8d69e96db63db951b2c8007a80ed1cfa77afd18f60036b0eeb1788f60d",
+    "locator": "$.order",
+    "excerpt": "order=Malvales"
+  },
+  "adansonia.opentree_ott_id": {
+    "value": 659136,
+    "source_file": "data/raw/opentree_tnrs.json",
+    "source_sha256": "35be731abcd210f1d2899d3c30bd4a8c1f221bc46e6469031c936f5a6570cab9",
+    "locator": "$.results[Adansonia digitata].matches[0].taxon.ott_id",
+    "excerpt": "ott_id=659136"
+  },
+  "adansonia.iucn_effective_code": {
+    "value": null,
+    "source_file": "data/raw/inat_taxa_adansonia.json",
+    "source_sha256": "669689fb5e16552cb46e640866d4447a5e7562d543e5c2901fb28c2f8bc4999d",
+    "locator": "$.code / conservation_status",
+    "excerpt": "gbif=NE, inat=None"
+  },
+  "adansonia.gbif_total_occurrences": {
+    "value": 14290,
+    "source_file": "data/raw/gbif_total_adansonia.json",
+    "source_sha256": "33e24cf79a789f2a8dcef55c65b878eed1a4959dec15f396be7e28e5faad2623",
+    "locator": "$.count",
+    "excerpt": "count=14290"
+  },
+  "adansonia.gbif_georeferenced_occurrences": {
+    "value": 12823,
+    "source_file": "data/raw/gbif_occ_adansonia.json",
+    "source_sha256": "8e63ecfb2a1e8fc574efcf086aca9c020c5ac33746173d71f4cc40fcdeff96ac",
+    "locator": "$.count",
+    "excerpt": "georeferenced=12823"
+  },
+  "adansonia.gbif_preserved_specimens": {
+    "value": 1667,
+    "source_file": "data/raw/gbif_total_adansonia.json",
+    "source_sha256": "33e24cf79a789f2a8dcef55c65b878eed1a4959dec15f396be7e28e5faad2623",
+    "locator": "$.facets[BASIS_OF_RECORD].PRESERVED_SPECIMEN",
+    "excerpt": "PRESERVED_SPECIMEN=1667"
+  },
+  "adansonia.gbif_human_observations": {
+    "value": 12229,
+    "source_file": "data/raw/gbif_total_adansonia.json",
+    "source_sha256": "33e24cf79a789f2a8dcef55c65b878eed1a4959dec15f396be7e28e5faad2623",
+    "locator": "$.facets[BASIS_OF_RECORD].HUMAN_OBSERVATION",
+    "excerpt": "HUMAN_OBSERVATION=12229"
+  },
+  "adansonia.herbarium_share_pct": {
+    "value": 11.67,
+    "source_file": "data/raw/gbif_total_adansonia.json",
+    "source_sha256": "33e24cf79a789f2a8dcef55c65b878eed1a4959dec15f396be7e28e5faad2623",
+    "locator": "derived(PRESERVED_SPECIMEN / count * 100)",
+    "excerpt": "1667/14290=11.67%"
+  },
+  "adansonia.inat_observations_total": {
+    "value": 8902,
+    "source_file": "data/raw/inat_taxa_adansonia.json",
+    "source_sha256": "669689fb5e16552cb46e640866d4447a5e7562d543e5c2901fb28c2f8bc4999d",
+    "locator": "$.results[0].observations_count",
+    "excerpt": "observations_count=8902"
+  },
+  "adansonia.inat_flowering_total": {
+    "value": 191,
+    "source_file": "data/raw/inat_hist_flowering_adansonia.json",
+    "source_sha256": "973a817fc7877ae1cb38a3ac9ceb8ff69bd5b4fe1962cee4e719e6db8c8a135a",
+    "locator": "sum($.results.month_of_year)",
+    "excerpt": "flowering_records=191"
+  },
+  "adansonia.inat_peak_flowering_month": {
+    "value": 11,
+    "source_file": "data/raw/inat_hist_flowering_adansonia.json",
+    "source_sha256": "973a817fc7877ae1cb38a3ac9ceb8ff69bd5b4fe1962cee4e719e6db8c8a135a",
+    "locator": "argmax($.results.month_of_year)",
+    "excerpt": "peak_month=11 (n=46)"
+  },
+  "phylogeny.newick_root": {
+    "value": "Spermatophyta",
+    "source_file": "data/raw/opentree_subtree.json",
+    "source_sha256": "8ec575868d469f97cbb6a1e9458e9253ed70163e7b40931f7ee02ba1a8771653",
+    "locator": "$.newick",
+    "excerpt": "(((((((((((((((((((((((((((((((((((((((((Adansonia_digitata_ott659136)mrcaott659136ott5233050)mrcaott84768ott659136)'Adansonia (genus in kin"
+  },
+  "portfolio.total_gbif_occurrences": {
+    "value": 113962,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "sum(species.gbif_total_occurrences)",
+    "excerpt": "sum=113962"
+  },
+  "portfolio.total_herbarium_specimens": {
+    "value": 11050,
+    "source_file": "data/raw/gbif_total_ginkgo.json",
+    "source_sha256": "539e5f4dfc9c866efc27077057ea8ef6e4401c0698164b31bc2fa118b33b6b2a",
+    "locator": "sum(species.gbif_preserved_specimens)",
+    "excerpt": "sum=11050"
+  },
+  "portfolio.total_inat_observations": {
+    "value": 112408,
+    "source_file": "data/raw/inat_taxa_ginkgo.json",
+    "source_sha256": "40a121c468dfcbd92e85f994a138aa58675c9a2bcfc7529b696134ad27d60751",
+    "locator": "sum(species.inat_observations_total)",
+    "excerpt": "sum=112408"
+  },
+  "portfolio.total_flowering_records": {
+    "value": 662,
+    "source_file": "data/raw/inat_hist_flowering_dionaea.json",
+    "source_sha256": "d95b32c77ec6437a3594da3dd5afe04ed4c6b8dc5516c20a9f92939104393404",
+    "locator": "sum(species.inat_flowering_total)",
+    "excerpt": "sum=662"
+  }
+}

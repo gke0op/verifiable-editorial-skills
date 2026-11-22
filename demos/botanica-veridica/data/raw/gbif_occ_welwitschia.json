@@ -1,0 +1,1156 @@
+{
+  "count": 996,
+  "facets": [
+    {
+      "counts": [
+        {
+          "count": 901,
+          "name": "HUMAN_OBSERVATION"
+        },
+        {
+          "count": 70,
+          "name": "PRESERVED_SPECIMEN"
+        },
+        {
+          "count": 21,
+          "name": "FOSSIL_SPECIMEN"
+        },
+        {
+          "count": 2,
+          "name": "MATERIAL_SAMPLE"
+        },
+        {
+          "count": 1,
+          "name": "LIVING_SPECIMEN"
+        },
+        {
+          "count": 1,
+          "name": "MACHINE_OBSERVATION"
+        }
+      ],
+      "field": "BASIS_OF_RECORD"
+    },
+    {
+      "counts": [
+        {
+          "count": 875,
+          "name": "NA"
+        },
+        {
+          "count": 86,
+          "name": "AO"
+        },
+        {
+          "count": 20,
+          "name": "AT"
+        },
+        {
+          "count": 7,
+          "name": "US"
+        },
+        {
+          "count": 4,
+          "name": "ZA"
+        },
+        {
+          "count": 2,
+          "name": "DE"
+        },
+        {
+          "count": 1,
+          "name": "GB"
+        },
+        {
+          "count": 1,
+          "name": "SE"
+        }
+      ],
+      "field": "COUNTRY"
+    }
+  ],
+  "results": [
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.609778,
+      "decimalLongitude": 15.168103,
+      "elevation": null,
+      "key": 6129995402,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.65327,
+      "decimalLongitude": 14.889025,
+      "elevation": null,
+      "key": 6133076443,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.799572,
+      "decimalLongitude": 14.83735,
+      "elevation": null,
+      "key": 6133606662,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.714256,
+      "decimalLongitude": 13.759876,
+      "elevation": null,
+      "key": 6906891515,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.654533,
+      "decimalLongitude": 15.026553,
+      "elevation": null,
+      "key": 6162818203,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.610037,
+      "decimalLongitude": 15.16815,
+      "elevation": null,
+      "key": 6162937755,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.262898,
+      "decimalLongitude": 14.477661,
+      "elevation": null,
+      "key": 6185602165,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.639503,
+      "decimalLongitude": 12.645368,
+      "elevation": null,
+      "key": 6178343416,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.40428,
+      "decimalLongitude": 12.398547,
+      "elevation": null,
+      "key": 6178833394,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.491138,
+      "decimalLongitude": 12.450951,
+      "elevation": null,
+      "key": 6178833395,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.595108,
+      "decimalLongitude": 12.201092,
+      "elevation": null,
+      "key": 6179075722,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.534241,
+      "decimalLongitude": 12.491519,
+      "elevation": null,
+      "key": 6179132376,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.4794,
+      "decimalLongitude": 12.441111,
+      "elevation": null,
+      "key": 6179135203,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.36408,
+      "decimalLongitude": 13.434287,
+      "elevation": null,
+      "key": 6184751798,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.806355,
+      "decimalLongitude": 14.885262,
+      "elevation": null,
+      "key": 6185159274,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.364095,
+      "decimalLongitude": 13.434293,
+      "elevation": null,
+      "key": 6195287784,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.418396,
+      "decimalLongitude": 13.631873,
+      "elevation": null,
+      "key": 6195592814,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.604746,
+      "decimalLongitude": 15.336234,
+      "elevation": null,
+      "key": 6334286464,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.631929,
+      "decimalLongitude": 15.6803,
+      "elevation": null,
+      "key": 6334522776,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.498437,
+      "decimalLongitude": 15.734631,
+      "elevation": null,
+      "key": 6334983358,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438942,
+      "decimalLongitude": 14.60533,
+      "elevation": null,
+      "key": 6273371061,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.429855,
+      "decimalLongitude": 14.675075,
+      "elevation": null,
+      "key": 6320097537,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -16.52013,
+      "decimalLongitude": 12.463108,
+      "elevation": null,
+      "key": 6334204718,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.724489,
+      "decimalLongitude": 14.378303,
+      "elevation": null,
+      "key": 6334875729,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -16.686928,
+      "decimalLongitude": 12.437625,
+      "elevation": null,
+      "key": 6400106333,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.57449,
+      "decimalLongitude": 14.13632,
+      "elevation": null,
+      "key": 6498212448,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.65137,
+      "decimalLongitude": 15.025961,
+      "elevation": null,
+      "key": 6399226978,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.648537,
+      "decimalLongitude": 14.537563,
+      "elevation": null,
+      "key": 6400011473,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.571361,
+      "decimalLongitude": 14.136931,
+      "elevation": null,
+      "key": 6413029362,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.666087,
+      "decimalLongitude": 14.991687,
+      "elevation": null,
+      "key": 6499210086,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.2949,
+      "decimalLongitude": 14.5161,
+      "elevation": null,
+      "key": 6869305646,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.2949,
+      "decimalLongitude": 14.5161,
+      "elevation": null,
+      "key": 6870135807,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.459933,
+      "decimalLongitude": 14.287287,
+      "elevation": null,
+      "key": 6441694386,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.743806,
+      "decimalLongitude": 14.84052,
+      "elevation": null,
+      "key": 6441702134,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.256204,
+      "decimalLongitude": 14.438494,
+      "elevation": null,
+      "key": 6441936341,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.424096,
+      "decimalLongitude": 14.146352,
+      "elevation": null,
+      "key": 6451833653,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.875278,
+      "decimalLongitude": 13.8943,
+      "elevation": null,
+      "key": 6452227923,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.409055,
+      "decimalLongitude": 14.190242,
+      "elevation": null,
+      "key": 6470049089,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438659,
+      "decimalLongitude": 14.605832,
+      "elevation": null,
+      "key": 6470049767,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.398242,
+      "decimalLongitude": 14.073906,
+      "elevation": null,
+      "key": 6470334546,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.395212,
+      "decimalLongitude": 14.049831,
+      "elevation": null,
+      "key": 6479570325,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.593274,
+      "decimalLongitude": 15.015481,
+      "elevation": null,
+      "key": 6479752500,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.593136,
+      "decimalLongitude": 15.016573,
+      "elevation": null,
+      "key": 6480179349,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.593102,
+      "decimalLongitude": 15.015781,
+      "elevation": null,
+      "key": 6480513706,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.594362,
+      "decimalLongitude": 15.017011,
+      "elevation": null,
+      "key": 6480585519,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -14.921934,
+      "decimalLongitude": 12.375851,
+      "elevation": null,
+      "key": 6479992022,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -16.814562,
+      "decimalLongitude": 12.435855,
+      "elevation": null,
+      "key": 6551293896,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.668987,
+      "decimalLongitude": 15.027367,
+      "elevation": null,
+      "key": 6567053579,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -14.921982,
+      "decimalLongitude": 12.37586,
+      "elevation": null,
+      "key": 6872625509,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.594877,
+      "decimalLongitude": 12.205702,
+      "elevation": null,
+      "key": 6872753363,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.595392,
+      "decimalLongitude": 12.205917,
+      "elevation": null,
+      "key": 6872862345,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.459135,
+      "decimalLongitude": 14.842188,
+      "elevation": null,
+      "key": 6550825235,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.607933,
+      "decimalLongitude": 14.412328,
+      "elevation": null,
+      "key": 6550933618,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438658,
+      "decimalLongitude": 14.605833,
+      "elevation": null,
+      "key": 6551021692,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.459121,
+      "decimalLongitude": 14.842248,
+      "elevation": null,
+      "key": 6551557336,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.607763,
+      "decimalLongitude": 14.413103,
+      "elevation": null,
+      "key": 6552358323,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438658,
+      "decimalLongitude": 14.605831,
+      "elevation": null,
+      "key": 6552430746,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -18.584637,
+      "decimalLongitude": 12.486817,
+      "elevation": null,
+      "key": 6869329828,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.694549,
+      "decimalLongitude": 14.966401,
+      "elevation": null,
+      "key": 6885180768,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.654183,
+      "decimalLongitude": 15.02715,
+      "elevation": null,
+      "key": 6885585878,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653933,
+      "decimalLongitude": 15.027444,
+      "elevation": null,
+      "key": 6885594352,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.658178,
+      "decimalLongitude": 15.028083,
+      "elevation": null,
+      "key": 6885596886,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.6541,
+      "decimalLongitude": 15.02715,
+      "elevation": null,
+      "key": 6885731947,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.654183,
+      "decimalLongitude": 15.02715,
+      "elevation": null,
+      "key": 6885865816,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.663414,
+      "decimalLongitude": 14.993836,
+      "elevation": null,
+      "key": 6886016881,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.423558,
+      "decimalLongitude": 12.199038,
+      "elevation": null,
+      "key": 6869218716,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.54889,
+      "decimalLongitude": 15.42087,
+      "elevation": null,
+      "key": 6871018849,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438645,
+      "decimalLongitude": 14.605847,
+      "elevation": null,
+      "key": 6871357003,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.44659,
+      "decimalLongitude": 14.781257,
+      "elevation": null,
+      "key": 6871771343,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.652143,
+      "decimalLongitude": 15.013897,
+      "elevation": null,
+      "key": 6871805525,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.733315,
+      "decimalLongitude": 14.918983,
+      "elevation": null,
+      "key": 6885204829,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.438162,
+      "decimalLongitude": 14.603995,
+      "elevation": null,
+      "key": 6885560771,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.144828,
+      "decimalLongitude": 13.949106,
+      "elevation": null,
+      "key": 6885887374,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.103456,
+      "decimalLongitude": 13.7974,
+      "elevation": null,
+      "key": 6886143886,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.786592,
+      "decimalLongitude": 14.807131,
+      "elevation": null,
+      "key": 6906680488,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653785,
+      "decimalLongitude": 14.888404,
+      "elevation": null,
+      "key": 6906716870,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.392713,
+      "decimalLongitude": 14.029374,
+      "elevation": null,
+      "key": 6907757506,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.235584,
+      "decimalLongitude": 13.904874,
+      "elevation": null,
+      "key": 5037235609,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.813426,
+      "decimalLongitude": 14.908843,
+      "elevation": null,
+      "key": 5063716201,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.229846,
+      "decimalLongitude": 13.821091,
+      "elevation": null,
+      "key": 5069991966,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.610807,
+      "decimalLongitude": 15.168376,
+      "elevation": null,
+      "key": 5076939463,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.61036,
+      "decimalLongitude": 15.168789,
+      "elevation": null,
+      "key": 5076976314,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.249744,
+      "decimalLongitude": 13.917464,
+      "elevation": null,
+      "key": 5077042563,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.363873,
+      "decimalLongitude": 13.436157,
+      "elevation": null,
+      "key": 5077057921,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.363873,
+      "decimalLongitude": 13.436157,
+      "elevation": null,
+      "key": 5077100085,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.797041,
+      "decimalLongitude": 14.843362,
+      "elevation": null,
+      "key": 5077147301,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.608537,
+      "decimalLongitude": 12.179072,
+      "elevation": null,
+      "key": 5087419035,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.66917,
+      "decimalLongitude": 15.028216,
+      "elevation": null,
+      "key": 5088032258,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.767421,
+      "decimalLongitude": 14.789836,
+      "elevation": null,
+      "key": 5133956998,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.476455,
+      "decimalLongitude": 14.703414,
+      "elevation": null,
+      "key": 5088040264,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.281607,
+      "decimalLongitude": 14.461846,
+      "elevation": null,
+      "key": 5108393667,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.734522,
+      "decimalLongitude": 14.922557,
+      "elevation": 338.0,
+      "key": 5110537429,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.436421,
+      "decimalLongitude": 14.937356,
+      "elevation": null,
+      "key": 5133376183,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.228675,
+      "decimalLongitude": 14.401649,
+      "elevation": null,
+      "key": 5133505026,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.662157,
+      "decimalLongitude": 15.060869,
+      "elevation": null,
+      "key": 5140662742,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.661578,
+      "decimalLongitude": 14.412872,
+      "elevation": null,
+      "key": 5230571081,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.47657,
+      "decimalLongitude": 14.702863,
+      "elevation": null,
+      "key": 5867875922,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "AO",
+      "decimalLatitude": -15.646205,
+      "decimalLongitude": 12.141519,
+      "elevation": null,
+      "key": 5133255122,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.870633,
+      "decimalLongitude": 14.858038,
+      "elevation": null,
+      "key": 5133637974,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.617012,
+      "decimalLongitude": 15.172637,
+      "elevation": null,
+      "key": 5134050843,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -23.567872,
+      "decimalLongitude": 15.282822,
+      "elevation": null,
+      "key": 5134091949,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.340433,
+      "decimalLongitude": 14.345736,
+      "elevation": null,
+      "key": 5140792205,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.1174,
+      "decimalLongitude": 13.780236,
+      "elevation": null,
+      "key": 5140950185,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.741373,
+      "decimalLongitude": 14.929616,
+      "elevation": null,
+      "key": 5153411909,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.741127,
+      "decimalLongitude": 14.930482,
+      "elevation": null,
+      "key": 5153778140,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -18.521508,
+      "decimalLongitude": 12.474356,
+      "elevation": null,
+      "key": 5206151647,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -18.195889,
+      "decimalLongitude": 12.724237,
+      "elevation": null,
+      "key": 5206299280,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653832,
+      "decimalLongitude": 14.888556,
+      "elevation": null,
+      "key": 5230133477,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653832,
+      "decimalLongitude": 14.888556,
+      "elevation": null,
+      "key": 5230239487,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653832,
+      "decimalLongitude": 14.888556,
+      "elevation": null,
+      "key": 5230454454,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.653832,
+      "decimalLongitude": 14.888556,
+      "elevation": null,
+      "key": 5230752415,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.65392,
+      "decimalLongitude": 14.888241,
+      "elevation": null,
+      "key": 5231756453,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -22.666667,
+      "decimalLongitude": 14.833333,
+      "elevation": null,
+      "key": 6274061433,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.43345,
+      "decimalLongitude": 14.889123,
+      "elevation": null,
+      "key": 6442102032,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -21.571642,
+      "decimalLongitude": 14.136189,
+      "elevation": null,
+      "key": 5167993028,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.994432,
+      "decimalLongitude": 13.385654,
+      "elevation": null,
+      "key": 5176388708,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.802184,
+      "decimalLongitude": 13.686406,
+      "elevation": null,
+      "key": 5176666963,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.160075,
+      "decimalLongitude": 13.421473,
+      "elevation": null,
+      "key": 5176891299,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -19.758887,
+      "decimalLongitude": 13.574897,
+      "elevation": null,
+      "key": 5177233801,
+      "year": 2025
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "NA",
+      "decimalLatitude": -20.137789,
+      "decimalLongitude": 13.390362,
+      "elevation": null,
+      "key": 5187811806,
+      "year": 2025
+    }
+  ],
+  "sampled_points_count": 120,
+  "source_url": "https://api.gbif.org/v1/occurrence/search?taxonKey=5275521&hasCoordinate=true&hasGeospatialIssue=false&limit=120&facet=country&facet=basisOfRecord&facetLimit=12",
+  "taxonKey": 5275521
+}

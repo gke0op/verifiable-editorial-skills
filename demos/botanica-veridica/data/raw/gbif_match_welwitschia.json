@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Welwitschia mirabilis",
+  "class": "Gnetopsida",
+  "classKey": 282,
+  "confidence": 100,
+  "family": "Welwitschiaceae",
+  "familyKey": 3718,
+  "genus": "Welwitschia",
+  "genusKey": 2653230,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Welwitschiales",
+  "orderKey": 1168,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Welwitschia mirabilis Hook.f.",
+  "species": "Welwitschia mirabilis",
+  "speciesKey": 5275521,
+  "status": "ACCEPTED",
+  "usageKey": 5275521
+}

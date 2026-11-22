@@ -1,0 +1,1164 @@
+{
+  "count": 2602,
+  "facets": [
+    {
+      "counts": [
+        {
+          "count": 2484,
+          "name": "HUMAN_OBSERVATION"
+        },
+        {
+          "count": 111,
+          "name": "PRESERVED_SPECIMEN"
+        },
+        {
+          "count": 5,
+          "name": "LIVING_SPECIMEN"
+        },
+        {
+          "count": 2,
+          "name": "MATERIAL_CITATION"
+        }
+      ],
+      "field": "BASIS_OF_RECORD"
+    },
+    {
+      "counts": [
+        {
+          "count": 2565,
+          "name": "US"
+        },
+        {
+          "count": 13,
+          "name": "DE"
+        },
+        {
+          "count": 3,
+          "name": "NL"
+        },
+        {
+          "count": 3,
+          "name": "NZ"
+        },
+        {
+          "count": 3,
+          "name": "SE"
+        },
+        {
+          "count": 2,
+          "name": "CA"
+        },
+        {
+          "count": 2,
+          "name": "NO"
+        },
+        {
+          "count": 2,
+          "name": "UA"
+        },
+        {
+          "count": 1,
+          "name": "AT"
+        },
+        {
+          "count": 1,
+          "name": "AU"
+        },
+        {
+          "count": 1,
+          "name": "BR"
+        },
+        {
+          "count": 1,
+          "name": "CO"
+        }
+      ],
+      "field": "COUNTRY"
+    }
+  ],
+  "results": [
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.135403,
+      "decimalLongitude": -78.289579,
+      "elevation": null,
+      "key": 6130236325,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.013463,
+      "decimalLongitude": -78.242698,
+      "elevation": null,
+      "key": 6131017031,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.072463,
+      "decimalLongitude": -77.82909,
+      "elevation": null,
+      "key": 6133237794,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.185516,
+      "decimalLongitude": -85.074664,
+      "elevation": null,
+      "key": 6147480922,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.058052,
+      "decimalLongitude": -85.016513,
+      "elevation": null,
+      "key": 6147495376,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.760041,
+      "decimalLongitude": -76.903033,
+      "elevation": null,
+      "key": 6159504315,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 26.802253,
+      "decimalLongitude": -80.001661,
+      "elevation": null,
+      "key": 6162817555,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.157217,
+      "decimalLongitude": -78.391138,
+      "elevation": null,
+      "key": 6162980346,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.182564,
+      "decimalLongitude": -78.380658,
+      "elevation": null,
+      "key": 6163022134,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.127359,
+      "decimalLongitude": -77.810521,
+      "elevation": null,
+      "key": 6251820225,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.027077,
+      "decimalLongitude": -77.874697,
+      "elevation": null,
+      "key": 6178445413,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.001274,
+      "decimalLongitude": -77.890592,
+      "elevation": null,
+      "key": 6178881691,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.210215,
+      "decimalLongitude": -77.834257,
+      "elevation": null,
+      "key": 6178951439,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.064357,
+      "decimalLongitude": -78.468425,
+      "elevation": null,
+      "key": 6179019458,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.093657,
+      "decimalLongitude": -77.813942,
+      "elevation": null,
+      "key": 6179142589,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.190522,
+      "decimalLongitude": -77.873243,
+      "elevation": null,
+      "key": 6179202702,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.062807,
+      "decimalLongitude": -85.10187,
+      "elevation": null,
+      "key": 6184720167,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.177757,
+      "decimalLongitude": -85.190261,
+      "elevation": null,
+      "key": 6184723659,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.110739,
+      "decimalLongitude": -85.089839,
+      "elevation": null,
+      "key": 6184730759,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.092946,
+      "decimalLongitude": -78.378473,
+      "elevation": null,
+      "key": 6184740127,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.094157,
+      "decimalLongitude": -85.184019,
+      "elevation": null,
+      "key": 6184753647,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.109136,
+      "decimalLongitude": -85.010898,
+      "elevation": null,
+      "key": 6184845317,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.110649,
+      "decimalLongitude": -85.030083,
+      "elevation": null,
+      "key": 6184927797,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.109242,
+      "decimalLongitude": -85.154327,
+      "elevation": null,
+      "key": 6184985971,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.065002,
+      "decimalLongitude": -85.041173,
+      "elevation": null,
+      "key": 6184989170,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.074505,
+      "decimalLongitude": -77.834898,
+      "elevation": null,
+      "key": 6184990573,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.079381,
+      "decimalLongitude": -78.366309,
+      "elevation": null,
+      "key": 6185033776,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.015796,
+      "decimalLongitude": -78.174775,
+      "elevation": null,
+      "key": 6185044328,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.356564,
+      "decimalLongitude": -77.875321,
+      "elevation": null,
+      "key": 6185081455,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.013993,
+      "decimalLongitude": -84.824378,
+      "elevation": null,
+      "key": 6185181668,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.013355,
+      "decimalLongitude": -85.117039,
+      "elevation": null,
+      "key": 6185355121,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.143114,
+      "decimalLongitude": -85.18815,
+      "elevation": null,
+      "key": 6185458648,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.089349,
+      "decimalLongitude": -78.334551,
+      "elevation": null,
+      "key": 6185498226,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.118203,
+      "decimalLongitude": -78.278371,
+      "elevation": null,
+      "key": 6185525900,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.129103,
+      "decimalLongitude": -78.393857,
+      "elevation": null,
+      "key": 6185643541,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.180644,
+      "decimalLongitude": -85.194468,
+      "elevation": null,
+      "key": 6185805781,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.12988,
+      "decimalLongitude": -77.861538,
+      "elevation": null,
+      "key": 6185934010,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.082241,
+      "decimalLongitude": -78.331966,
+      "elevation": null,
+      "key": 6185962675,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.057534,
+      "decimalLongitude": -85.132637,
+      "elevation": null,
+      "key": 6186031864,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.175516,
+      "decimalLongitude": -85.163145,
+      "elevation": null,
+      "key": 6186076775,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.192628,
+      "decimalLongitude": -85.173628,
+      "elevation": null,
+      "key": 6186130635,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.066946,
+      "decimalLongitude": -85.153222,
+      "elevation": null,
+      "key": 6186159377,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.294049,
+      "decimalLongitude": -77.98893,
+      "elevation": null,
+      "key": 6187961614,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 33.821485,
+      "decimalLongitude": -77.811544,
+      "elevation": null,
+      "key": 6188066670,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.142057,
+      "decimalLongitude": -77.973638,
+      "elevation": null,
+      "key": 6188235861,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.252988,
+      "decimalLongitude": -77.863684,
+      "elevation": null,
+      "key": 6188245119,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.318165,
+      "decimalLongitude": -77.820657,
+      "elevation": null,
+      "key": 6188274452,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.172425,
+      "decimalLongitude": -85.160494,
+      "elevation": null,
+      "key": 6188329720,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.191342,
+      "decimalLongitude": -77.977371,
+      "elevation": null,
+      "key": 6188566937,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.148587,
+      "decimalLongitude": -85.042883,
+      "elevation": null,
+      "key": 6352737969,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.114799,
+      "decimalLongitude": -85.075909,
+      "elevation": null,
+      "key": 6353129367,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.076389,
+      "decimalLongitude": -78.31004,
+      "elevation": null,
+      "key": 6499172200,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.055027,
+      "decimalLongitude": -77.893007,
+      "elevation": null,
+      "key": 6187930032,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.03776,
+      "decimalLongitude": -77.823498,
+      "elevation": null,
+      "key": 6188025990,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.455412,
+      "decimalLongitude": -84.944544,
+      "elevation": null,
+      "key": 6188047952,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.147225,
+      "decimalLongitude": -77.802754,
+      "elevation": null,
+      "key": 6188213063,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.014324,
+      "decimalLongitude": -77.872711,
+      "elevation": null,
+      "key": 6188214998,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.538868,
+      "decimalLongitude": -84.984463,
+      "elevation": null,
+      "key": 6188245169,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.028661,
+      "decimalLongitude": -77.887423,
+      "elevation": null,
+      "key": 6188299260,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.199149,
+      "decimalLongitude": -85.136044,
+      "elevation": null,
+      "key": 6188327402,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.086448,
+      "decimalLongitude": -77.832064,
+      "elevation": null,
+      "key": 6188403318,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.172162,
+      "decimalLongitude": -77.921694,
+      "elevation": null,
+      "key": 6195259665,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.05461,
+      "decimalLongitude": -77.88525,
+      "elevation": null,
+      "key": 6195296197,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.074153,
+      "decimalLongitude": -77.82843,
+      "elevation": null,
+      "key": 6195318015,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.012595,
+      "decimalLongitude": -77.883399,
+      "elevation": null,
+      "key": 6195336264,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.075878,
+      "decimalLongitude": -78.305143,
+      "elevation": null,
+      "key": 6195396326,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.162716,
+      "decimalLongitude": -77.903648,
+      "elevation": null,
+      "key": 6195415531,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.17278,
+      "decimalLongitude": -77.900939,
+      "elevation": null,
+      "key": 6195421681,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.120114,
+      "decimalLongitude": -77.820358,
+      "elevation": null,
+      "key": 6195611476,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.087397,
+      "decimalLongitude": -77.968573,
+      "elevation": null,
+      "key": 6195624948,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.08954,
+      "decimalLongitude": -77.968176,
+      "elevation": null,
+      "key": 6195631810,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.160871,
+      "decimalLongitude": -77.930807,
+      "elevation": null,
+      "key": 6195722107,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.180882,
+      "decimalLongitude": -77.823244,
+      "elevation": null,
+      "key": 6195750922,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.196454,
+      "decimalLongitude": -77.99116,
+      "elevation": null,
+      "key": 6195757429,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.038053,
+      "decimalLongitude": -77.816967,
+      "elevation": null,
+      "key": 6195863220,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.05327,
+      "decimalLongitude": -77.878557,
+      "elevation": null,
+      "key": 6195883173,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.068745,
+      "decimalLongitude": -77.853106,
+      "elevation": null,
+      "key": 6234214393,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.147466,
+      "decimalLongitude": -78.295988,
+      "elevation": null,
+      "key": 6234254289,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.182887,
+      "decimalLongitude": -77.940504,
+      "elevation": null,
+      "key": 6234305129,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.598503,
+      "decimalLongitude": -77.754495,
+      "elevation": null,
+      "key": 6234339776,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.046893,
+      "decimalLongitude": -77.859671,
+      "elevation": null,
+      "key": 6234342174,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.161748,
+      "decimalLongitude": -77.885966,
+      "elevation": null,
+      "key": 6234362668,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.575644,
+      "decimalLongitude": -77.699198,
+      "elevation": null,
+      "key": 6234369930,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.510976,
+      "decimalLongitude": -77.650874,
+      "elevation": null,
+      "key": 6234399527,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.143689,
+      "decimalLongitude": -78.331432,
+      "elevation": null,
+      "key": 6234462592,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.460453,
+      "decimalLongitude": -77.755484,
+      "elevation": null,
+      "key": 6234526307,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.146015,
+      "decimalLongitude": -77.847416,
+      "elevation": null,
+      "key": 6234538471,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.04602,
+      "decimalLongitude": -85.004218,
+      "elevation": null,
+      "key": 6234844849,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.048387,
+      "decimalLongitude": -78.282713,
+      "elevation": null,
+      "key": 6235082843,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.100538,
+      "decimalLongitude": -77.837045,
+      "elevation": null,
+      "key": 6235152732,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.036205,
+      "decimalLongitude": -78.260563,
+      "elevation": null,
+      "key": 6235155779,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.166195,
+      "decimalLongitude": -78.232306,
+      "elevation": null,
+      "key": 6235233214,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.067789,
+      "decimalLongitude": -85.179273,
+      "elevation": null,
+      "key": 6235475574,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.584892,
+      "decimalLongitude": -77.732436,
+      "elevation": null,
+      "key": 6235559647,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.141405,
+      "decimalLongitude": -77.833385,
+      "elevation": null,
+      "key": 6235583361,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.130803,
+      "decimalLongitude": -78.259067,
+      "elevation": null,
+      "key": 6235600601,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.440893,
+      "decimalLongitude": -77.769841,
+      "elevation": null,
+      "key": 6235612160,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.508121,
+      "decimalLongitude": -77.740027,
+      "elevation": null,
+      "key": 6235749005,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.095128,
+      "decimalLongitude": -77.818636,
+      "elevation": null,
+      "key": 6235864329,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 33.846662,
+      "decimalLongitude": -77.861416,
+      "elevation": null,
+      "key": 6235880666,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.012285,
+      "decimalLongitude": -78.255228,
+      "elevation": null,
+      "key": 6235923951,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.016819,
+      "decimalLongitude": -77.906838,
+      "elevation": null,
+      "key": 6235934856,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.096884,
+      "decimalLongitude": -77.901418,
+      "elevation": null,
+      "key": 6235936357,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.510108,
+      "decimalLongitude": -84.865475,
+      "elevation": null,
+      "key": 6235947717,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.138825,
+      "decimalLongitude": -77.810352,
+      "elevation": null,
+      "key": 6235965903,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.116795,
+      "decimalLongitude": -78.319314,
+      "elevation": null,
+      "key": 6236016661,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.091939,
+      "decimalLongitude": -78.254266,
+      "elevation": null,
+      "key": 6236100979,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.097456,
+      "decimalLongitude": -77.902552,
+      "elevation": null,
+      "key": 6236101701,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 26.970268,
+      "decimalLongitude": -80.158708,
+      "elevation": null,
+      "key": 6236106050,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.013326,
+      "decimalLongitude": -78.304906,
+      "elevation": null,
+      "key": 6236123767,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.080568,
+      "decimalLongitude": -78.35591,
+      "elevation": null,
+      "key": 6236163940,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.046451,
+      "decimalLongitude": -77.913568,
+      "elevation": null,
+      "key": 6236287313,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.143586,
+      "decimalLongitude": -77.831999,
+      "elevation": null,
+      "key": 6236328011,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.159142,
+      "decimalLongitude": -78.371129,
+      "elevation": null,
+      "key": 6236383364,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.131261,
+      "decimalLongitude": -77.810297,
+      "elevation": null,
+      "key": 6236394866,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.16141,
+      "decimalLongitude": -78.38421,
+      "elevation": null,
+      "key": 6236540686,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.15603,
+      "decimalLongitude": -78.357465,
+      "elevation": null,
+      "key": 6251494203,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.149314,
+      "decimalLongitude": -77.866446,
+      "elevation": null,
+      "key": 6251506832,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 30.180065,
+      "decimalLongitude": -85.158346,
+      "elevation": null,
+      "key": 6251530047,
+      "year": 2026
+    },
+    {
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "countryCode": "US",
+      "decimalLatitude": 34.016495,
+      "decimalLongitude": -77.84438,
+      "elevation": null,
+      "key": 6251860843,
+      "year": 2026
+    }
+  ],
+  "sampled_points_count": 120,
+  "source_url": "https://api.gbif.org/v1/occurrence/search?taxonKey=5421410&hasCoordinate=true&hasGeospatialIssue=false&limit=120&facet=country&facet=basisOfRecord&facetLimit=12",
+  "taxonKey": 5421410
+}

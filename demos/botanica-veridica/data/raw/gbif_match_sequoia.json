@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Sequoia sempervirens",
+  "class": "Pinopsida",
+  "classKey": 194,
+  "confidence": 100,
+  "family": "Cupressaceae",
+  "familyKey": 8144,
+  "genus": "Sequoia",
+  "genusKey": 2683908,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Pinales",
+  "orderKey": 640,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Sequoia sempervirens (D.Don) Endl.",
+  "species": "Sequoia sempervirens",
+  "speciesKey": 2683909,
+  "status": "ACCEPTED",
+  "usageKey": 2683909
+}

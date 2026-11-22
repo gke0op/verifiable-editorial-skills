@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Ginkgo biloba",
+  "class": "Ginkgoopsida",
+  "classKey": 244,
+  "confidence": 100,
+  "family": "Ginkgoaceae",
+  "familyKey": 3070,
+  "genus": "Ginkgo",
+  "genusKey": 2687884,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Ginkgoales",
+  "orderKey": 418,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Ginkgo biloba L.",
+  "species": "Ginkgo biloba",
+  "speciesKey": 2687885,
+  "status": "ACCEPTED",
+  "usageKey": 2687885
+}

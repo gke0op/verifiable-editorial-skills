@@ -85,6 +85,17 @@ For photography-first editorial magazines (*Kinfolk* × *Cereal* × *Condé Nast
 
 ---
 
+## 3C. Scientific Monograph × Learning Magazine Crossover Archetypes (`612 × 792 pt`)
+
+Choreographed across true facing spreads (`[2|3]`, `[4|5]`, `[6|7]`, `[8|9]`, verified via `render_spreads.py` and `audit_contrast.py`), pairing full-bleed botanical/scientific photography with live audited vector exhibits and learning scaffolding (`demos/botanica-veridica/`):
+
+- **S1. Evolutionary & Telemetry Facing Opener (`[2|3]`):** Left page pairs a live phylogenetic cladogram (parsed from OpenTree Newick) + *DK*-style 6-column comparative morphology silhouette strip + *NatGeo*-style logarithmic scale lineup; right page pairs a live equirectangular GBIF world dot-map + herbarium-vs-citizen-science ratio bars + 12-month flowering phenology matrix. Keep both facing page display headlines on matching single lines.
+- **S2. Studio Specimen + 90° SVG Anatomy Spread (`[4]`, `[8]`):** Top `~56%` edge-to-edge studio specimen plate on `#F7F3E8` archival ground overlaid with pure-vector SVG 90° elbow callouts and a metric scale bar; lower `~44%` `#FBF9F4` monograph bed containing italic binomial + Roman authority, IUCN status badge, clickable registry link, drop-cap essay or numbered 1-2-3 mechanism steps, live monthly sparkline chart, and a tinted `#F1ECE1` **"Field Check"** learning box.
+- **S3. Habitat Bleed + Circular Magnifying-Lens Medallion (`[5]`, `[6]`, `[7]`, `[9]`):** Alternate right-column (`61%` bleed), top-bleed with a `134 pt` circular macro zoom medallion (`border: 2.5pt solid #FBF9F4`), overhead structural truss anatomy pills, and inverted calm-top / bottom-bleed spreads so opposing pages always contrast visually.
+- **S4. Dichotomous Field Key & Rule 9 Verification Close (`[10]`):** Top half houses an interactive pure-vector branching dichotomous identification key (binary observable traits linking directly to species plates); bottom half holds the Rule 9 live taxonomy reconciliation Tufte ledger and SHA-256 cryptographic & photographic colophon.
+
+---
+
 ## 4. Typographic Hierarchy Scale (`Inter` with `Helvetica` Fallback)
 
 | Token | Size / Leading | Weight | Light Mode | Dark Mode | Role |

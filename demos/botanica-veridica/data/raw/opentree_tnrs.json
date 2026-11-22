@@ -1,0 +1,276 @@
+{
+  "context": "Seed plants",
+  "governing_code": "ICN",
+  "includes_approximate_matches": false,
+  "includes_deprecated_taxa": false,
+  "includes_suppressed_names": false,
+  "matched_names": [
+    "Ginkgo biloba",
+    "Welwitschia mirabilis",
+    "Sequoia sempervirens",
+    "Victoria amazonica",
+    "Dionaea muscipula",
+    "Adansonia digitata"
+  ],
+  "results": [
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Ginkgo biloba",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "ginkgo biloba",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Ginkgo biloba",
+            "ott_id": 994084,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "Ginkgo biloba adiantifolia",
+              "Ginkgo biloba aurea",
+              "Ginkgo biloba aureovariegata",
+              "Ginkgo biloba epiphylla",
+              "Ginkgo biloba f. epiphylla",
+              "Ginkgo biloba fastigiata",
+              "Ginkgo biloba laciniata",
+              "Ginkgo biloba latifolia",
+              "Ginkgo biloba longifolia",
+              "Ginkgo biloba macrophylla",
+              "Ginkgo biloba macrophylla-laciniata",
+              "Ginkgo biloba microsperma",
+              "Ginkgo biloba parvifolia",
+              "Ginkgo biloba pendula",
+              "Ginkgo biloba triloba",
+              "Ginkgo biloba var. epiphylla",
+              "Ginkgo biloba variegata",
+              "Ginkgo macrophylla",
+              "Pterophyllus salisburgiensis",
+              "Pterophyllus salisburiensis",
+              "Pterophyllus salisburiensis aurea",
+              "Salisburia adiantifolia",
+              "Salisburia adiantifolia laciniata",
+              "Salisburia adiantifolia pendula",
+              "Salisburia adiantifolia variegata",
+              "Salisburia biloba",
+              "Salisburia ginkgo",
+              "Salisburia macrophylla"
+            ],
+            "tax_sources": [
+              "ncbi:3311",
+              "gbif:2687885",
+              "irmng:10200404"
+            ],
+            "unique_name": "Ginkgo biloba"
+          }
+        }
+      ],
+      "name": "Ginkgo biloba"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Welwitschia mirabilis",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "welwitschia mirabilis",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Welwitschia mirabilis",
+            "ott_id": 47947,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "Tumboa bainesii",
+              "Welwitschia bainesii"
+            ],
+            "tax_sources": [
+              "ncbi:3377",
+              "gbif:5275521",
+              "irmng:10201334"
+            ],
+            "unique_name": "Welwitschia mirabilis"
+          }
+        }
+      ],
+      "name": "Welwitschia mirabilis"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Sequoia sempervirens",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "sequoia sempervirens",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Sequoia sempervirens",
+            "ott_id": 538150,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "? pendula",
+              "Condylocarpus sempervirens",
+              "Gigantabies taxifolia",
+              "Sequoia religiosa",
+              "Sequoia sempervirens pendula",
+              "Taxodium nutkaense",
+              "Taxodium sempervirens"
+            ],
+            "tax_sources": [
+              "ncbi:28980",
+              "gbif:2683909",
+              "irmng:11325771"
+            ],
+            "unique_name": "Sequoia sempervirens"
+          }
+        }
+      ],
+      "name": "Sequoia sempervirens"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Victoria amazonica",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "victoria amazonica",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Victoria amazonica",
+            "ott_id": 133752,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "Anneslea amazonica",
+              "Anneslea brasiliana",
+              "Euryale amazonica",
+              "Euryale bonplandia",
+              "Euryale brasiliana",
+              "Euryale policantha",
+              "Nymphaea nelumbo",
+              "Nymphaea regina",
+              "Nymphaea victoria",
+              "Victoria amazonum",
+              "Victoria regalis",
+              "Victoria regia",
+              "Victoria regia randii",
+              "Victoria regina",
+              "Victoria reginae"
+            ],
+            "tax_sources": [
+              "ncbi:85961",
+              "gbif:5553148"
+            ],
+            "unique_name": "Victoria amazonica"
+          }
+        }
+      ],
+      "name": "Victoria amazonica"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Dionaea muscipula",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "dionaea muscipula",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Dionaea muscipula",
+            "ott_id": 14971,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "Dionaea corymbosa",
+              "Dionaea sensitiva",
+              "Dionaea sessiliflora",
+              "Dionaea uniflora",
+              "Drosera corymbosa"
+            ],
+            "tax_sources": [
+              "ncbi:4362",
+              "gbif:5421410",
+              "irmng:11196344"
+            ],
+            "unique_name": "Dionaea muscipula"
+          }
+        }
+      ],
+      "name": "Dionaea muscipula"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Adansonia digitata",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "adansonia digitata",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Adansonia digitata",
+            "ott_id": 659136,
+            "rank": "species",
+            "source": "ott3.7draft3",
+            "synonyms": [
+              "Adansonia bahobab",
+              "Adansonia baobab",
+              "Adansonia digitata congolensis",
+              "Adansonia somalensis",
+              "Adansonia sphaerocarpa",
+              "Adansonia sulcata",
+              "Baobabus digitata"
+            ],
+            "tax_sources": [
+              "ncbi:69109",
+              "gbif:5406695",
+              "irmng:11076440"
+            ],
+            "unique_name": "Adansonia digitata"
+          }
+        }
+      ],
+      "name": "Adansonia digitata"
+    }
+  ],
+  "taxonomy": {
+    "author": "open tree of life project",
+    "name": "ott",
+    "source": "ott3.7draft3",
+    "version": "3.7",
+    "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.7"
+  },
+  "unambiguous_names": [
+    "Ginkgo biloba",
+    "Welwitschia mirabilis",
+    "Sequoia sempervirens",
+    "Victoria amazonica",
+    "Dionaea muscipula",
+    "Adansonia digitata"
+  ],
+  "unmatched_names": []
+}

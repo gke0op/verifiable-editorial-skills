@@ -1,0 +1,97 @@
+{
+  "count": 1515,
+  "facets": [
+    {
+      "counts": [
+        {
+          "count": 922,
+          "name": "HUMAN_OBSERVATION"
+        },
+        {
+          "count": 384,
+          "name": "PRESERVED_SPECIMEN"
+        },
+        {
+          "count": 72,
+          "name": "FOSSIL_SPECIMEN"
+        },
+        {
+          "count": 52,
+          "name": "LIVING_SPECIMEN"
+        },
+        {
+          "count": 43,
+          "name": "OCCURRENCE"
+        },
+        {
+          "count": 29,
+          "name": "MATERIAL_SAMPLE"
+        },
+        {
+          "count": 12,
+          "name": "MACHINE_OBSERVATION"
+        },
+        {
+          "count": 1,
+          "name": "MATERIAL_CITATION"
+        }
+      ],
+      "field": "BASIS_OF_RECORD"
+    },
+    {
+      "counts": [
+        {
+          "count": 1001,
+          "name": "NA"
+        },
+        {
+          "count": 196,
+          "name": "AO"
+        },
+        {
+          "count": 27,
+          "name": "PT"
+        },
+        {
+          "count": 24,
+          "name": "US"
+        },
+        {
+          "count": 22,
+          "name": "AT"
+        },
+        {
+          "count": 18,
+          "name": "ZZ"
+        },
+        {
+          "count": 14,
+          "name": "ZA"
+        },
+        {
+          "count": 9,
+          "name": "DE"
+        },
+        {
+          "count": 2,
+          "name": "FR"
+        },
+        {
+          "count": 2,
+          "name": "GB"
+        },
+        {
+          "count": 1,
+          "name": "BE"
+        },
+        {
+          "count": 1,
+          "name": "CZ"
+        }
+      ],
+      "field": "COUNTRY"
+    }
+  ],
+  "source_url": "https://api.gbif.org/v1/occurrence/search?taxonKey=5275521&limit=0&facet=basisOfRecord&facet=country&facetLimit=12",
+  "taxonKey": 5275521
+}

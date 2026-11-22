@@ -1,0 +1,23 @@
+{
+  "canonicalName": "Adansonia digitata",
+  "class": "Magnoliopsida",
+  "classKey": 220,
+  "confidence": 100,
+  "family": "Malvaceae",
+  "familyKey": 6685,
+  "genus": "Adansonia",
+  "genusKey": 3152213,
+  "kingdom": "Plantae",
+  "kingdomKey": 6,
+  "matchType": "EXACT",
+  "order": "Malvales",
+  "orderKey": 941,
+  "phylum": "Tracheophyta",
+  "phylumKey": 7707728,
+  "rank": "SPECIES",
+  "scientificName": "Adansonia digitata L.",
+  "species": "Adansonia digitata",
+  "speciesKey": 5406695,
+  "status": "ACCEPTED",
+  "usageKey": 5406695
+}

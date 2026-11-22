@@ -1,0 +1,69 @@
+{
+  "page": 1,
+  "per_page": 5,
+  "results": [
+    {
+      "ancestor_ids": [
+        48460,
+        47126,
+        211194,
+        136329,
+        47375,
+        47374,
+        1150916,
+        47373,
+        47372
+      ],
+      "ancestry": "48460/47126/211194/136329/47375/47374/1150916/47373",
+      "atlas_id": 3948,
+      "complete_species_count": null,
+      "conservation_status": {
+        "authority": "IUCN Red List",
+        "geoprivacy": "open",
+        "id": 547949,
+        "iucn": 40,
+        "place_id": null,
+        "source_id": 37,
+        "status": "en",
+        "status_name": "endangered",
+        "user_id": 477
+      },
+      "current_synonymous_taxon_ids": null,
+      "default_photo": {
+        "attribution": "(c) kmvogelsang, all rights reserved, uploaded by kmvogelsang",
+        "attribution_name": "kmvogelsang",
+        "flags": [],
+        "id": 61295436,
+        "license_code": null,
+        "medium_url": "https://static.inaturalist.org/photos/61295436/medium.jpeg",
+        "original_dimensions": {
+          "height": 1536,
+          "width": 2048
+        },
+        "square_url": "https://static.inaturalist.org/photos/61295436/square.jpeg",
+        "url": "https://static.inaturalist.org/photos/61295436/square.jpeg"
+      },
+      "extinct": false,
+      "flag_counts": {
+        "resolved": 2,
+        "unresolved": 0
+      },
+      "iconic_taxon_id": 47126,
+      "iconic_taxon_name": "Plantae",
+      "id": 47372,
+      "is_active": true,
+      "matched_term": "Sequoia sempervirens",
+      "name": "Sequoia sempervirens",
+      "observations_count": 43444,
+      "parent_id": 47373,
+      "preferred_common_name": "coast redwood",
+      "provisional": false,
+      "rank": "species",
+      "rank_level": 10,
+      "taxon_changes_count": 0,
+      "taxon_schemes_count": 7,
+      "wikipedia_url": "http://en.wikipedia.org/wiki/Sequoia_sempervirens"
+    }
+  ],
+  "total_results": 1
+}
