@@ -325,6 +325,8 @@ def test_p2zig_kernels_parity_and_tir_provenance() -> None:
         "effective_dpi_x10",
         "detect_grid_columns",
         "classify_page_archetype",
+        "bleed_edge_count",
+        "coverage_passes",
     ]:
         assert f'pub fn @"{fn_name}"' in zig_src
 
@@ -334,6 +336,9 @@ def test_p2zig_kernels_parity_and_tir_provenance() -> None:
     assert kpy.effective_dpi_x10(100, 100, 4000, 4000) == 180
     assert kpy.rule10_is_grounded_x100(-4500, [-4501]) is True
     assert kpy.rule10_is_grounded_x100(4500, [-4501]) is False
+    assert kpy.bleed_edge_count(300, 300, 300, 0, 612, 792) == 3
+    assert kpy.coverage_passes(60000, 100000, 500, 3, 2) is True
+    assert kpy.coverage_passes(40000, 100000, 500, 3, 2) is False
 
 
 @pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
@@ -392,6 +397,56 @@ def test_zig_harness_rejects_all_sabotage_gates(tmp_path: Path) -> None:
         text=True,
     )
     assert r4.returncode != 0, r4.stdout
+
+    # 5. Pure-Zig W/W* clip-path character-slicing sabotage
+    bad_clip = tmp_path / "z_bad_clip.pdf"
+    c = canvas.Canvas(str(bad_clip), pagesize=(612, 792))
+    c.saveState()
+    p = c.beginPath()
+    p.rect(50, 680, 80, 30)
+    c.clipPath(p, stroke=0, fill=0)
+    c.setFillColor(HexColor("#111111"))
+    c.setFont("Helvetica", 12)
+    c.drawString(54, 690, "Thick low-resin bark insulates cambium from fire")
+    c.restoreState()
+    c.showPage()
+    c.save()
+    r5 = subprocess.run([str(ZIG_VEDIT), "geometry", str(bad_clip)], capture_output=True, text=True)
+    assert r5.returncode != 0, r5.stdout
+    assert "clip_path_sliced_text" in r5.stdout
+
+    # 6. Pure-Zig dual-key clip-inflated sub-50% photo coverage sabotage
+    plate_img = _make_sample_jpg(tmp_path / "z_plate.jpg", size=(600, 600), color=(30, 110, 75))
+    bad_cov = tmp_path / "z_bad_cov.pdf"
+    c = canvas.Canvas(str(bad_cov), pagesize=(612, 792))
+    c.saveState()
+    p = c.beginPath()
+    p.rect(0, 792 - 316.8, 612, 316.8)
+    c.clipPath(p, stroke=0, fill=0)
+    c.drawImage(str(plate_img), 0, 792 - 594, width=612, height=594)
+    c.restoreState()
+    c.showPage()
+    c.save()
+    r6 = subprocess.run([str(ZIG_VEDIT), "coverage", str(bad_cov), "--min-pct", "50", "--min-bleed", "2"], capture_output=True, text=True)
+    assert r6.returncode != 0, r6.stdout
+    assert "min_visible=40." in r6.stdout
+
+
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_zig_harness_full_sovereign_parity_on_botanica_and_felis() -> None:
+    """Sovereign Zig `vedit` MUST independently pass contrast, geometry (incl. clip check) & dual-key coverage on Botanica and Felis Mundi."""
+    bot_pdf = BOTANICA / "report" / "BOTANICA_VERIDICA_MONOGRAPH.pdf"
+    fel_pdf = FELIS / "report" / "FELIS_MUNDI_MAGAZINE.pdf"
+
+    for cmd in [
+        [str(ZIG_VEDIT), "contrast", str(bot_pdf)],
+        [str(ZIG_VEDIT), "geometry", str(bot_pdf)],
+        [str(ZIG_VEDIT), "coverage", str(bot_pdf), "--min-pct", "50", "--pages", "1,4-9"],
+        [str(ZIG_VEDIT), "geometry", str(fel_pdf)],
+        [str(ZIG_VEDIT), "coverage", str(fel_pdf), "--min-pct", "50"],
+    ]:
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        assert res.returncode == 0, f"CMD={cmd}\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
 
 
 @pytest.mark.skipif(

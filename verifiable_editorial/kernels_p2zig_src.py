@@ -205,3 +205,24 @@ def classify_page_archetype(
     if col_count >= 2:
         return 4
     return 6
+
+
+def bleed_edge_count(left_px: int, right_px: int, top_px: int, bot_px: int, w: int, h: int) -> int:
+    cnt = 0
+    if left_px * 4 >= h:
+        cnt += 1
+    if right_px * 4 >= h:
+        cnt += 1
+    if top_px * 4 >= w:
+        cnt += 1
+    if bot_px * 4 >= w:
+        cnt += 1
+    return cnt
+
+
+def coverage_passes(changed_px: int, total_px: int, min_pct_x10: int, bleed_edges: int, min_bleed_edges: int) -> bool:
+    if total_px <= 0:
+        return False
+    pct_x10 = (changed_px * 1000) // total_px
+    return pct_x10 >= min_pct_x10 and bleed_edges >= min_bleed_edges
+

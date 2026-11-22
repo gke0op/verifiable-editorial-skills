@@ -66,7 +66,7 @@ jobs:
         run: |
           bash demos/exomundus-nasa-telemetry/run_pipeline.sh
 
-      - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch & Archetype Dissector LIVE on Ubuntu Linux
+      - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch, Coverage & Archetype Dissector LIVE on Ubuntu Linux
         run: |
           ./zig/zig-out/bin/vedit latch demos/global-carbon-telemetry
           ./zig/zig-out/bin/vedit audit-all demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf \
@@ -75,9 +75,11 @@ jobs:
             --citations demos/typst-carbon-monograph/data/background_citations.json \
             --manifest demos/global-carbon-telemetry/data/manifest.sha256 \
             --require-ua
+          ./zig/zig-out/bin/vedit coverage demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf --min-pct 50
+          ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
           ./zig/zig-out/bin/vedit archetypes
 
-      - name: Run Full 19-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
+      - name: Run Full 20-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
         run: pytest
 
       - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos

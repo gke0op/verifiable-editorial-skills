@@ -495,23 +495,31 @@ fn isPdfDelimiter(ch: u8) bool {
         ch == '/' or ch == '<' or ch == '(' or ch == '[' or ch == '{' or ch == '%';
 }
 
-/// Pure-Zig ISO 32000 delimiter-safe BT...ET text-block stripper (handles Typst `BT/Span` tagged streams).
-pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
-    var out: std.ArrayList(u8) = .empty;
-    try out.ensureTotalCapacity(alloc, raw.len);
+fn isNonContentStream(raw: []const u8, st_idx: usize) bool {
+    const win_start = if (st_idx > 400) st_idx - 400 else 0;
+    const hdr = raw[win_start..st_idx];
+    return std.mem.find(u8, hdr, "/Subtype /Image") != null or
+        std.mem.find(u8, hdr, "/Subtype/Image") != null or
+        std.mem.find(u8, hdr, "/FontFile") != null or
+        std.mem.find(u8, hdr, "/Filter /DCTDecode") != null or
+        std.mem.find(u8, hdr, "/Filter/DCTDecode") != null or
+        std.mem.find(u8, hdr, "/Subtype /XML") != null or
+        std.mem.find(u8, hdr, "/Type /Metadata") != null;
+}
+
+fn blankBtEtInPlace(buf: []u8) void {
     var i: usize = 0;
-    while (i < raw.len) {
-        if (i + 2 < raw.len and raw[i] == 'B' and raw[i + 1] == 'T') {
-            const prev_ok = (i == 0) or !isPdfIdentChar(raw[i - 1]);
-            const next_ok = isPdfDelimiter(raw[i + 2]);
+    while (i < buf.len) {
+        if (i + 2 < buf.len and buf[i] == 'B' and buf[i + 1] == 'T') {
+            const prev_ok = (i == 0) or !isPdfIdentChar(buf[i - 1]);
+            const next_ok = isPdfDelimiter(buf[i + 2]);
             if (prev_ok and next_ok) {
-                // Scan forward for matching ET operator
                 var j: usize = i + 2;
                 var found_et: ?usize = null;
-                while (j + 1 < raw.len) : (j += 1) {
-                    if (raw[j] == 'E' and raw[j + 1] == 'T') {
-                        const et_prev_ok = !isPdfIdentChar(raw[j - 1]);
-                        const et_next_ok = (j + 2 == raw.len) or isPdfDelimiter(raw[j + 2]);
+                while (j + 1 < buf.len) : (j += 1) {
+                    if (buf[j] == 'E' and buf[j + 1] == 'T') {
+                        const et_prev_ok = !isPdfIdentChar(buf[j - 1]);
+                        const et_next_ok = (j + 2 == buf.len) or isPdfDelimiter(buf[j + 2]);
                         if (et_prev_ok and et_next_ok) {
                             found_et = j + 2;
                             break;
@@ -519,20 +527,52 @@ pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
                     }
                 }
                 if (found_et) |end_pos| {
-                    // Replace removed bytes with spaces/newlines of SAME byte length so PDF xref offsets stay 100% valid!
                     var k: usize = i;
                     while (k < end_pos) : (k += 1) {
-                        try out.append(alloc, if (raw[k] == '\n') '\n' else ' ');
+                        if (buf[k] != '\n') buf[k] = ' ';
                     }
                     i = end_pos;
                     continue;
                 }
             }
         }
-        try out.append(alloc, raw[i]);
         i += 1;
     }
-    return out.toOwnedSlice(alloc);
+}
+
+/// Pure-Zig ISO 32000 delimiter-safe BT...ET text-block stripper (handles Typst `BT/Span` tagged streams
+/// while skipping binary Image/Font/Metadata streams so photo-heavy PDFs stay 100% intact).
+pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
+    const out = try alloc.dupe(u8, raw);
+    // If input is a raw content-stream snippet without `stream...endstream` wrapper (e.g. unit test), process directly
+    if (std.mem.find(u8, out, "stream\n") == null and std.mem.find(u8, out, "stream\r\n") == null) {
+        blankBtEtInPlace(out);
+        return out;
+    }
+    var pos: usize = 0;
+    while (std.mem.findPos(u8, out, pos, "stream")) |st_idx| {
+        if (st_idx >= 3 and std.mem.eql(u8, out[st_idx - 3 .. st_idx], "end")) {
+            pos = st_idx + 6;
+            continue;
+        }
+        var body_start = st_idx + 6;
+        if (body_start < out.len and out[body_start] == '\r') body_start += 1;
+        if (body_start >= out.len or out[body_start] != '\n') {
+            pos = st_idx + 6;
+            continue;
+        }
+        body_start += 1;
+        const body_end = std.mem.findPos(u8, out, body_start, "endstream") orelse break;
+        if (isNonContentStream(out, st_idx)) {
+            pos = body_end + 9;
+            continue;
+        }
+        if (!isNonContentStream(out, st_idx)) {
+            blankBtEtInPlace(out[body_start..body_end]);
+        }
+        pos = body_end + 9;
+    }
+    return out;
 }
 
 /// Build a temporary text-free PDF (decompressed via `mutool clean -d`, BT...ET blanked in-place in Zig)
@@ -549,6 +589,261 @@ pub fn makeBackgroundOnlyPdf(alloc: std.mem.Allocator, io: std.Io, pdf_path: []c
     const stripped = try stripBtEtStreams(alloc, raw);
     try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = bg_path, .data = stripped });
     return bg_path;
+}
+
+fn isWs(ch: u8) bool {
+    return ch == ' ' or ch == '\t' or ch == '\r' or ch == '\n';
+}
+
+/// Pure-Zig ISO 32000 PDF clip-path stripper: blanks `W` / `W*` clipping operators inside `stream...endstream`
+/// payloads (preserving exact byte length so PDF xref offsets remain 100% valid).
+pub fn stripClipPathStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
+    const out = try alloc.dupe(u8, raw);
+    var pos: usize = 0;
+    while (std.mem.findPos(u8, out, pos, "stream")) |st_idx| {
+        var body_start = st_idx + 6;
+        if (body_start < out.len and out[body_start] == '\r') body_start += 1;
+        if (body_start >= out.len or out[body_start] != '\n') {
+            pos = st_idx + 6;
+            continue;
+        }
+        body_start += 1;
+        // Skip "endstream" false match
+        if (st_idx >= 3 and std.mem.eql(u8, out[st_idx - 3 .. st_idx], "end")) {
+            pos = st_idx + 6;
+            continue;
+        }
+        const body_end = std.mem.findPos(u8, out, body_start, "endstream") orelse break;
+        if (isNonContentStream(out, st_idx)) {
+            pos = body_end + 9;
+            continue;
+        }
+
+        var i = body_start;
+        var paren_depth: usize = 0;
+        var in_hex = false;
+        while (i < body_end) : (i += 1) {
+            const ch = out[i];
+            if (paren_depth > 0) {
+                if (ch == '\\' and i + 1 < body_end) {
+                    i += 1;
+                } else if (ch == '(') {
+                    paren_depth += 1;
+                } else if (ch == ')') {
+                    paren_depth -= 1;
+                }
+                continue;
+            }
+            if (in_hex) {
+                if (ch == '>') in_hex = false;
+                continue;
+            }
+            if (ch == '(') {
+                paren_depth = 1;
+                continue;
+            }
+            if (ch == '<' and (i + 1 >= body_end or out[i + 1] != '<')) {
+                in_hex = true;
+                continue;
+            }
+            if (ch == 'W') {
+                const prev_ok = (i == body_start) or isWs(out[i - 1]);
+                if (!prev_ok) continue;
+                var op_len: usize = 1;
+                if (i + 1 < body_end and out[i + 1] == '*') op_len = 2;
+                const after = i + op_len;
+                if (after >= body_end or !isWs(out[after])) continue;
+                // Check next non-whitespace operator is a path terminator/painter (`n`, `f`, `F`, `S`, `s`, `B`, `b`)
+                var k = after;
+                while (k < body_end and isWs(out[k])) : (k += 1) {}
+                if (k < body_end) {
+                    const nxt = out[k];
+                    const is_path_op = (nxt == 'n' or nxt == 'f' or nxt == 'F' or nxt == 'S' or nxt == 's' or nxt == 'B' or nxt == 'b');
+                    const nxt_after = k + 1;
+                    const nxt_delim = (nxt_after >= body_end) or isWs(out[nxt_after]) or out[nxt_after] == '*';
+                    if (is_path_op and nxt_delim) {
+                        out[i] = ' ';
+                        if (op_len == 2) out[i + 1] = ' ';
+                    }
+                }
+            }
+        }
+        pos = body_end + 9;
+    }
+    return out;
+}
+
+/// Create a temporary unclipped PDF (with all `W`/`W*` clip operators neutralised) for clip-slicing detection.
+pub fn makeUnclippedPdf(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, tmp_tag: []const u8) ![]const u8 {
+    const clean_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_clipclean_{s}.pdf", .{tmp_tag});
+    const out_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_unclipped_{s}.pdf", .{tmp_tag});
+    defer std.Io.Dir.cwd().deleteFile(io, clean_path) catch {};
+
+    const clean_res = try runCmd(alloc, io, &.{ "mutool", "clean", "-d", pdf_path, clean_path }, null);
+    if (clean_res.exit_code != 0) return error.MutoolCleanFailed;
+    const raw = try std.Io.Dir.cwd().readFileAlloc(io, clean_path, alloc, .unlimited);
+    const stripped = try stripClipPathStreams(alloc, raw);
+    try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = out_path, .data = stripped });
+    return out_path;
+}
+
+fn parseDictInt(dict: []const u8, key: []const u8) ?i64 {
+    const pos = std.mem.find(u8, dict, key) orelse return null;
+    const rest = std.mem.trimStart(u8, dict[pos + key.len ..], " \t\r\n");
+    var end: usize = 0;
+    while (end < rest.len and rest[end] >= '0' and rest[end] <= '9') : (end += 1) {}
+    if (end == 0) return null;
+    return std.fmt.parseInt(i64, rest[0..end], 10) catch null;
+}
+
+fn extractSMaskRef(alloc: std.mem.Allocator, dict: []const u8) !?[]const u8 {
+    const pos = std.mem.find(u8, dict, "/SMask") orelse return null;
+    const rest = std.mem.trimStart(u8, dict[pos + 6 ..], " \t\r\n");
+    var it = std.mem.tokenizeAny(u8, rest, " \t\r\n");
+    const n1 = it.next() orelse return null;
+    const n2 = it.next() orelse return null;
+    const rtok = it.next() orelse return null;
+    if (!std.mem.eql(u8, rtok, "R")) return null;
+    return try std.fmt.allocPrint(alloc, "/SMask {s} {s} R", .{ n1, n2 });
+}
+
+pub const RewriteImagesResult = struct {
+    bytes: []u8,
+    replaced_count: usize,
+    needs_xref_repair: bool,
+};
+
+/// Pure-Zig dual-key PDF image rewriter: replaces every non-mask raster Image XObject (>= 8x8 px)
+/// with a 1x1 solid DeviceRGB pixel `(r, g, b)` while preserving `/SMask`, PDF clip paths, and z-order.
+pub fn rewriteImagesToSolidKey(alloc: std.mem.Allocator, raw: []const u8, key: Rgb) !RewriteImagesResult {
+    // Pass 1: collect all object IDs referenced by `/SMask <id> 0 R` so alpha masks stay untouched
+    var smask_ids = std.AutoHashMap(u64, void).init(alloc);
+    defer smask_ids.deinit();
+    var spos: usize = 0;
+    while (std.mem.findPos(u8, raw, spos, "/SMask")) |mpos| {
+        const rest = std.mem.trimStart(u8, raw[mpos + 6 ..], " \t\r\n");
+        var it = std.mem.tokenizeAny(u8, rest, " \t\r\n");
+        if (it.next()) |id_tok| {
+            if (std.fmt.parseInt(u64, id_tok, 10)) |oid| {
+                try smask_ids.put(oid, {});
+            } else |_| {}
+        }
+        spos = mpos + 6;
+    }
+
+    var out: std.ArrayList(u8) = .empty;
+    try out.ensureTotalCapacity(alloc, raw.len);
+    var replaced: usize = 0;
+    var needs_repair = false;
+
+    var cursor: usize = 0;
+    while (cursor < raw.len) {
+        // Find next " 0 obj"
+        const obj_marker = std.mem.findPos(u8, raw, cursor, " 0 obj") orelse {
+            try out.appendSlice(alloc, raw[cursor..]);
+            break;
+        };
+        // Walk back to start of object number
+        var id_start = obj_marker;
+        while (id_start > cursor and raw[id_start - 1] >= '0' and raw[id_start - 1] <= '9') : (id_start -= 1) {}
+        const oid = std.fmt.parseInt(u64, raw[id_start..obj_marker], 10) catch 0;
+        const body_after_hdr = obj_marker + 6;
+        const endobj_pos = std.mem.findPos(u8, raw, body_after_hdr, "endobj") orelse {
+            try out.appendSlice(alloc, raw[cursor..]);
+            break;
+        };
+        const obj_slice = raw[body_after_hdr..endobj_pos];
+
+        // Check if this object is a non-mask Image XObject with a stream
+        const is_img = (std.mem.find(u8, obj_slice, "/Subtype /Image") != null or std.mem.find(u8, obj_slice, "/Subtype/Image") != null);
+        const is_mask = (std.mem.find(u8, obj_slice, "/ImageMask true") != null or std.mem.find(u8, obj_slice, "/ImageMask/true") != null or smask_ids.contains(oid));
+        if (is_img and !is_mask) {
+            if (std.mem.find(u8, obj_slice, "<<")) |d_start| {
+                if (std.mem.findPos(u8, obj_slice, d_start, "stream")) |st_rel| {
+                    if (std.mem.findPos(u8, obj_slice, st_rel + 6, "endstream")) |es_rel| {
+                        const dict = obj_slice[d_start..st_rel];
+                        const iw = parseDictInt(dict, "/Width") orelse 0;
+                        const ih = parseDictInt(dict, "/Height") orelse 0;
+                        if (iw >= 8 and ih >= 8) {
+                            const smask_opt = try extractSMaskRef(alloc, dict);
+                            defer if (smask_opt) |s| alloc.free(s);
+                            const smask_clause = smask_opt orelse "";
+                            const repl = try std.fmt.allocPrint(
+                                alloc,
+                                "<< /Type /XObject /Subtype /Image /Width 1 /Height 1 /ColorSpace /DeviceRGB /BitsPerComponent 8 {s} /Length 3 >>\nstream\n{c}{c}{c}\nendstream",
+                                .{ smask_clause, key.r, key.g, key.b },
+                            );
+                            defer alloc.free(repl);
+                            const orig_span_start = body_after_hdr + d_start;
+                            const orig_span_end = body_after_hdr + es_rel + 9;
+                            const orig_len = orig_span_end - orig_span_start;
+
+                            try out.appendSlice(alloc, raw[cursor..orig_span_start]);
+                            try out.appendSlice(alloc, repl);
+                            if (repl.len <= orig_len) {
+                                var pad: usize = orig_len - repl.len;
+                                while (pad > 0) : (pad -= 1) try out.append(alloc, ' ');
+                            } else {
+                                needs_repair = true;
+                            }
+                            cursor = orig_span_end;
+                            replaced += 1;
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        try out.appendSlice(alloc, raw[cursor .. endobj_pos + 6]);
+        cursor = endobj_pos + 6;
+    }
+
+    return .{
+        .bytes = try out.toOwnedSlice(alloc),
+        .replaced_count = replaced,
+        .needs_xref_repair = needs_repair,
+    };
+}
+
+pub const DualKeyPdfs = struct {
+    pdf_a: []const u8,
+    pdf_b: []const u8,
+    replaced_images: usize,
+};
+
+/// Build two temporary PDFs where every real raster image is swapped with Magenta (#FF00FF) vs Lime (#00FF00).
+pub fn makeDualKeyPdfs(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, tmp_tag: []const u8) !DualKeyPdfs {
+    const clean_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_covclean_{s}.pdf", .{tmp_tag});
+    const raw_a = try std.fmt.allocPrint(alloc, "/tmp/vedit_cova_raw_{s}.pdf", .{tmp_tag});
+    const raw_b = try std.fmt.allocPrint(alloc, "/tmp/vedit_covb_raw_{s}.pdf", .{tmp_tag});
+    const out_a = try std.fmt.allocPrint(alloc, "/tmp/vedit_cova_{s}.pdf", .{tmp_tag});
+    const out_b = try std.fmt.allocPrint(alloc, "/tmp/vedit_covb_{s}.pdf", .{tmp_tag});
+    defer std.Io.Dir.cwd().deleteFile(io, clean_path) catch {};
+
+    // Normalize PDF structure (decompress object streams so /Image dicts are plaintext, keeping JPEG streams compact)
+    const cl = try runCmd(alloc, io, &.{ "mutool", "clean", pdf_path, clean_path }, null);
+    if (cl.exit_code != 0) return error.MutoolCleanFailed;
+    const base_bytes = try std.Io.Dir.cwd().readFileAlloc(io, clean_path, alloc, .unlimited);
+
+    const ka = try rewriteImagesToSolidKey(alloc, base_bytes, .{ .r = 255, .g = 0, .b = 255 });
+    const kb = try rewriteImagesToSolidKey(alloc, base_bytes, .{ .r = 0, .g = 255, .b = 0 });
+
+    if (ka.needs_xref_repair) {
+        try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = raw_a, .data = ka.bytes });
+        defer std.Io.Dir.cwd().deleteFile(io, raw_a) catch {};
+        _ = try runCmd(alloc, io, &.{ "mutool", "clean", raw_a, out_a }, null);
+    } else {
+        try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = out_a, .data = ka.bytes });
+    }
+    if (kb.needs_xref_repair) {
+        try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = raw_b, .data = kb.bytes });
+        defer std.Io.Dir.cwd().deleteFile(io, raw_b) catch {};
+        _ = try runCmd(alloc, io, &.{ "mutool", "clean", raw_b, out_b }, null);
+    } else {
+        try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = out_b, .data = kb.bytes });
+    }
+
+    return .{ .pdf_a = out_a, .pdf_b = out_b, .replaced_images = ka.replaced_count };
 }
 
 /// Parse binary PPM (`P6`) bytes into RGB pixel matrix.
@@ -775,4 +1070,35 @@ test "parsePpm decodes minimal P6 raster" {
     const p1 = img.pixelAt(1, 0);
     try std.testing.expectEqual(@as(u8, 1), p0.r);
     try std.testing.expectEqual(@as(u8, 254), p1.r);
+}
+
+test "stripClipPathStreams neutralizes W n and W* n inside streams without touching dicts or strings" {
+    const alloc = std.testing.allocator;
+    const sample = "<< /Width 612 /W [1 2] >>\nstream\n50 680 80 30 re W n\n(Hello W n) Tj\n10 10 20 20 re W* n\nendstream\n";
+    const out = try stripClipPathStreams(alloc, sample);
+    defer alloc.free(out);
+    try std.testing.expectEqual(sample.len, out.len);
+    try std.testing.expect(std.mem.find(u8, out, "/Width 612 /W [1 2]") != null);
+    try std.testing.expect(std.mem.find(u8, out, "(Hello W n)") != null);
+    try std.testing.expect(std.mem.find(u8, out, "re   n") != null);
+    try std.testing.expect(std.mem.find(u8, out, "re    n") != null);
+}
+
+test "rewriteImagesToSolidKey swaps Image XObject and preserves SMask object untouched" {
+    const alloc = std.testing.allocator;
+    const payload_a: [200]u8 = @splat('A');
+    const payload_b: [20]u8 = @splat('B');
+    const sample = try std.fmt.allocPrint(
+        alloc,
+        "5 0 obj\n<< /Type /XObject /Subtype /Image /Width 64 /Height 64 /ColorSpace /DeviceRGB /SMask 6 0 R /Length 200 >>\nstream\n{s}\nendstream\nendobj\n6 0 obj\n<< /Type /XObject /Subtype /Image /Width 64 /Height 64 /ColorSpace /DeviceGray /Length 20 >>\nstream\n{s}\nendstream\nendobj\n",
+        .{ payload_a, payload_b },
+    );
+    defer alloc.free(sample);
+    const res = try rewriteImagesToSolidKey(alloc, sample, .{ .r = 255, .g = 0, .b = 255 });
+    defer alloc.free(res.bytes);
+    try std.testing.expectEqual(@as(usize, 1), res.replaced_count);
+    try std.testing.expect(!res.needs_xref_repair);
+    try std.testing.expectEqual(sample.len, res.bytes.len);
+    try std.testing.expect(std.mem.find(u8, res.bytes, "/SMask 6 0 R") != null);
+    try std.testing.expect(std.mem.find(u8, res.bytes, "BBBBBBBBBBBBBBBBBBBB") != null);
 }

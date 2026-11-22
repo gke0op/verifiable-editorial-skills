@@ -1,0 +1,9 @@
+# Mark compiled/generated editorial outputs so GitHub Linguist measures hand-authored source accurately
+demos/*/report/BOTANICA_VERIDICA_LIVING.html linguist-generated=true
+demos/*/report/assets/** linguist-generated=true
+demos/*/data/** linguist-generated=true
+demos/*/previews/** linguist-generated=true
+archetypes/*/skeleton.typ linguist-generated=true
+archetypes/*/blueprint.json linguist-generated=true
+archetypes/registry.json linguist-generated=true
+zig/src/kernels_p2zig.zig linguist-generated=false

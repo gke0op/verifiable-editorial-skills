@@ -34,12 +34,31 @@ pub const GeometryReport = struct {
     pages: usize,
     total_spans: usize,
     collisions: usize,
+    clipped: usize,
     trim_overflow: usize,
     headline_orphans: usize,
     noisy_overlays: usize,
     worst_rms: f64,
     passed: bool,
     issues: []const GeometryIssue,
+};
+
+pub const PageCoverage = struct {
+    page: usize,
+    enforced: bool,
+    visible_pct: f64,
+    bleed_edges: i64,
+    passed: bool,
+};
+
+pub const CoverageReport = struct {
+    pages: usize,
+    enforced_count: usize,
+    min_visible_pct: f64,
+    avg_visible_pct: f64,
+    failures: []const []const u8,
+    page_reports: []const PageCoverage,
+    passed: bool,
 };
 
 pub const UngroundedToken = struct {
@@ -240,17 +259,53 @@ pub fn auditGeometry(
 ) !GeometryReport {
     const bg_pdf = try mupdf.makeBackgroundOnlyPdf(alloc, io, pdf_path, tmp_tag);
     defer std.Io.Dir.cwd().deleteFile(io, bg_pdf) catch {};
+    const unclip_pdf = mupdf.makeUnclippedPdf(alloc, io, pdf_path, tmp_tag) catch null;
+    defer if (unclip_pdf) |up| std.Io.Dir.cwd().deleteFile(io, up) catch {};
+    const unclip_pages: ?[]mupdf.PageData = if (unclip_pdf) |up| (mupdf.extractPages(alloc, io, up) catch null) else null;
 
     var issues: std.ArrayList(GeometryIssue) = .empty;
     var tot_spans: usize = 0;
     var tot_coll: usize = 0;
+    var tot_clipped: usize = 0;
     var tot_over: usize = 0;
     var tot_orph: usize = 0;
     var tot_noisy: usize = 0;
     var worst_rms: f64 = 0.0;
 
-    for (pages) |pg| {
+    for (pages, 0..) |pg, pg_idx| {
         tot_spans += pg.spans.len;
+
+        // 0. PDF `W n` / `W* n` clip-path character slicing differential check
+        if (unclip_pages) |upgs| {
+            if (pg_idx < upgs.len) {
+                var vis_freq: [128]usize = @splat(0);
+                var raw_freq: [128]usize = @splat(0);
+                for (pg.spans) |sp| {
+                    for (sp.text) |ch| {
+                        if (ch < 128 and isAsciiAlnum(ch)) vis_freq[ch] += 1;
+                    }
+                }
+                for (upgs[pg_idx].spans) |sp| {
+                    // Only count spans intersecting the visible trim box
+                    if (sp.x1 < 0.0 or sp.y1 < 0.0 or sp.x0 > pg.width or sp.y0 > pg.height) continue;
+                    for (sp.text) |ch| {
+                        if (ch < 128 and isAsciiAlnum(ch)) raw_freq[ch] += 1;
+                    }
+                }
+                var missing_chars: usize = 0;
+                for (0..128) |ci| {
+                    if (raw_freq[ci] > vis_freq[ci]) missing_chars += (raw_freq[ci] - vis_freq[ci]);
+                }
+                if (missing_chars > 0) {
+                    tot_clipped += 1;
+                    try issues.append(alloc, .{
+                        .page = pg.page_num,
+                        .kind = "clip_path_sliced_text",
+                        .detail = try std.fmt.allocPrint(alloc, "{d} alphanumeric character(s) sliced by W/W* clip path", .{missing_chars}),
+                    });
+                }
+            }
+        }
 
         // 1. Pairwise AABB collisions via p2zig kernel
         for (pg.spans, 0..) |a, i| {
@@ -395,12 +450,143 @@ pub fn auditGeometry(
         .pages = pages.len,
         .total_spans = tot_spans,
         .collisions = tot_coll,
+        .clipped = tot_clipped,
         .trim_overflow = tot_over,
         .headline_orphans = tot_orph,
         .noisy_overlays = tot_noisy,
         .worst_rms = worst_rms,
-        .passed = (tot_coll == 0 and tot_over == 0 and tot_orph == 0 and tot_noisy == 0),
+        .passed = (tot_coll == 0 and tot_clipped == 0 and tot_over == 0 and tot_orph == 0 and tot_noisy == 0),
         .issues = try issues.toOwnedSlice(alloc),
+    };
+}
+
+/// Parse 1-based page specification like "1,4-9" into a boolean lookup slice (index 1..=page_count).
+pub fn parsePageSpec(alloc: std.mem.Allocator, spec: ?[]const u8, page_count: usize) ![]bool {
+    const mask = try alloc.alloc(bool, page_count + 1);
+    if (spec == null or spec.?.len == 0) {
+        @memset(mask, true);
+        mask[0] = false;
+        return mask;
+    }
+    @memset(mask, false);
+    var it = std.mem.splitScalar(u8, spec.?, ',');
+    while (it.next()) |raw_part| {
+        const part = std.mem.trim(u8, raw_part, " \t");
+        if (part.len == 0) continue;
+        if (std.mem.findScalar(u8, part, '-')) |dash| {
+            const a = std.fmt.parseInt(usize, part[0..dash], 10) catch continue;
+            const b = std.fmt.parseInt(usize, part[dash + 1 ..], 10) catch continue;
+            var p = @max(@as(usize, 1), a);
+            const hi = @min(page_count, b);
+            while (p <= hi) : (p += 1) mask[p] = true;
+        } else {
+            const p = std.fmt.parseInt(usize, part, 10) catch continue;
+            if (p >= 1 and p <= page_count) mask[p] = true;
+        }
+    }
+    return mask;
+}
+
+/// Gate 3B: Exact clip-aware dual-key pixel-diff visible photography coverage (defeats raw rect inflation).
+/// Uses pure-Zig image XObject rewriting + `p2zig --strict` bleed & coverage kernels.
+pub fn auditCoverage(
+    alloc: std.mem.Allocator,
+    io: std.Io,
+    pdf_path: []const u8,
+    page_count: usize,
+    min_pct: f64,
+    min_bleed_edges: i64,
+    page_spec: ?[]const u8,
+    tmp_tag: []const u8,
+) !CoverageReport {
+    const mask = try parsePageSpec(alloc, page_spec, page_count);
+    const dk = try mupdf.makeDualKeyPdfs(alloc, io, pdf_path, tmp_tag);
+    defer std.Io.Dir.cwd().deleteFile(io, dk.pdf_a) catch {};
+    defer std.Io.Dir.cwd().deleteFile(io, dk.pdf_b) catch {};
+
+    var reports: std.ArrayList(PageCoverage) = .empty;
+    var failures: std.ArrayList([]const u8) = .empty;
+    const min_pct_x10: i64 = @intFromFloat(@round(min_pct * 10.0));
+
+    var min_vis: f64 = 100.0;
+    var sum_vis: f64 = 0.0;
+    var enf_cnt: usize = 0;
+
+    var pg: usize = 1;
+    while (pg <= page_count) : (pg += 1) {
+        const enforced = mask[pg];
+        var pct: f64 = 0.0;
+        var b_edges: i64 = 0;
+        var ok = true;
+
+        if (dk.replaced_images > 0) {
+            const tag_a = try std.fmt.allocPrint(alloc, "{s}_ca", .{tmp_tag});
+            const tag_b = try std.fmt.allocPrint(alloc, "{s}_cb", .{tmp_tag});
+            const pa = try mupdf.renderPagePpm(alloc, io, dk.pdf_a, pg, 72, tag_a);
+            const pb = try mupdf.renderPagePpm(alloc, io, dk.pdf_b, pg, 72, tag_b);
+            const w = @min(pa.width, pb.width);
+            const h = @min(pa.height, pb.height);
+            const total_px: i64 = @intCast(w * h);
+            var changed: i64 = 0;
+            var l_px: i64 = 0;
+            var r_px: i64 = 0;
+            var t_px: i64 = 0;
+            var b_px: i64 = 0;
+
+            var y: usize = 0;
+            while (y < h) : (y += 1) {
+                var x: usize = 0;
+                while (x < w) : (x += 1) {
+                    const ca = pa.pixelAt(x, y);
+                    const cb = pb.pixelAt(x, y);
+                    if (ca.r != cb.r or ca.g != cb.g or ca.b != cb.b) {
+                        changed += 1;
+                        if (x <= 1) l_px += 1;
+                        if (x + 2 >= w) r_px += 1;
+                        if (y <= 1) t_px += 1;
+                        if (y + 2 >= h) b_px += 1;
+                    }
+                }
+            }
+            if (total_px > 0) {
+                pct = (@as(f64, @floatFromInt(changed)) / @as(f64, @floatFromInt(total_px))) * 100.0;
+            }
+            b_edges = kernels.bleed_edge_count(l_px, r_px, t_px, b_px, @intCast(w), @intCast(h));
+            if (enforced) {
+                ok = kernels.coverage_passes(changed, total_px, min_pct_x10, b_edges, min_bleed_edges);
+            }
+        } else if (enforced) {
+            ok = (min_pct <= 0.0 and min_bleed_edges <= 0);
+        }
+
+        if (enforced) {
+            enf_cnt += 1;
+            if (pct < min_vis) min_vis = pct;
+            sum_vis += pct;
+            if (!ok) {
+                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Page {d}: visible photo {d:.1}% (min {d:.1}%), bleed edges {d} (min {d})", .{
+                    pg, pct, min_pct, b_edges, min_bleed_edges,
+                }));
+            }
+        }
+        try reports.append(alloc, .{
+            .page = pg,
+            .enforced = enforced,
+            .visible_pct = pct,
+            .bleed_edges = b_edges,
+            .passed = ok,
+        });
+    }
+
+    const flist = try failures.toOwnedSlice(alloc);
+    return .{
+        .pages = page_count,
+        .enforced_count = enf_cnt,
+        .min_visible_pct = if (enf_cnt > 0) min_vis else 0.0,
+        .avg_visible_pct = if (enf_cnt > 0) sum_vis / @as(f64, @floatFromInt(enf_cnt)) else 0.0,
+        .failures = flist,
+        .page_reports = try reports.toOwnedSlice(alloc),
+        .passed = flist.len == 0,
     };
 }
 

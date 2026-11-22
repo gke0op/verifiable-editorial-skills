@@ -9,7 +9,7 @@ const audit = @import("audit.zig");
 const dissect = @import("dissect.zig");
 const scaffold = @import("scaffold.zig");
 
-const VERSION = "0.4.0-zig";
+const VERSION = "0.5.0-zig";
 
 fn writeOut(io: std.Io, s: []const u8) !void {
     try std.Io.File.stdout().writeStreamingAll(io, s);
@@ -37,12 +37,14 @@ fn printUsage(io: std.Io) !void {
         \\  vedit contrast <pdf> [--json]
         \\      Background-sampled WCAG 2.1 AA contrast gate (p2zig kernel)
         \\  vedit geometry <pdf> [--max-rms 55] [--json]
-        \\      AABB collision, trim overflow, headline orphan & photo-texture gate (p2zig kernel)
+        \\      AABB collision, W/W* clip-path slicing, trim overflow, headline orphan & photo-texture gate
+        \\  vedit coverage <pdf> [--min-pct 50] [--min-bleed 2] [--pages "1,4-9"] [--json]
+        \\      Exact clip-aware dual-key pixel-diff visible photography coverage gate (p2zig kernel)
         \\  vedit prose <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--json]
         \\      Rule 10 post-render signed + superscript-safe prose grounding gate (p2zig kernel)
         \\  vedit prepress <pdf> [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
         \\      Effective DPI, font embedding, Trim/BleedBox, CMYK GCR TAC & live veraPDF ISO 14289-1 gate
-        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
+        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--plate-pages "1,4-9"] [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
         \\      Run all applicable verification gates in one invocation (exits non-zero on any failure)
         \\  vedit version
         \\
@@ -273,16 +275,38 @@ pub fn main(init: std.process.Init) !void {
         const rep = try audit.auditGeometry(alloc, io, pdf_path, pages, max_rms, tmp_tag);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "geometry", "pdf": "{s}", "passed": {}, "collisions": {d}, "overflow": {d}, "orphans": {d}, "noisy_overlays": {d}, "worst_rms": {d:.1} }}
+                \\{{ "gate": "geometry", "pdf": "{s}", "passed": {}, "collisions": {d}, "clipped": {d}, "overflow": {d}, "orphans": {d}, "noisy_overlays": {d}, "worst_rms": {d:.1} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.collisions, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms }));
+            , .{ pdf_name, rep.passed, rep.collisions, rep.clipped, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
-            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:geometry] {s} -> {s}\n  collisions={d} | overflow={d} | orphans={d} | noisy_overlays={d} (worst_rms={d:.1})\n", .{
-                st, pdf_name, rep.collisions, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms,
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:geometry] {s} -> {s}\n  collisions={d} | clipped={d} | overflow={d} | orphans={d} | noisy_overlays={d} (worst_rms={d:.1})\n", .{
+                st, pdf_name, rep.collisions, rep.clipped, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms,
             }));
             for (rep.issues[0..@min(rep.issues.len, 10)]) |iss| {
                 try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] p.{d} {s}: {s}\n", .{ iss.page, iss.kind, iss.detail }));
+            }
+        }
+        if (!rep.passed) std.process.exit(1);
+        return;
+    }
+
+    if (std.mem.eql(u8, cmd, "coverage")) {
+        const min_pct: f64 = if (getOpt(sub_args, "--min-pct")) |v| std.fmt.parseFloat(f64, v) catch 50.0 else 50.0;
+        const min_bl: i64 = if (getOpt(sub_args, "--min-bleed")) |v| std.fmt.parseInt(i64, v, 10) catch 2 else 2;
+        const rep = try audit.auditCoverage(alloc, io, pdf_path, pages.len, min_pct, min_bl, getOpt(sub_args, "--pages"), tmp_tag);
+        if (as_json) {
+            try writeOut(io, try std.fmt.allocPrint(alloc,
+                \\{{ "gate": "photo_coverage", "pdf": "{s}", "passed": {}, "enforced_pages": {d}, "min_visible_pct": {d:.2}, "avg_visible_pct": {d:.2}, "failures": {d} }}
+                \\
+            , .{ pdf_name, rep.passed, rep.enforced_count, rep.min_visible_pct, rep.avg_visible_pct, rep.failures.len }));
+        } else {
+            const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:photo_coverage] {s} -> {s}\n  enforced={d} pages | min_visible={d:.1}% | avg_visible={d:.1}%\n", .{
+                st, pdf_name, rep.enforced_count, rep.min_visible_pct, rep.avg_visible_pct,
+            }));
+            for (rep.failures) |f| {
+                try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] {s}\n", .{f}));
             }
         }
         if (!rep.passed) std.process.exit(1);
@@ -372,6 +396,26 @@ pub fn main(init: std.process.Init) !void {
             }
         }
 
+        var cov_ran = false;
+        var cov_ok = true;
+        var cov_min_pct: f64 = 0.0;
+        if (getOpt(sub_args, "--plate-pages")) |pspec| {
+            cov_ran = true;
+            const cov_min: f64 = if (getOpt(sub_args, "--min-photo-pct")) |v| std.fmt.parseFloat(f64, v) catch 50.0 else 50.0;
+            const cov = try audit.auditCoverage(alloc, io, pdf_path, pages.len, cov_min, 2, pspec, tmp_tag);
+            cov_ok = cov.passed;
+            cov_min_pct = cov.min_visible_pct;
+            if (!cov.passed) all_ok = false;
+            if (!as_json) {
+                try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:photo_coverage] {s} -> {s} (enforced={d}, min_visible={d:.1}%, avg={d:.1}%)\n", .{
+                    if (cov.passed) "PASS" else "FAIL", pdf_name, cov.enforced_count, cov.min_visible_pct, cov.avg_visible_pct,
+                }));
+                for (cov.failures) |f| {
+                    try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] coverage: {s}\n", .{f}));
+                }
+            }
+        }
+
         const cat = try mupdf.inspectCatalog(alloc, io, pdf_path);
         const min_dpi: f64 = if (getOpt(sub_args, "--min-dpi")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
         const pp = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, 300.0, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_tag);
@@ -379,13 +423,13 @@ pub fn main(init: std.process.Init) !void {
 
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "audit_all", "pdf": "{s}", "passed": {}, "contrast_passed": {}, "worst_cr": {d:.2}, "geometry_passed": {}, "prose_ran": {}, "prose_passed": {}, "prose_checked": {d}, "prose_ungrounded": {d}, "prepress_passed": {}, "verapdf_compliant": {} }}
+                \\{{ "gate": "audit_all", "pdf": "{s}", "passed": {}, "contrast_passed": {}, "worst_cr": {d:.2}, "geometry_passed": {}, "clipped": {d}, "coverage_ran": {}, "coverage_passed": {}, "min_photo_pct": {d:.1}, "prose_ran": {}, "prose_passed": {}, "prose_checked": {d}, "prose_ungrounded": {d}, "prepress_passed": {}, "verapdf_compliant": {} }}
                 \\
-            , .{ pdf_name, all_ok, cr.passed, @as(f64, @floatFromInt(cr.worst_cr_x100)) / 100.0, geo.passed, prose_ran, prose_ok, prose_checked, prose_ungr, pp.passed, pp.verapdf.compliant }));
+            , .{ pdf_name, all_ok, cr.passed, @as(f64, @floatFromInt(cr.worst_cr_x100)) / 100.0, geo.passed, geo.clipped, cov_ran, cov_ok, cov_min_pct, prose_ran, prose_ok, prose_checked, prose_ungr, pp.passed, pp.verapdf.compliant }));
         } else {
             try writeOut(io, try std.fmt.allocPrint(alloc,
                 \\[vedit:wcag_contrast] {s} -> {s} (spans={d}, worst_cr={d:.2}:1, violations={d})
-                \\[vedit:geometry]      {s} -> {s} (collisions={d}, overflow={d}, orphans={d}, noisy={d})
+                \\[vedit:geometry]      {s} -> {s} (collisions={d}, clipped={d}, overflow={d}, orphans={d}, noisy={d})
                 \\[vedit:prepress]      {s} -> {s} (images={d}, unembedded={d}, cmyk_p99={d:.1}%, ua_struct={}, verapdf_pass={d}, verapdf_fail={d})
                 \\
             , .{
@@ -397,6 +441,7 @@ pub fn main(init: std.process.Init) !void {
                 if (geo.passed) "PASS" else "FAIL",
                 pdf_name,
                 geo.collisions,
+                geo.clipped,
                 geo.trim_overflow,
                 geo.headline_orphans,
                 geo.noisy_overlays,
@@ -465,6 +510,12 @@ test "p2zig kernels: WCAG contrast, CMYK TAC, collisions, orphans, Rule 10, DPI,
     try std.testing.expectEqual(@as(i64, 2), kernels.detect_grid_columns(&x0s, &x1s, 612));
     try std.testing.expectEqual(@as(i64, 0), kernels.classify_page_archetype(100, 25, 280, 2, 1, 4));
     try std.testing.expectEqual(@as(i64, 1), kernels.classify_page_archetype(950, 8, 220, 1, 4, 8));
+
+    // 8. Bleed edge counter & clip-aware coverage gate
+    try std.testing.expectEqual(@as(i64, 3), kernels.bleed_edge_count(300, 300, 300, 0, 612, 792));
+    try std.testing.expect(kernels.coverage_passes(60000, 100000, 500, 3, 2));
+    try std.testing.expect(!kernels.coverage_passes(40000, 100000, 500, 3, 2));
+    try std.testing.expect(!kernels.coverage_passes(60000, 100000, 500, 1, 2));
 }
 
 test {

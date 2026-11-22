@@ -353,3 +353,32 @@ pub fn @"classify_page_archetype"(p2z_in_0_photo_pct_x10: i64, p2z_in_1_text_spa
     }
     return @as(i64, 6);
 }
+
+pub fn @"bleed_edge_count"(p2z_in_0_left_px: i64, p2z_in_1_right_px: i64, p2z_in_2_top_px: i64, p2z_in_3_bot_px: i64, p2z_in_4_w: i64, p2z_in_5_h: i64) i64 {
+    // uroboros:zig-tir
+    var cnt: i64 = 0;
+    cnt = @as(i64, 0);
+    if ((pyMul(p2z_in_0_left_px, @as(i64, 4)) >= p2z_in_5_h)) {
+        cnt = pyAdd(cnt, @as(i64, 1));
+    }
+    if ((pyMul(p2z_in_1_right_px, @as(i64, 4)) >= p2z_in_5_h)) {
+        cnt = pyAdd(cnt, @as(i64, 1));
+    }
+    if ((pyMul(p2z_in_2_top_px, @as(i64, 4)) >= p2z_in_4_w)) {
+        cnt = pyAdd(cnt, @as(i64, 1));
+    }
+    if ((pyMul(p2z_in_3_bot_px, @as(i64, 4)) >= p2z_in_4_w)) {
+        cnt = pyAdd(cnt, @as(i64, 1));
+    }
+    return cnt;
+}
+
+pub fn @"coverage_passes"(p2z_in_0_changed_px: i64, p2z_in_1_total_px: i64, p2z_in_2_min_pct_x10: i64, p2z_in_3_bleed_edges: i64, p2z_in_4_min_bleed_edges: i64) bool {
+    // uroboros:zig-tir
+    var pct_x10: i64 = 0;
+    if ((p2z_in_1_total_px <= @as(i64, 0))) {
+        return false;
+    }
+    pct_x10 = pyFDivI(pyMul(p2z_in_0_changed_px, @as(i64, 1000)), p2z_in_1_total_px);
+    return ((pct_x10 >= p2z_in_2_min_pct_x10) and (p2z_in_3_bleed_edges >= p2z_in_4_min_bleed_edges));
+}
