@@ -17,12 +17,28 @@ from pathlib import Path
 from typing import Any
 import fitz  # PyMuPDF
 
-# Match numbers including comma-formatted integers, decimals, optional % suffix (avoiding hex hashes & version strings)
-NUM_TOKEN_RE = re.compile(r"(?<![A-Za-z0-9_#-])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(%?)(?![A-Za-z0-9_])")
+# Match signed/unsigned numbers including comma-formatted integers, decimals, optional % suffix
+NUM_TOKEN_RE = re.compile(
+    r"(?<![A-Za-z0-9_#-])([+\-\u2212]?)(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(%?)(?![A-Za-z0-9_])"
+)
 HEX_HASH_RE = re.compile(r"\b[0-9a-f]{8,64}\b")
+DOI_RE = re.compile(r"(?:doi:\s*)?\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+", re.IGNORECASE)
 
 
-SKIP_KEYS = {"sampled_coordinates", "lat", "lon", "width_pt", "height_pt", "bbox", "raw_newick_sha256"}
+SKIP_KEYS = {
+    "sampled_coordinates",
+    "lat",
+    "lon",
+    "width_pt",
+    "height_pt",
+    "bbox",
+    "raw_newick_sha256",
+    "decimal_dates",
+    "average_ppm",
+    "deseasonalized_ppm",
+    "co2_series_2000_2024",
+    "ci_series_2000_2024",
+}
 
 
 def _collect_numbers_recursive(obj: Any, out: set[float]) -> None:
@@ -108,7 +124,8 @@ def _load_authorized_numbers(
                 authorized.add(float(v))
         meta["background_citations"] = len(entries)
 
-    # Structural document metadata (ordinals 0..max(12, page_count), standard print dims & software specs)
+    # Structural document metadata (ordinals 0..max(12, page_count), SI reciprocal exponent -1, standard print dims & specs)
+    authorized.add(-1.0)
     for n in range(0, max(13, page_count + 1)):
         authorized.add(float(n))
     for structural in (612, 792, 960, 540, 300, 180, 72, 50, 52, 67.0, 2.1, 2026, 2025, 2024):
@@ -125,6 +142,39 @@ def _is_grounded(val: float, authorized: set[float]) -> bool:
         if abs(val - a) <= 0.051:
             return True
     return False
+
+
+def _extract_page_text_with_script_breaks(page: fitz.Page) -> str:
+    """Extract page text while inserting whitespace at superscript/subscript font-size transitions.
+
+    Prevents PDF text concatenation from fusing scientific notation (e.g. `10` + superscript `6` -> `106`)
+    or numeric citations with superscript footnote markers (`2024` + `1` -> `20241`).
+    """
+    lines_out: list[str] = []
+    for block in page.get_text("dict").get("blocks", []):
+        if block.get("type") != 0:
+            continue
+        for line in block.get("lines", []):
+            parts: list[str] = []
+            prev_size: float | None = None
+            for span in line.get("spans", []):
+                txt = span.get("text", "")
+                if not txt:
+                    continue
+                size = float(span.get("size", 10.0))
+                if (
+                    parts
+                    and prev_size is not None
+                    and abs(size - prev_size) >= 1.5
+                    and not parts[-1].endswith((" ", "\t", "\n"))
+                    and not txt.startswith((" ", "\t", "\n"))
+                ):
+                    parts.append(" ")
+                parts.append(txt)
+                prev_size = size
+            if parts:
+                lines_out.append("".join(parts))
+    return "\n".join(lines_out)
 
 
 def audit_prose(
@@ -153,25 +203,33 @@ def audit_prose(
     total_checked = 0
 
     for idx, page in enumerate(doc, start=1):
-        # Strip long hex SHA-256 strings and URLs before scanning quantitative prose numbers
-        raw_text = page.get_text("text")
+        # Strip long hex SHA-256 strings, DOIs, and URLs before scanning quantitative prose numbers
+        raw_text = _extract_page_text_with_script_breaks(page)
         cleaned = re.sub(r"https?://\S+", " ", raw_text)
+        cleaned = DOI_RE.sub(" ", cleaned)
         cleaned = HEX_HASH_RE.sub(" ", cleaned)
         # Strip explicit SHA-256 preview snippets like "(SHA-256 8ec575868d469f97...)"
         cleaned = re.sub(r"SHA-256\s+[0-9a-fA-F]+", " ", cleaned)
-        # Strip ISO standard / software version strings like PDF/UA-1, WCAG 2.1, WeasyPrint 67.0, Rule 3/4/6/9
-        cleaned = re.sub(r"(?:PDF/UA-\d+|WCAG\s+\d+\.\d+|WeasyPrint\s+\d+\.\d+|SHA-256|term_id=\d+)", " ", cleaned)
+        # Strip ISO standard / software version strings like PDF/UA-1, ISO 14289-1, WCAG 2.1, Typst 0.15.1, WeasyPrint 67.0
+        cleaned = re.sub(
+            r"(?:PDF/UA-\d+|ISO\s+\d+(?:-\d+)?|WCAG\s+\d+\.\d+|WeasyPrint\s+\d+\.\d+|Typst\s+\d+\.\d+(?:\.\d+)?|veraPDF\s+\d+\.\d+(?:\.\d+)?|SHA-256|term_id=\d+)",
+            " ",
+            cleaned,
+        )
 
         for match in NUM_TOKEN_RE.finditer(cleaned):
-            raw_num = match.group(1)
-            suffix = match.group(2)
+            sign = match.group(1)
+            raw_num = match.group(2)
+            suffix = match.group(3)
             # Ignore leading-zero 2-digit plate/page ordinals like "01".."12"
-            if len(raw_num) == 2 and raw_num.startswith("0"):
+            if not sign and len(raw_num) == 2 and raw_num.startswith("0"):
                 continue
             try:
                 val = float(raw_num.replace(",", ""))
             except ValueError:
                 continue
+            if sign in ("-", "\u2212"):
+                val = -val
 
             total_checked += 1
             if not _is_grounded(val, authorized):
@@ -181,7 +239,7 @@ def audit_prose(
                 ungrounded.append(
                     {
                         "page": idx,
-                        "token": raw_num + suffix,
+                        "token": sign + raw_num + suffix,
                         "value": val,
                         "context": snippet,
                     }

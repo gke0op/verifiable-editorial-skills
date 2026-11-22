@@ -11,7 +11,10 @@ import re
 from pathlib import Path
 import fitz  # PyMuPDF
 
-BT_ET_RE = re.compile(rb"(?:^|[\s\r\n])BT(?=[\s\r\n]).*?[\s\r\n]ET(?=$|[\s\r\n])", re.DOTALL)
+BT_ET_RE = re.compile(
+    rb"(?<![A-Za-z0-9_/+.-])BT(?=[\s\r\n/<(\[{%]).*?(?<![A-Za-z0-9_/+.-])ET(?=$|[\s\r\n/<(\[{%])",
+    re.DOTALL,
+)
 
 
 def int_to_rgb(c: int) -> tuple[int, int, int]:
@@ -32,6 +35,29 @@ def contrast_ratio(c1: tuple[int, int, int], c2: tuple[int, int, int]) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
+def _strip_xobject_tree(doc: fitz.Document, xref: int, visited: set[int]) -> None:
+    if xref in visited or xref <= 0:
+        return
+    visited.add(xref)
+    try:
+        subtype = doc.xref_get_key(xref, "Subtype")
+        if subtype[0] == "name" and subtype[1] != "/Form":
+            return
+        raw = doc.xref_stream(xref)
+        if raw and b"BT" in raw:
+            doc.update_stream(xref, BT_ET_RE.sub(b"\n", raw))
+        # Walk nested /Resources /XObject references inside this Form XObject
+        res_str = doc.xref_object(xref)
+        for m in re.finditer(rb"(\d+)\s+0\s+R", res_str.encode("latin1", errors="ignore")):
+            child = int(m.group(1))
+            if child not in visited:
+                c_sub = doc.xref_get_key(child, "Subtype")
+                if c_sub[0] == "name" and c_sub[1] == "/Form":
+                    _strip_xobject_tree(doc, child, visited)
+    except Exception:
+        pass
+
+
 def render_background_only(pdf_bytes: bytes, page_index: int, dpi: int = 72) -> fitz.Pixmap:
     """Return a raster of the page with all BT...ET text blocks stripped from page & Form XObjects."""
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
@@ -40,13 +66,9 @@ def render_background_only(pdf_bytes: bytes, page_index: int, dpi: int = 72) -> 
         raw = doc.xref_stream(cxref)
         if raw and b"BT" in raw:
             doc.update_stream(cxref, BT_ET_RE.sub(b"\n", raw))
+    visited: set[int] = set()
     for xobj in page.get_xobjects():
-        try:
-            raw = doc.xref_stream(xobj[0])
-            if raw and b"BT" in raw:
-                doc.update_stream(xobj[0], BT_ET_RE.sub(b"\n", raw))
-        except Exception:
-            pass
+        _strip_xobject_tree(doc, xobj[0], visited)
     pix = page.get_pixmap(dpi=dpi, alpha=False)
     doc.close()
     return pix

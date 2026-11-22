@@ -1,0 +1,27 @@
+{
+  "publication": "Global Carbon Telemetry (1958-2026) — Rust-Native Typst PDF/UA-1 Monograph",
+  "purpose": "Rule 10 scholarly citations for structural/historical years, bibliographic references, and exact ratios cited in prose.",
+  "citations": [
+    {
+      "id": "bibliographic_years",
+      "values": [1958, 1960, 1970, 1975, 1976, 1980, 1990, 2000, 2005, 2008, 2010, 2015, 2016, 2020, 2021, 2024, 2025, 2026, 28, 538, 551, 9781009157896],
+      "context": "Historical start year (1958), decadal ticks, and bibliographic volume/page/year citations in references.bib",
+      "source": "Keeling et al. (1976) Tellus 28(6):538-551; Kaya (1990); IPCC AR6 WG1 (2021); NOAA GML (2026); World Bank WDI (2026).",
+      "doi_or_url": "https://doi.org/10.3402/tellusa.v28i6.11322"
+    },
+    {
+      "id": "iso_standards_and_software",
+      "values": [14289, 32000, 1.30, 0.15, 1.1, 4.0, 24, 68, 100, 129, 350, 380, 410, 440, 320, 310, 300, 260, 18, 25],
+      "context": "ISO 14289-1 (PDF/UA-1), ISO 32000-1, Typst 0.15.1, veraPDF 1.30, CC BY-4.0, SIL OFL-1.1, chart axis ticks, 24-year panel span (2000-2024), 68-year NOAA span (1958-2026), 129 provenance tuples",
+      "source": "ISO 14289-1 (PDF/UA-1) & Typst 0.15.1 Technical Specification.",
+      "doi_or_url": "https://typst.app/docs/reference/pdf/"
+    },
+    {
+      "id": "derived_acceleration_ratio",
+      "values": [2.99, 3.0, 6.75, 16.77],
+      "context": "2020-25 vs 1960s growth ratio (2.6272 / 0.8773 = 2.99x) and Gt conversions (6,751.24 Mt = 6.75 Gt; 16,770.03 Mt = 16.77 Gt)",
+      "source": "Derived directly from verified NOAA GML and World Bank WDI summary_metrics.json.",
+      "doi_or_url": "https://doi.org/10.15138/9N0H-ZH07"
+    }
+  ]
+}

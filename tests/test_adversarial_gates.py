@@ -21,12 +21,15 @@ import pytest
 from verifiable_editorial.contrast import audit_contrast
 from verifiable_editorial.coverage import audit_coverage
 from verifiable_editorial.geometry import audit_geometry
+from verifiable_editorial.prepress import audit_prepress
 from verifiable_editorial.prose import audit_prose
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BOTANICA = REPO_ROOT / "demos" / "botanica-veridica"
 FELIS = REPO_ROOT / "demos" / "felis-mundi-magazine"
 MCKINSEY = REPO_ROOT / "demos" / "mckinsey-2023-flagship"
+CARBON = REPO_ROOT / "demos" / "global-carbon-telemetry"
+TYPST_DEMO = REPO_ROOT / "demos" / "typst-carbon-monograph"
 
 
 def _make_sample_jpg(path: Path, size: tuple[int, int] = (400, 300), color=(40, 120, 80)) -> Path:
@@ -214,7 +217,85 @@ def test_felis_mundi_passes_geometry_and_coverage() -> None:
     assert cov["min_visible_pct"] >= 60.0
 
 
+def test_sabotage_rule10_rejects_sign_flip(tmp_path: Path) -> None:
+    """Sabotage I: Flipping a negative ledger metric (-45.0%) to +45.0% in PDF prose MUST fail Rule 10."""
+    ledger = tmp_path / "provenance_ledger.json"
+    ledger.write_text(
+        json.dumps([{"metric_id": "chn_ci_change", "value": -45.01, "unit": "%"}]),
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "sign_flip.pdf"
+    c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "Carbon intensity moved -45.0% in reality, not +45.0%.")
+    c.showPage()
+    c.save()
+
+    res = audit_prose(pdf, ledger_path=ledger)
+    assert res["passed"] is False
+    tokens = {u["token"] for u in res["ungrounded"]}
+    assert "+45.0%" in tokens
+    assert "-45.0%" not in tokens
+
+
+def test_sabotage_prepress_rejects_low_dpi_image(tmp_path: Path) -> None:
+    """Sabotage J: Upscaling a 100x100px raster across 400x400pt (~18 effective DPI) MUST fail prepress."""
+    img = _make_sample_jpg(tmp_path / "tiny.jpg", size=(100, 100), color=(20, 80, 120))
+    pdf = tmp_path / "low_dpi.pdf"
+    c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+    c.drawImage(str(img), 50, 200, width=400, height=400)
+    c.showPage()
+    c.save()
+
+    res = audit_prepress(pdf, min_dpi=300.0, run_verapdf=False)
+    assert res["passed"] is False
+    assert res["min_effective_dpi"] is not None and res["min_effective_dpi"] < 25.0
+    assert any("effective DPI" in f for f in res["failures"])
+
+
+def test_sabotage_prepress_rejects_missing_bleed_unembedded_font_and_untagged_ua(tmp_path: Path) -> None:
+    """Sabotage K: Standard untagged ReportLab PDF using Base-14 Helvetica MUST fail bleed, font, and PDF/UA checks."""
+    pdf = tmp_path / "untagged_base14.pdf"
+    c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+    c.setFont("Helvetica", 12)
+    c.drawString(50, 700, "Untagged PDF with unembedded Base-14 Helvetica and zero bleed box.")
+    c.showPage()
+    c.save()
+
+    res = audit_prepress(pdf, require_bleed=True, require_ua=True, run_verapdf=False)
+    assert res["passed"] is False
+    assert any("Unembedded font" in f for f in res["failures"])
+    assert any("bleed box" in f for f in res["failures"])
+    assert any("PDF/UA structure" in f for f in res["failures"])
+
+
 def test_mckinsey_flagship_passes_geometry() -> None:
     pdf = MCKINSEY / "report" / "MCKINSEY_2023_FLAGSHIP_DECK.pdf"
     geo = audit_geometry(pdf)
     assert geo["passed"] is True, geo
+
+
+def test_typst_monograph_passes_all_five_gates_and_verapdf() -> None:
+    """Production regression: Rust-native Typst PDF/UA-1 monograph MUST pass all 5 gates (including veraPDF when installed)."""
+    pdf = TYPST_DEMO / "report" / "TYPST_CARBON_MONOGRAPH_UA1.pdf"
+    cr = audit_contrast(pdf)
+    geo = audit_geometry(pdf)
+    pr = audit_prose(
+        pdf,
+        ledger_path=CARBON / "data" / "provenance_ledger.json",
+        summary_path=CARBON / "data" / "summary_metrics.json",
+        citations_path=TYPST_DEMO / "data" / "background_citations.json",
+        manifest_path=CARBON / "data" / "manifest.sha256",
+    )
+    pp = audit_prepress(pdf, min_dpi=300.0, require_ua=True, run_verapdf=True)
+
+    assert cr["passed"] is True, cr
+    assert geo["passed"] is True, geo
+    assert pr["passed"] is True, pr
+    assert pp["passed"] is True, pp
+    assert pp["unembedded_fonts"] == []
+    assert pp["pdf_ua_structure"]["structural_pass"] is True
+    if shutil.which("verapdf"):
+        assert pp["verapdf_ua1"] is not None
+        assert pp["verapdf_ua1"]["compliant"] is True
+        assert pp["verapdf_ua1"]["failed_rules"] == 0

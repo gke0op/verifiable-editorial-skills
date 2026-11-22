@@ -96,6 +96,16 @@ Choreographed across true facing spreads (`[2|3]`, `[4|5]`, `[6|7]`, `[8|9]`, ve
 
 ---
 
+## 3D. Rust-Native Typst Scientific Monograph Archetype (`612 × 792 pt`, `PDF/UA-1`)
+
+Demonstrated in `demos/typst-carbon-monograph/` (sub-second `~415 ms` compilation, `87%–89%` vertical fill across all 4 pages, `veraPDF 106/106` ISO 14289-1 compliant):
+- **Page 1 — Swiss Ivory Cover & Vector Lead Exhibit:** `2.4 pt` navy top rule + Cormorant Garamond lining title + uniform-height 4-column KPI ribbon (`par(justify: false)` so paired metrics never stretch-wrap) + full-width pure-vector SVG dual-panel chart + `1.55fr / 1fr` narrative & callout + 3-column hairline summary strip.
+- **Page 2 — Structural Divergence & Tufte Economic Ledger:** Opening framing paragraph + pure-vector dual-panel exhibit + 9-column booktabs Tufte ledger (`[N/A]` amber Rule 5 column) + narrative synthesis + cobalt-accented bottom policy takeaway box.
+- **Page 3 — Optical Display Math & Verification Court:** Asymmetric `1.55fr / 1fr` split pairing accessible `#math.equation(alt: ...)` Kaya & OLS identities on the left with a 3-card verification/Rule-5/SIL-OFL sidebar on the right, anchored across the bottom by a full-width 7-column decadal velocity table.
+- **Page 4 — Cryptographic Seal, Live Provenance Extract & IEEE Bibliography:** Dynamic `raw_file_hashes` SHA-256 table + live 6-row extract from `provenance_ledger.json` + native `#bibliography("references.bib", style: "ieee")` + bottom-anchored Production & Standards Certification Colophon (`#v(1fr)`).
+
+---
+
 ## 4. Typographic Hierarchy Scale (`Inter` with `Helvetica` Fallback)
 
 | Token | Size / Leading | Weight | Light Mode | Dark Mode | Role |

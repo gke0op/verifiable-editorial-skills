@@ -4,8 +4,10 @@ description: >-
   Turnkey open-data verification pipeline for publication-grade PDF presentations, institutional reports, and
   scientific monographs. Enforces 10 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
   Pydantic domain bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling,
-  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding, geometric
-  collision/clipping linting, and background-sampled WCAG contrast auditing via the `vedit` CLI.
+  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding (signed &
+  superscript-safe), geometric collision/clipping linting, background-sampled WCAG contrast, print pre-press
+  preflight (effective DPI, embedded fonts, bleed/trim boxes, CMYK TAC, live veraPDF ISO 14289-1 PDF/UA-1),
+  and cross-platform SIL-OFL font provisioning via the `vedit` CLI.
 ---
 
 # Verifiable Factual PDF & Data Presentation Pipeline
@@ -178,7 +180,14 @@ Copy and adapt the tested, production-hardened scripts in `templates/`:
 - **`templates/audit_pdf.py`**: Post-render PyMuPDF (`fitz`) layout auditor measuring combined text blocks, embedded images, and non-background vector drawings across both **Letter portrait (`612×792 pt`)** and **16:9 widescreen (`960×540 pt`)** layouts, plus automatic PNG preview export.
 - **`templates/audit_contrast.py`**: Background-sampled **WCAG 2.1 contrast auditor** that strips `BT...ET` text streams in an in-memory PDF clone, renders a text-free background raster at 72 DPI, and samples actual pixels behind every text span's bounding box (accurately auditing dark modes, gradients, and photo overlays).
 - **`templates/render_spreads.py`**: Facing-spread contact-sheet assembler that stitches interior facing pages (`[2|3]`, `[4|5]`, …) onto an archival desk mat with a realistic central spine-gutter shadow for true spread-level visual QA.
-- **Unified Installable CLI (`pip install -e .` → `vedit`):** Exposes all automated verification gates directly from the terminal (`vedit contrast`, `vedit geometry` for text collisions / PDF clip-path slicing / trim overflow / orphan headlines / overlay texture energy, `vedit coverage`, `vedit prose` for Rule 10, `vedit spreads`, and `vedit audit-all`), hardened by an 8-vector adversarial sabotage `pytest` suite (`tests/test_adversarial_gates.py`).
+- **Unified Installable CLI (`pip install -e .` → `vedit`):** Exposes all automated verification & production gates directly from the terminal:
+  - `vedit contrast` — background-sampled WCAG 2.1 AA contrast across light, dark, SVG, and PDF/UA-1 tagged streams (`BT/Span` delimiter-safe recursive Form XObject stripping).
+  - `vedit geometry` — text collisions, `W n` PDF clip-path slicing, trim overflow, headline orphan wraps, and photo-overlay texture energy.
+  - `vedit coverage` — clip-aware dual-key visible photography coverage (`>= 50%`).
+  - `vedit prose` — Rule 10 post-render PDF prose-to-ledger grounding (sign-aware so `-45.0%` vs `+45.0%` sign flips fail, superscript-aware so `10^6` never fuses into `106`, DOI/URL/hash-aware).
+  - `vedit prepress` — print pre-press & ISO accessibility certification: effective placed DPI (`native_px / placed_inches`, skipping synthetic `xref == 0` CSS soft-masks), embedded font subsetting, `/MediaBox`/`/TrimBox`/`/BleedBox`, simulated CMYK GCR Total Area Coverage (`TAC <= 300%`), pure-PyMuPDF PDF/UA-1 tag-tree inspection, and live **`veraPDF`** (`verapdf --flavour ua1 --format json`) ISO 14289-1 certification.
+  - `vedit fetch-fonts` — provisions and SHA-256-verifies 8 cross-platform SIL-OFL open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) for bit-exact macOS and Ubuntu Linux builds.
+  - `vedit spreads` & `vedit audit-all` — facing-spread contact sheet renderer and one-command multi-gate CI runner, hardened by an **11-vector adversarial sabotage `pytest` suite (`15` tests in `tests/test_adversarial_gates.py`)**.
 
 ## Compilation Latch Pattern (Rule 6)
 

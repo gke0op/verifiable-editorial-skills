@@ -9,7 +9,9 @@ from pathlib import Path
 
 from .contrast import audit_contrast
 from .coverage import audit_coverage
+from .fonts import fetch_fonts
 from .geometry import audit_geometry
+from .prepress import audit_prepress
 from .prose import audit_prose
 from .spreads import render_spreads
 
@@ -77,6 +79,24 @@ def _emit(result: dict, json_path: Path | None) -> int:
         )
         for u in result["ungrounded"][:12]:
             print(f"  [!] p.{u['page']} UNGROUNDED {u['token']!r} in: ...{u['context']}...")
+    elif gate == "prepress":
+        dpi_str = f"{result['min_effective_dpi']:.1f}" if result["min_effective_dpi"] is not None else "n/a(vector)"
+        ua = result["pdf_ua_structure"]
+        vp = result.get("verapdf_ua1")
+        vp_str = (
+            f"compliant={vp['compliant']} (pass={vp.get('passed_rules')}, fail={vp.get('failed_rules')})"
+            if vp and vp.get("available")
+            else ("skipped" if vp is None else "not_installed")
+        )
+        print(
+            f"  images={result['image_count']} | min_dpi={dpi_str} | unembedded_fonts={len(result['unembedded_fonts'])} | "
+            f"bleed_all={result['bleed_all_pages']} | cmyk_p99_tac={result['simulated_cmyk_p99_tac_pct']:.1f}% | "
+            f"ua_struct={ua['structural_pass']} | verapdf={vp_str}"
+        )
+        for w in result.get("warnings", []):
+            print(f"  [warn] {w}")
+        for f in result.get("failures", []):
+            print(f"  [!] {f}")
 
     return 0 if passed else 1
 
@@ -116,7 +136,20 @@ def main(argv: list[str] | None = None) -> int:
     p_sp.add_argument("--dpi", type=int, default=150)
     p_sp.add_argument("--width", type=int, default=1600)
 
-    p_all = sub.add_parser("audit-all", help="Run contrast + geometry (+ optional coverage & Rule 10 prose) together.")
+    p_pp = sub.add_parser("prepress", help="Print pre-press preflight (effective DPI, fonts, bleed, CMYK TAC, PDF/UA-1 + veraPDF).")
+    p_pp.add_argument("pdf", type=Path)
+    p_pp.add_argument("--min-dpi", type=float, default=300.0)
+    p_pp.add_argument("--max-tac", type=float, default=300.0)
+    p_pp.add_argument("--require-bleed", action="store_true")
+    p_pp.add_argument("--require-ua", action="store_true")
+    p_pp.add_argument("--no-verapdf", action="store_true")
+    p_pp.add_argument("--json", type=Path, default=None)
+
+    p_ft = sub.add_parser("fetch-fonts", help="Download cross-platform SIL-OFL editorial fonts (Cormorant, Source Serif 4, Inter, IBM Plex Mono).")
+    p_ft.add_argument("--dir", type=Path, default=None)
+    p_ft.add_argument("--force", action="store_true")
+
+    p_all = sub.add_parser("audit-all", help="Run contrast + geometry (+ optional coverage, Rule 10 prose & prepress) together.")
     p_all.add_argument("pdf", type=Path)
     p_all.add_argument("--ledger", type=Path, default=None)
     p_all.add_argument("--summary", type=Path, default=None)
@@ -124,6 +157,8 @@ def main(argv: list[str] | None = None) -> int:
     p_all.add_argument("--manifest", type=Path, default=None)
     p_all.add_argument("--plate-pages", type=str, default=None)
     p_all.add_argument("--min-photo-pct", type=float, default=50.0)
+    p_all.add_argument("--prepress-dpi", type=float, default=None, help="Also run prepress gate with this min DPI.")
+    p_all.add_argument("--require-ua", action="store_true")
 
     args = ap.parse_args(argv)
 
@@ -142,6 +177,24 @@ def main(argv: list[str] | None = None) -> int:
         written = render_spreads(args.pdf, args.out_dir, dpi=args.dpi, width=args.width)
         print(f"[vedit:spreads] Wrote {len(written)} facing spread(s) -> {args.out_dir}")
         return 0
+    if args.cmd == "prepress":
+        return _emit(
+            audit_prepress(
+                args.pdf,
+                min_dpi=args.min_dpi,
+                max_tac_pct=args.max_tac,
+                require_bleed=args.require_bleed,
+                require_ua=args.require_ua,
+                run_verapdf=not args.no_verapdf,
+            ),
+            args.json,
+        )
+    if args.cmd == "fetch-fonts":
+        mf = fetch_fonts(args.dir, force=args.force)
+        print(f"[vedit:fetch-fonts] Ready ({len(mf['fonts'])} SIL-OFL fonts) -> {mf['font_dir']}")
+        for f in mf["fonts"]:
+            print(f"  - {f['file']:32s} [{f['status']}] {f['bytes']//1024:>4d} KB  sha256={f['sha256'][:12]}")
+        return 0
     if args.cmd == "audit-all":
         rc = 0
         rc |= _emit(audit_contrast(args.pdf), None)
@@ -150,6 +203,15 @@ def main(argv: list[str] | None = None) -> int:
             rc |= _emit(audit_coverage(args.pdf, min_pct=args.min_photo_pct, pages=_parse_pages(args.plate_pages)), None)
         if args.ledger or args.summary:
             rc |= _emit(audit_prose(args.pdf, args.ledger, args.summary, args.citations, args.manifest), None)
+        if args.prepress_dpi is not None or args.require_ua:
+            rc |= _emit(
+                audit_prepress(
+                    args.pdf,
+                    min_dpi=args.prepress_dpi if args.prepress_dpi is not None else 0.0,
+                    require_ua=args.require_ua,
+                ),
+                None,
+            )
         return 1 if rc else 0
     return 1
 

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "verifiable-editorial"
-version = "0.2.0"
-description = "Automated verification & visual-QA court for verifiable editorial PDFs, magazines, and scientific monographs (WCAG contrast, geometric collision/clipping, Rule 10 prose grounding, clip-aware photo coverage, facing spreads)."
+version = "0.3.0"
+description = "Automated verification, print pre-press & ISO PDF/UA-1 certification court for verifiable editorial PDFs, magazines, Typst monographs, and scientific publications."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"

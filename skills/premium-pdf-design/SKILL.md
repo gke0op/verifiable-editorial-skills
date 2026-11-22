@@ -15,15 +15,17 @@ This skill pairs with `verifiable-pdf-pipeline` (data integrity) and `editorial-
 
 ## 1. Core Invariant: Substance Precedes Aesthetics
 
-Every presentation or report built with this skill must obey the **8 Anti-Cheat Hard Rules** defined in `verifiable-pdf-pipeline/SKILL.md`:
+Every presentation or report built with this skill must obey the **10 Anti-Cheat Hard Rules** defined in `verifiable-pdf-pipeline/SKILL.md`:
 1. **Zero-Handwritten-Data Air-Gap** — parse all numbers from immutable raw files in `data/raw/`.
 2. **Reality & Invariant Compiler** — enforce Pydantic domain bounds and accounting identities.
 3. **Anti-Circular Verification** — independent raw-file re-computation + Python AST check banning hardcoded literal assertions.
 4. **Atomic Provenance Ledger** — every published scalar mapped 1:1 in `data/provenance_ledger.json`.
-5. **Negative Capability & The Sacred "N/A"** — genuine upstream nulls render explicitly as `[N/A — Pending]` rather than fabricated proxies.
+5. **Negative Capability & The Sacred "N/A"** — genuine upstream nulls render explicitly as `[N/A]` rather than fabricated proxies.
 6. **Compilation Latch** — PDF compilers invoke `verify_integrity.py` and abort on non-zero exit.
 7. **Category & Unit Guard** — never blend incommensurable scopes or test methods.
 8. **Statutory Proof** — official gazette IDs required for any regulatory/tariff claim.
+9. **Scientific Taxonomy & Registry Verification** — reconcile binomials, authorities, phylogeny, and IUCN status verbatim against live GBIF/OpenTree/iNaturalist registries.
+10. **Post-Render Prose Grounding (`vedit prose`)** — every rendered numeral in the final PDF traces back to `provenance_ledger.json`, `summary_metrics.json`, or a DOI-backed entry in `background_citations.json`.
 
 ---
 
@@ -157,6 +159,10 @@ For keynote-grade decks modeled on flagship 2023 institutional publications (*Qu
    - **Facing-Spread QA:** Always run `render_spreads.py` to visually verify opposing spreads (`[2|3]`, `[4|5]`, `[6|7]`, `[8|9]`) side by side for headline-baseline symmetry and cross-gutter visual weight.
    - **Dual-Target Living Web Publication (`compile_living_web.py`):** From the exact same Rule-6-latched `summary_metrics.json`, `provenance_ledger.json`, `background_citations.json`, and pure-vector `svg_exhibits.py`, also emit a zero-CDN-dependency interactive HTML/SVG Living Edition where clicking any number pops open its live SHA-256 cryptographic receipt & raw API excerpt (`[X-Ray Provenance]` mode), botanical pins highlight anatomy interactively, and dichotomous keys run live in the browser.
    - **Deterministic Geometry Gate (`vedit geometry`):** Always run `vedit geometry` before visual review to catch cross-line/same-line text collisions, `flags=0` vs `TEXT_ACCURATE_BBOXES` PDF clip-path character slicing, trim overflow, and wide-headline orphan wraps mechanically.
+5. **Rust-Native Typst `0.15.1` Academic Monograph Mode (`--pdf-standard ua-1`, `demos/typst-carbon-monograph/`):**
+   - **Native JSON Ingestion (Zero String Templating):** Load `summary_metrics.json` and `provenance_ledger.json` directly inside `.typ` via `#let data = json(...)` and `#let ledger = json(...)` (`--root "$REPO"`), achieving sub-second (`~415 ms`) incremental compilation with Knuth-Plass optical justification and native IEEE BibTeX (`#bibliography("references.bib")`).
+   - **Cross-Platform Bundled SIL-OFL Typography (`vedit fetch-fonts`):** Pass `--font-path ~/.cache/verifiable-editorial/fonts` to pin 8 SHA-256 verified open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) across macOS and Ubuntu Linux CI with `0` unembedded fonts. Enable `number-type: "lining"` on *Cormorant Garamond* titles, KPIs, and folios so numerals align crisply.
+   - **Certified ISO 14289-1 (`PDF/UA-1`) Math & Vector Exhibits:** Compile with `typst compile --pdf-standard ua-1`, attach descriptive screen-reader `alt` text to every `image(...)` **and** every inline/block equation (`#math.equation(alt: "...", $ ... $)`), embed pure-vector SVG exhibits (`∞ DPI`), and certify via `vedit prepress --min-dpi 300 --require-ua` (live `veraPDF` `106/106` passed rules, `0` failures).
 
 ---
 

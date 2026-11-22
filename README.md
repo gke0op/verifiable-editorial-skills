@@ -2,9 +2,9 @@
 
 [![Verifiable Editorial CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
-Three composable **Agent Skills** + the installable **`verifiable-editorial` (`vedit`)** verification CLI for generating institutional-grade **16:9 executive PDF slide decks**, **Letter editorial reports**, **full-bleed print photo magazines**, and **dual-target scientific monographs (PDF/UA-1 + Interactive Living Web Essays)** backed by **zero-mock, cryptographically verified open data**.
+Three composable **Agent Skills** + the installable **`verifiable-editorial` (`vedit`)** verification & pre-press CLI for generating institutional-grade **Rust-native Typst `PDF/UA-1` monographs**, **16:9 executive PDF slide decks**, **Letter editorial reports**, **full-bleed print photo magazines**, and **dual-target scientific monographs (PDF/UA-1 + Interactive Living Web Essays)** backed by **zero-mock, cryptographically verified open data**.
 
-Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible Python pipelines (`WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`), verified on Linux CI by an **8-vector adversarial sabotage `pytest` suite**.
+Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible multi-backend pipelines (**Typst 0.15.1**, `WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`, **`veraPDF`**), verified live on Ubuntu Linux CI by an **11-vector adversarial sabotage `pytest` suite (`15` tests)** plus **live Typst compilation & `veraPDF` ISO 14289-1 (`PDF/UA-1`) certification**.
 
 ---
 
@@ -12,7 +12,15 @@ Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cu
 
 All quantitative decks, scientific monographs, and reports are compiled from live zero-auth open APIs—**GBIF v1**, **iNaturalist v1**, **Open Tree of Life v3**, **NOAA Global Monitoring Laboratory** (`1958–2026`), and **World Bank WDI** (`2000–2025`)—sealed with SHA-256 hashes, validated against physical, taxonomic, and accounting invariants, registered in a 1:1 provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF (including background-sampled WCAG 2.1 contrast and clip-aware photo coverage checks).
 
-### Demo 1 — 10-Page Scientific Report × Learning Magazine Crossover: *BOTANICA VERIDICA* ([`demos/botanica-veridica/`](demos/botanica-veridica/))
+### Demo 1 — Rust-Native Typst `PDF/UA-1` Scientific Monograph (`veraPDF 106/106` Certified) ([`demos/typst-carbon-monograph/`](demos/typst-carbon-monograph/))
+
+Compiles in **`~415 ms`** directly from immutable JSON (`#let data = json(...)`, `provenance_ledger.json`) using **Typst 0.15.1** (`--pdf-standard ua-1`), **8 SHA-256-verified cross-platform SIL-OFL fonts** (`vedit fetch-fonts`: *Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*), optical Kaya/OLS display math with screen-reader `alt` text, native IEEE BibTeX, and pure-vector SVG exhibits (`∞ DPI`). Compiled and audited **live on Ubuntu Linux CI** — passing all 5 gates (`520` WCAG spans at worst `5.29:1`, `0` geometric defects, `297/297` Rule 10 prose numbers grounded, `0` unembedded fonts, `119.4%` simulated CMYK TAC, and **`veraPDF` ISO 14289-1 `compliant=True` (`106` passed rules, `0` failed)**) ([`TYPST_CARBON_MONOGRAPH_UA1.pdf`](demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf)):
+
+| Swiss Ivory Cover & Vector Keeling Curve | Bloc Bifurcation & Tufte 8-Economy Ledger | Optical Math & 5-Gate Court | SHA-256 Seal, Live Ledger & BibTeX |
+| :---: | :---: | :---: | :---: |
+| ![Typst Page 1](demos/typst-carbon-monograph/previews/typst_page_01.png) | ![Typst Page 2](demos/typst-carbon-monograph/previews/typst_page_02.png) | ![Typst Page 3](demos/typst-carbon-monograph/previews/typst_page_03.png) | ![Typst Page 4](demos/typst-carbon-monograph/previews/typst_page_04.png) |
+
+### Demo 2 — 10-Page Scientific Report × Learning Magazine Crossover: *BOTANICA VERIDICA* ([`demos/botanica-veridica/`](demos/botanica-veridica/))
 
 Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*, *National Geographic*, and *Scientific American*: fuses **live biodiversity telemetry** (`113,962` GBIF occurrences, `11,050` museum herbarium sheets, `112,408` iNaturalist records, `720` live range-map coordinates, live flowering phenology curves, and a live OpenTree Newick phylogenetic cladogram) with **8 zero-text Nano Banana botanical plates overlaid with pure-vector SVG 90° anatomy leader lines & circular zoom medallions**. Compiles from **one verified source** into **three targets**: an interactive **PDF/UA-1** tagged monograph ([`BOTANICA_VERIDICA_MONOGRAPH.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf)), a **print-shop prepress** PDF with 3mm bleed & crop marks ([`BOTANICA_VERIDICA_PREPRESS.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf)), and a **zero-CDN Interactive Living Web Edition** ([`BOTANICA_VERIDICA_LIVING.html`](demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html)) where clicking any number opens its live SHA-256 provenance receipt. Passes all 4 `vedit` gates (`0` WCAG violations across 675 spans, `0` geometric collisions/clips/orphans, `55.9%`–`99.4%` plate coverage, `224/224` Rule 10 prose numbers grounded):
 
@@ -22,7 +30,7 @@ Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*
 | **Facing Spread 6–7 · *Sequoia* Zoom Medallion & *Victoria* Truss** | **Dual-Target Interactive Living Web Edition (X-Ray SHA-256 Provenance)** |
 | ![Botanica Spread 6-7](demos/botanica-veridica/previews/spread_06_07.png) | ![Botanica Living Web](demos/botanica-veridica/previews/living_web_preview.png) |
 
-### Demo 2 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
+### Demo 3 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
 
 Modeled on print teardowns of *Kinfolk*, *Cereal*, *Condé Nast Traveler*, and *National Geographic*: 11 cohesive **Nano Banana** photographs generated under one locked Leica M11 / 50mm f/1.4 / Kodak Portra 400 **Master Photographic Film Identity Core**, set on warm archival `#FAF8F5` paper with `Didot` / `Charter` / `Inter`, rotated marginal credits, flush drop caps, and SHA-256 plate ledger colophon ([`FELIS_MUNDI_MAGAZINE.pdf`](demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf)). Every single page is mechanically audited by exact clip-aware raster pixel-diff at **`61.1%`–`99.9%` visible full-bleed photography** (`80.6%` average):
 
@@ -30,7 +38,7 @@ Modeled on print teardowns of *Kinfolk*, *Cereal*, *Condé Nast Traveler*, and *
 | :---: | :---: | :---: | :---: |
 | ![Felis Mundi Cover](demos/felis-mundi-magazine/previews/mag_page_01.png) | ![Felis Mundi Kyoto](demos/felis-mundi-magazine/previews/mag_page_03.png) | ![Felis Mundi Chefchaouen](demos/felis-mundi-magazine/previews/mag_page_04.png) | ![Felis Mundi Triptych](demos/felis-mundi-magazine/previews/mag_page_07.png) |
 
-### Demo 3 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
+### Demo 4 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
 
 Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum Technology Monitor*, *The Economic Potential of Generative AI*, *Global Economics Intelligence*, *The State of Organizations*): dark-midnight `#051C2C` hero & executive summary with a 42-strand parametric Bezier wave, split chapter divider, editorial serif (`Charter`/`Georgia`) + `Inter` pairing, 4-tier blue chromatic ramp, and 100% pure-vector inline SVG exhibits ([`MCKINSEY_2023_FLAGSHIP_DECK.pdf`](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf)):
 
@@ -40,7 +48,7 @@ Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum T
 | **8-Economy Small Multiples + `»` Implications Sidebar** | **10×10 Waffle Unit-Matrix + Per-Capita Shift** |
 | ![Flagship Slide 6](demos/mckinsey-2023-flagship/previews/flagship_slide_06.png) | ![Flagship Slide 8](demos/mckinsey-2023-flagship/previews/flagship_slide_08.png) |
 
-### Demo 4 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
+### Demo 5 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
 
 Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf)) and a Light Swiss-Ivory boardroom deck ([`CARBON_KEYNOTE_16x9_LIGHT.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf)) from a single `--theme dark|light` compiler across 7 distinct 300-DPI exhibits (165 verified provenance tuples):
 
@@ -50,7 +58,7 @@ Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK
 | **Marimekko Pop × Per-Capita & Rank Inversion (Light)** | **24-Year Annual YoY Momentum Matrix Heatmap (Dark)** |
 | ![Keynote Light Slide 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) | ![Keynote Dark Slide 7](demos/carbon-keynote-9slide/previews/dark_slide_07.png) |
 
-### Demo 5 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
+### Demo 6 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
 
 Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)) and 6-slide Dark Executive summary deck ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf)):
 
@@ -64,9 +72,9 @@ Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/glob
 
 | Skill | Responsibility | Included Assets |
 | :--- | :--- | :--- |
-| **[`verifiable-pdf-pipeline`](skills/verifiable-pdf-pipeline/SKILL.md)** | **Data integrity, contrast & anti-cheat engine.** Enforces the 9 Anti-Cheat Hard Rules (no hardcoded numbers, SHA-256 raw manifest, Pydantic bounds, 1:1 provenance ledger, Python AST linter, explicit `[N/A]` gaps, fail-closed compilation latch, Rule 9 scientific taxonomy verification, plus background-sampled WCAG 2.1 contrast and facing-spread QA). | Runnable drop-in scripts in [`templates/`](skills/verifiable-pdf-pipeline/templates/): `fetch_data.py`, `validate_reality.py`, `verify_integrity.py`, `audit_pdf.py`, `audit_contrast.py`, `render_spreads.py` |
-| **[`editorial-page-layout-guidelines`](skills/editorial-page-layout-guidelines/SKILL.md)** | **Grid mathematics & visual cadence.** Defines vertical fill budgets (`85–92%` Letter, `72–88%` 16:9), asymmetric `310 pt / 180 pt` spreads, Letter & widescreen slide archetypes, 6 full-bleed photo magazine archetypes (`M1–M6`), and 4 scientific report × magazine crossover archetypes (`S1–S4`). | Full grid formulas, token tables, & micro-typography guardrails |
-| **[`premium-pdf-design`](skills/premium-pdf-design/SKILL.md)** | **Visual system & WeasyPrint/ReportLab execution.** 60-30-10 palettes, consulting flagship vector SVGs, cohesive Nano Banana stock photography recipes, hybrid zero-text plate + SVG 90° anatomy overlays, interactive PDF/UA-1 bookmarks/links, and `--prepress` 3mm bleed + crop marks. | [`references/design_laws_and_lexicon.md`](skills/premium-pdf-design/references/design_laws_and_lexicon.md), [`references/image_generation_recipes.md`](skills/premium-pdf-design/references/image_generation_recipes.md), [`examples/reportlab_premium_template.py`](skills/premium-pdf-design/examples/reportlab_premium_template.py) |
+| **[`verifiable-pdf-pipeline`](skills/verifiable-pdf-pipeline/SKILL.md)** | **Data integrity, pre-press & anti-cheat court.** Enforces the 10 Anti-Cheat Hard Rules (zero hardcoded numbers, SHA-256 raw manifest, Pydantic bounds, 1:1 provenance ledger, AST linter, explicit `[N/A]` gaps, fail-closed latch, Rule 9 scientific taxonomy, Rule 10 post-render prose grounding), plus `vedit` WCAG 2.1 contrast, geometry, clip-aware coverage, print pre-press (`veraPDF` ISO 14289-1 `PDF/UA-1`), and cross-platform SIL-OFL font provisioning. | `verifiable-editorial` (`vedit`) CLI + drop-in scripts in [`templates/`](skills/verifiable-pdf-pipeline/templates/) |
+| **[`editorial-page-layout-guidelines`](skills/editorial-page-layout-guidelines/SKILL.md)** | **Grid mathematics & visual cadence.** Defines vertical fill budgets (`85–92%` Letter, `72–88%` 16:9), asymmetric `310 pt / 180 pt` spreads, Letter & widescreen slide archetypes, 6 full-bleed photo magazine archetypes (`M1–M6`), 4 scientific monograph archetypes (`S1–S4`), and Rust-native Typst academic monograph grids. | Full grid formulas, token tables, & micro-typography guardrails |
+| **[`premium-pdf-design`](skills/premium-pdf-design/SKILL.md)** | **Visual system & Typst / WeasyPrint / ReportLab execution.** 60-30-10 palettes, Rust-native Typst `PDF/UA-1` optical math & BibTeX, consulting flagship vector SVGs, cohesive Nano Banana stock photography recipes, hybrid zero-text plate + SVG 90° anatomy overlays, dual-target Living Web editions, and `--prepress` 3mm bleed + crop marks. | [`references/design_laws_and_lexicon.md`](skills/premium-pdf-design/references/design_laws_and_lexicon.md), [`references/image_generation_recipes.md`](skills/premium-pdf-design/references/image_generation_recipes.md), [`examples/reportlab_premium_template.py`](skills/premium-pdf-design/examples/reportlab_premium_template.py) |
 
 ---
 
@@ -100,20 +108,24 @@ cp -r skills/* ~/.gemini/config/skills/   # Antigravity
 cp -r skills/* ~/.claude/skills/          # Claude Code
 ```
 
-### Run the Unified `vedit` Audit Court on Any PDF
+### Run the Unified `vedit` Audit, Pre-Press & Font CLI on Any PDF
 
 ```bash
-# Run WCAG 2.1 contrast + geometric collision/clipping/orphan + photo coverage + Rule 10 prose grounding
-vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
-  --ledger demos/botanica-veridica/data/provenance_ledger.json \
-  --summary demos/botanica-veridica/data/summary_metrics.json \
-  --citations demos/botanica-veridica/data/background_citations.json \
-  --manifest demos/botanica-veridica/data/manifest.sha256 \
-  --plate-pages "1,4-9"
+# Provision 8 SHA-256 verified cross-platform SIL-OFL open-source fonts (macOS + Linux)
+vedit fetch-fonts
+
+# Run all 5 gates: WCAG contrast + geometry + Rule 10 prose + print pre-press + live veraPDF ISO 14289-1
+vedit audit-all demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf \
+  --ledger demos/global-carbon-telemetry/data/provenance_ledger.json \
+  --summary demos/global-carbon-telemetry/data/summary_metrics.json \
+  --citations demos/typst-carbon-monograph/data/background_citations.json \
+  --manifest demos/global-carbon-telemetry/data/manifest.sha256 \
+  --prepress-dpi 300 --require-ua
 
 # Individual gates & facing-spread contact sheet renderer:
 vedit contrast path/to/deck.pdf
 vedit geometry path/to/deck.pdf
+vedit prepress path/to/monograph.pdf --min-dpi 300 --require-ua
 vedit coverage path/to/magazine.pdf --min-pct 50
 vedit spreads path/to/magazine.pdf --out-dir /tmp/spreads
 ```
@@ -123,21 +135,17 @@ vedit spreads path/to/magazine.pdf --out-dir /tmp/spreads
 ## Reproduce the Live Demos Locally
 
 ```bash
+pip install -e ".[dev]"
 pip install -r requirements.txt
 
-# Optional: point INTER_FONT_DIR to a folder containing Inter-*.ttf
-# (Falls back cleanly to Helvetica if omitted)
-export INTER_FONT_DIR=/path/to/inter/ttf
+# Rust-native Typst PDF/UA-1 monograph (requires `typst`; optional `verapdf`)
+bash demos/typst-carbon-monograph/run_pipeline.sh
 
 bash demos/botanica-veridica/run_pipeline.sh
 bash demos/felis-mundi-magazine/run_pipeline.sh
 bash demos/mckinsey-2023-flagship/run_pipeline.sh
 bash demos/carbon-keynote-9slide/run_pipeline.sh
 bash demos/global-carbon-telemetry/run_pipeline.sh
-
-# Run the standalone drop-in WCAG contrast auditor or facing-spread renderer on any PDF:
-python3 skills/verifiable-pdf-pipeline/templates/audit_contrast.py demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf
-python3 skills/verifiable-pdf-pipeline/templates/render_spreads.py demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --out-dir /tmp/spreads
 ```
 
 To test the standalone starter template in both dark 16:9 and light Letter modes:
