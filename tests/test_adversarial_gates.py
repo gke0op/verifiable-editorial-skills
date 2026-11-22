@@ -449,6 +449,19 @@ def test_zig_harness_full_sovereign_parity_on_botanica_and_felis() -> None:
         assert res.returncode == 0, f"CMD={cmd}\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
 
 
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_zig_geometry_math_fonts_no_false_collisions() -> None:
+    """NewCMMath quads span the font's full ascent/descent (~6.6x size on mutool 1.23); Zig must clamp them like Python's accurate bboxes."""
+    repo = Path(__file__).resolve().parent.parent
+    for pdf in [
+        repo / "demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf",
+        repo / "demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf",
+        repo / "demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf",
+    ]:
+        res = subprocess.run([str(ZIG_VEDIT), "geometry", str(pdf)], capture_output=True, text=True)
+        assert res.returncode == 0 and "collisions=0" in res.stdout, res.stdout
+
+
 @pytest.mark.skipif(
     not ZIG_VEDIT.exists() or not shutil.which("mutool") or not shutil.which("typst"),
     reason="Zig vedit, mutool, or typst unavailable",
