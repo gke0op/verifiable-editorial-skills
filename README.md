@@ -2,9 +2,33 @@
 
 [![Verifiable Editorial CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
-Three composable **Agent Skills** + the installable **`verifiable-editorial` (`vedit`)** verification & pre-press CLI for generating institutional-grade **Rust-native Typst `PDF/UA-1` monographs**, **16:9 executive PDF slide decks**, **Letter editorial reports**, **full-bleed print photo magazines**, and **dual-target scientific monographs (PDF/UA-1 + Interactive Living Web Essays)** backed by **zero-mock, cryptographically verified open data**.
+Three composable **Agent Skills** + the **Sovereign Zig 0.17.0 Agent Harness (`zig/zig-out/bin/vedit`)** (powered by `p2zig --strict` transpiled kernels) + Python `vedit` CLI for generating institutional-grade **Rust-native Typst `PDF/UA-1` monographs**, **16:9 executive PDF slide decks**, **Letter editorial reports**, **full-bleed print photo magazines**, and **dual-target scientific monographs**—plus **one-command PDF Sample Dissection & Archetype Injection (`vedit inject` → `vedit init`)** so agents can dissect *any* external reference PDF into reusable Design DNA.
 
-Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible multi-backend pipelines (**Typst 0.15.1**, `WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`, **`veraPDF`**), verified live on Ubuntu Linux CI by an **11-vector adversarial sabotage `pytest` suite (`15` tests)** plus **live Typst compilation & `veraPDF` ISO 14289-1 (`PDF/UA-1`) certification**.
+Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible multi-backend pipelines (**Zig 0.17.0**, **Typst 0.15.1**, `MuPDF`, **`veraPDF`**, `WeasyPrint`, `ReportLab`, `Pydantic`), verified live on Ubuntu Linux CI by an **18-test adversarial sabotage, `p2zig` parity, and closed-loop synthesis `pytest` suite** plus native `zig build test` (`Debug` & `--release=safe`).
+
+---
+
+## Sovereign Zig 0.17.0 Agent Harness & PDF Dissector (`zig/` + `archetypes/`)
+
+Build once (`~858 KB` zero-Python native binary, backed by 10 mathematical/dissection kernels transpiled from [`kernels_p2zig_src.py`](verifiable_editorial/kernels_p2zig_src.py) via `p2zig --strict` → [`kernels_p2zig.zig`](zig/src/kernels_p2zig.zig)):
+
+```bash
+cd zig && zig build --release=safe && cd ..
+
+# 1. Inject ANY reference PDF -> dissects trim, margins, 60-30-10 WCAG palette, font scale & page cadence
+./zig/zig-out/bin/vedit inject path/to/any_reference.pdf --name my-reference-style
+# Emits: archetypes/my-reference-style/{blueprint.json, skeleton.typ, AGENT_CARD.md} + updates registry.json
+
+# 2. List all registered archetypes in the harness (--json for agents)
+./zig/zig-out/bin/vedit archetypes
+
+# 3. Scaffold a SHA-256-sealed, Rule-6-latched Typst PDF/UA-1 project from ANY injected archetype (zero Python!)
+./zig/zig-out/bin/vedit init ./my-new-report --archetype dark-obsidian-keynote --title "Q4 Telemetry Brief"
+VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./my-new-report/build.sh
+# Runs: `vedit latch` (pure-Zig SHA-256 + Rule 4) -> `typst compile --pdf-standard ua-1` -> `vedit audit-all --require-ua` (veraPDF 106/106)
+```
+
+Five pre-dissected reference archetypes are shipped in [`archetypes/`](archetypes/registry.json) (`typst-monograph`, `dark-obsidian-keynote`, `mckinsey-2023-deck`, `botanica-crossover`, `felis-photo-magazine`), each with a machine-readable `blueprint.json`, compilable `skeleton.typ`, and ~250-token `AGENT_CARD.md`.
 
 ---
 

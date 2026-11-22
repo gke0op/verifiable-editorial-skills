@@ -1,0 +1,41 @@
+{
+  "schema_version": "vedit.blueprint.v1",
+  "slug": "felis-photo-magazine",
+  "source_pdf": "FELIS_MUNDI_MAGAZINE.pdf",
+  "source_sha256": "7e9c0318aa217737b13875f8b9b90eea01a19d03e03ad3bf0efd6772de4778ce",
+  "page_count": 8,
+  "format_class": "letter_portrait",
+  "polarity": "light",
+  "trim_pt": [612.0, 792.0],
+  "margins_pt": { "top": 28.0, "bottom": 28.0, "left": 28.0, "right": 28.0 },
+  "palette_60_30_10": {
+    "canvas_bg": "#f8f8f0",
+    "surface_tint": "#eeece0",
+    "primary_ink": "#202018",
+    "muted_ink": "#44505c",
+    "accent_primary": "#304868",
+    "accent_secondary": "#984828",
+    "wcag_ink_cr": 15.36,
+    "wcag_accent_cr": 8.74
+  },
+  "typography": {
+    "display": { "source": "Didot", "sil_ofl": "Cormorant Garamond", "size_pt": 34.0 },
+    "body":    { "source": "Charter", "sil_ofl": "Source Serif 4", "size_pt": 8.9 },
+    "ui_sans": { "source": "Inter-Semi-Bold", "sil_ofl": "Inter", "size_pt": 6.8 },
+    "mono":    { "source": "IBM Plex Mono", "sil_ofl": "IBM Plex Mono", "size_pt": 7.2 }
+  },
+  "cadence_summary": {
+    "avg_vertical_fill_pct": 99.9,
+    "avg_photo_coverage_pct": 84.2
+  },
+  "pages": [
+    { "page": 1, "archetype": "cover_hero", "columns": 1, "fill_pct": 100.0, "photo_pct": 100.0, "spans": 26, "images": 1, "strokes": 0, "max_font_pt": 62.0 },
+    { "page": 2, "archetype": "split_photo_editorial", "columns": 2, "fill_pct": 100.0, "photo_pct": 61.1, "spans": 23, "images": 1, "strokes": 0, "max_font_pt": 35.0 },
+    { "page": 3, "archetype": "full_bleed_plate", "columns": 1, "fill_pct": 100.0, "photo_pct": 75.6, "spans": 35, "images": 1, "strokes": 0, "max_font_pt": 35.0 },
+    { "page": 4, "archetype": "full_bleed_plate", "columns": 1, "fill_pct": 100.0, "photo_pct": 100.0, "spans": 26, "images": 1, "strokes": 0, "max_font_pt": 34.0 },
+    { "page": 5, "archetype": "full_bleed_plate", "columns": 1, "fill_pct": 100.0, "photo_pct": 77.0, "spans": 28, "images": 2, "strokes": 0, "max_font_pt": 35.0 },
+    { "page": 6, "archetype": "split_photo_editorial", "columns": 2, "fill_pct": 100.0, "photo_pct": 67.7, "spans": 19, "images": 1, "strokes": 0, "max_font_pt": 35.0 },
+    { "page": 7, "archetype": "full_bleed_plate", "columns": 3, "fill_pct": 99.0, "photo_pct": 92.0, "spans": 27, "images": 3, "strokes": 0, "max_font_pt": 20.0 },
+    { "page": 8, "archetype": "full_bleed_plate", "columns": 1, "fill_pct": 100.0, "photo_pct": 100.0, "spans": 79, "images": 1, "strokes": 60, "max_font_pt": 21.0 }
+  ]
+}

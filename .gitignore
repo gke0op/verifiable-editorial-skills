@@ -8,3 +8,5 @@ __pycache__/
 venv/
 report/*.html
 !demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html
+zig/.zig-cache/
+zig/zig-out/

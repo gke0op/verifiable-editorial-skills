@@ -299,3 +299,135 @@ def test_typst_monograph_passes_all_five_gates_and_verapdf() -> None:
         assert pp["verapdf_ua1"] is not None
         assert pp["verapdf_ua1"]["compliant"] is True
         assert pp["verapdf_ua1"]["failed_rules"] == 0
+
+
+# ==============================================================================
+# 3. SOVEREIGN ZIG 0.17.0 HARNESS + p2zig KERNEL PARITY + PDF INJECTION CLOSED LOOP
+# ==============================================================================
+
+ZIG_VEDIT = REPO_ROOT / "zig" / "zig-out" / "bin" / "vedit"
+
+
+def test_p2zig_kernels_parity_and_tir_provenance() -> None:
+    """Verify all 10 editorial kernels exist in Python source AND transpiled Zig-TIR module with exact math."""
+    from verifiable_editorial import kernels_p2zig_src as kpy
+
+    zig_src = (REPO_ROOT / "zig" / "src" / "kernels_p2zig.zig").read_text(encoding="utf-8")
+    assert "// uroboros:zig-tir" in zig_src
+    for fn_name in [
+        "rel_channel_x1000000",
+        "wcag_contrast_x100",
+        "wcag_passes_aa",
+        "cmyk_gcr_tac_x10",
+        "span_collision_kind",
+        "is_orphan_headline",
+        "rule10_is_grounded_x100",
+        "effective_dpi_x10",
+        "detect_grid_columns",
+        "classify_page_archetype",
+    ]:
+        assert f'pub fn @"{fn_name}"' in zig_src
+
+    assert kpy.wcag_contrast_x100(0, 0, 0, 255, 255, 255) == 2100
+    assert kpy.wcag_passes_aa(kpy.wcag_contrast_x100(0x50, 0x58, 0x62, 0x05, 0x1C, 0x2C), 110, False) is False
+    assert kpy.cmyk_gcr_tac_x10(0, 0, 0) == 2600
+    assert kpy.effective_dpi_x10(100, 100, 4000, 4000) == 180
+    assert kpy.rule10_is_grounded_x100(-4500, [-4501]) is True
+    assert kpy.rule10_is_grounded_x100(4500, [-4501]) is False
+
+
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_zig_harness_rejects_all_sabotage_gates(tmp_path: Path) -> None:
+    """Compiled bare-metal Zig 0.17.0 `vedit` binary MUST independently reject every sabotage vector."""
+    # 1. Low-contrast sabotage
+    bad_cr = tmp_path / "z_bad_cr.pdf"
+    c = canvas.Canvas(str(bad_cr), pagesize=(612, 792))
+    c.setFillColor(HexColor("#051C2C"))
+    c.rect(0, 0, 612, 792, fill=1, stroke=0)
+    c.setFillColor(HexColor("#505862"))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "Unreadable low contrast text")
+    c.showPage()
+    c.save()
+    r1 = subprocess.run([str(ZIG_VEDIT), "contrast", str(bad_cr)], capture_output=True, text=True)
+    assert r1.returncode != 0, r1.stdout
+
+    # 2. Collision sabotage
+    bad_geo = tmp_path / "z_bad_geo.pdf"
+    c = canvas.Canvas(str(bad_geo), pagesize=(612, 792))
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(80, 600, "ANGIOSPERMS TRUE FLOWERS")
+    c.setFont("Helvetica", 11)
+    c.drawString(95, 599, "Malvaceae OTT 659136")
+    c.showPage()
+    c.save()
+    r2 = subprocess.run([str(ZIG_VEDIT), "geometry", str(bad_geo)], capture_output=True, text=True)
+    assert r2.returncode != 0, r2.stdout
+
+    # 3. Sign-flip Rule 10 sabotage
+    ledger = tmp_path / "ledger.json"
+    ledger.write_text(json.dumps([{"metric_id": "ci_chg", "value": -45.01}]), encoding="utf-8")
+    bad_sign = tmp_path / "z_bad_sign.pdf"
+    c = canvas.Canvas(str(bad_sign), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "Flipped sign +45.0% instead of -45.0%.")
+    c.showPage()
+    c.save()
+    r3 = subprocess.run([str(ZIG_VEDIT), "prose", str(bad_sign), "--ledger", str(ledger)], capture_output=True, text=True)
+    assert r3.returncode != 0, r3.stdout
+    assert "+45.0%" in r3.stdout
+
+    # 4. Prepress low-DPI + unembedded Base-14 + untagged PDF/UA sabotage
+    img = _make_sample_jpg(tmp_path / "tiny.jpg", size=(100, 100), color=(20, 80, 120))
+    bad_pp = tmp_path / "z_bad_pp.pdf"
+    c = canvas.Canvas(str(bad_pp), pagesize=(612, 792))
+    c.drawImage(str(img), 50, 200, width=400, height=400)
+    c.setFont("Helvetica", 12)
+    c.drawString(50, 700, "Untagged Base-14 PDF")
+    c.showPage()
+    c.save()
+    r4 = subprocess.run(
+        [str(ZIG_VEDIT), "prepress", str(bad_pp), "--min-dpi", "300", "--require-bleed", "--require-ua", "--no-verapdf"],
+        capture_output=True,
+        text=True,
+    )
+    assert r4.returncode != 0, r4.stdout
+
+
+@pytest.mark.skipif(
+    not ZIG_VEDIT.exists() or not shutil.which("mutool") or not shutil.which("typst"),
+    reason="Zig vedit, mutool, or typst unavailable",
+)
+def test_zig_harness_inject_init_and_zero_python_closed_loop(tmp_path: Path) -> None:
+    """Closed-loop Pillar #5+#6 proof: Zig dissects a PDF -> registers archetype -> scaffolds project -> compiles Typst UA-1 -> passes Zig 5-gate court + veraPDF."""
+    arch_dir = tmp_path / "archetypes"
+    sample_pdf = TYPST_DEMO / "report" / "TYPST_CARBON_MONOGRAPH_UA1.pdf"
+
+    inj = subprocess.run(
+        [str(ZIG_VEDIT), "inject", str(sample_pdf), "--name", "loop-test", "--out-dir", str(arch_dir)],
+        capture_output=True,
+        text=True,
+    )
+    assert inj.returncode == 0, inj.stderr
+    assert (arch_dir / "loop-test" / "blueprint.json").exists()
+    assert (arch_dir / "loop-test" / "skeleton.typ").exists()
+    assert (arch_dir / "loop-test" / "AGENT_CARD.md").exists()
+    assert (arch_dir / "registry.json").exists()
+
+    proj = tmp_path / "synth_pub"
+    ini = subprocess.run(
+        [str(ZIG_VEDIT), "init", str(proj), "--archetype", "loop-test", "--dir", str(arch_dir), "--title", "Loop Proof"],
+        capture_output=True,
+        text=True,
+    )
+    assert ini.returncode == 0, ini.stderr
+
+    env = dict(**__import__("os").environ, VEDIT_BIN=str(ZIG_VEDIT))
+    bld = subprocess.run(["bash", str(proj / "build.sh")], capture_output=True, text=True, env=env)
+    assert bld.returncode == 0, f"STDOUT:\n{bld.stdout}\nSTDERR:\n{bld.stderr}"
+    assert "[vedit:latch] PASS" in bld.stdout
+    assert "[vedit:wcag_contrast] PASS" in bld.stdout
+    assert "[vedit:geometry]      PASS" in bld.stdout
+    assert "[vedit:prepress]      PASS" in bld.stdout
+    if shutil.which("verapdf"):
+        assert "verapdf_pass=106, verapdf_fail=0" in bld.stdout

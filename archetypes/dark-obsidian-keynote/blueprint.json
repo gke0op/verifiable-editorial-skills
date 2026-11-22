@@ -1,0 +1,42 @@
+{
+  "schema_version": "vedit.blueprint.v1",
+  "slug": "dark-obsidian-keynote",
+  "source_pdf": "CARBON_KEYNOTE_16x9_DARK.pdf",
+  "source_sha256": "d0bb611e788dd92d454b4f7650c792dac8c8efaf6629cb44535af65190a284bd",
+  "page_count": 9,
+  "format_class": "widescreen_16x9",
+  "polarity": "dark",
+  "trim_pt": [960.0, 540.0],
+  "margins_pt": { "top": 45.8, "bottom": 68.0, "left": 42.0, "right": 42.7 },
+  "palette_60_30_10": {
+    "canvas_bg": "#080818",
+    "surface_tint": "#161a30",
+    "primary_ink": "#e0e8f0",
+    "muted_ink": "#c4ceda",
+    "accent_primary": "#38b8f8",
+    "accent_secondary": "#f8b820",
+    "wcag_ink_cr": 16.04,
+    "wcag_accent_cr": 8.86
+  },
+  "typography": {
+    "display": { "source": "Inter-Bold", "sil_ofl": "Inter", "size_pt": 27.0 },
+    "body":    { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 8.3 },
+    "ui_sans": { "source": "Inter-Bold", "sil_ofl": "Inter", "size_pt": 8.0 },
+    "mono":    { "source": "Courier", "sil_ofl": "IBM Plex Mono", "size_pt": 7.1 }
+  },
+  "cadence_summary": {
+    "avg_vertical_fill_pct": 86.2,
+    "avg_photo_coverage_pct": 40.4
+  },
+  "pages": [
+    { "page": 1, "archetype": "cover_hero", "columns": 3, "fill_pct": 78.4, "photo_pct": 0.0, "spans": 39, "images": 0, "strokes": 9, "max_font_pt": 27.0 },
+    { "page": 2, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 87.3, "photo_pct": 53.7, "spans": 15, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 3, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 89.8, "photo_pct": 53.7, "spans": 16, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 4, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 86.9, "photo_pct": 53.4, "spans": 15, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 5, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 87.3, "photo_pct": 53.7, "spans": 15, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 6, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 87.3, "photo_pct": 53.7, "spans": 15, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 7, "archetype": "split_photo_editorial", "columns": 3, "fill_pct": 89.8, "photo_pct": 53.7, "spans": 17, "images": 1, "strokes": 5, "max_font_pt": 14.8 },
+    { "page": 8, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 85.3, "photo_pct": 1.6, "spans": 117, "images": 8, "strokes": 17, "max_font_pt": 14.8 },
+    { "page": 9, "archetype": "split_photo_editorial", "columns": 1, "fill_pct": 83.5, "photo_pct": 40.2, "spans": 35, "images": 1, "strokes": 10, "max_font_pt": 14.8 }
+  ]
+}
