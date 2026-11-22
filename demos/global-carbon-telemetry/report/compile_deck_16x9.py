@@ -170,7 +170,7 @@ def build_styles(fonts: dict[str, str]) -> dict[str, ParagraphStyle]:
             fontSize=23.0,
             leading=26.0,
             textColor=colors.HexColor(TEXT_HEX),
-            spaceAfter=2,
+            spaceAfter=4,
         ),
         "kpi_label": ParagraphStyle(
             "kpi_label",
@@ -178,7 +178,7 @@ def build_styles(fonts: dict[str, str]) -> dict[str, ParagraphStyle]:
             fontSize=7.4,
             leading=9.5,
             textColor=colors.HexColor(COBALT_HEX),
-            spaceAfter=3,
+            spaceAfter=4,
         ),
         "kpi_sub": ParagraphStyle(
             "kpi_sub",
@@ -272,12 +272,12 @@ def make_kpi_strip(items: list[tuple[str, str, str, str]], styles: dict[str, Par
     t.setStyle(
         TableStyle(
             [
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(BAND_HEX)),
                 ("LINEABOVE", (0, 0), (-1, 0), 1.2, colors.HexColor(COBALT_HEX)),
                 ("LINEBELOW", (0, -1), (-1, -1), 0.6, colors.HexColor(RULE_HEX)),
-                ("TOPPADDING", (0, 0), (-1, -1), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
                 ("LEFTPADDING", (0, 0), (-1, -1), 11),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 11),
             ]
@@ -350,7 +350,7 @@ def compile_deck() -> None:
     story.append(Spacer(1, 6))
     story.append(
         Paragraph(
-            "Global Atmospheric Carbon &amp; Major-Economy Decoupling Telemetry",
+            "Global Atmospheric Carbon &amp;<br/>Major-Economy Decoupling Telemetry",
             styles["cover_title"],
         )
     )
@@ -370,25 +370,25 @@ def compile_deck() -> None:
                 (
                     "MAUNA LOA DESEASONALIZED",
                     f"{m['noaa_latest_deseasonalized_ppm']:.2f} ppm",
-                    f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} ppm since {meta['noaa_start']}); peak {m['noaa_peak_average_ppm']:.2f} ppm",
+                    f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} since {meta['noaa_start']}); peak {m['noaa_peak_average_ppm']:.2f}",
                     CRIMSON_HEX,
                 ),
                 (
                     "ACCUMULATION VELOCITY",
                     f"+{decades[-1]['ppm_per_yr']:.2f} ppm/yr",
-                    f"2020–2025 mean rate — {decades[-1]['ppm_per_yr']/decades[0]['ppm_per_yr']:.1f}x the 1960s pace (+{decades[0]['ppm_per_yr']:.2f} ppm/yr)",
+                    f"2020–25 mean — {decades[-1]['ppm_per_yr']/decades[0]['ppm_per_yr']:.1f}x 1960s (+{decades[0]['ppm_per_yr']:.2f} ppm/yr)",
                     AMBER_HEX,
                 ),
                 (
                     "OECD-5 DECOUPLING",
                     f"{m['oecd5_co2_change_2000_2024_pct']:+.1f}% CO2",
-                    f"Achieved alongside +{m['oecd5_gdp_growth_2000_2024_pct']:.1f}% real GDP growth (2000–2024)",
+                    f"While real GDP grew +{m['oecd5_gdp_growth_2000_2024_pct']:.1f}% (2000–24)",
                     EMERALD_HEX,
                 ),
                 (
                     "EMERGING-3 EXPANSION",
                     f"{m['em3_co2_change_2000_2024_pct']:+.1f}% CO2",
-                    f"CHN, IND, BRA grew real GDP +{m['em3_gdp_growth_2000_2024_pct']:.1f}% (net 8-economy +{m['panel8_co2_change_2000_2024_pct']:.1f}%)",
+                    f"Real GDP +{m['em3_gdp_growth_2000_2024_pct']:.1f}% (net panel +{m['panel8_co2_change_2000_2024_pct']:.1f}%)",
                     COBALT_HEX,
                 ),
             ],

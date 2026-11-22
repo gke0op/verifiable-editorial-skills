@@ -634,7 +634,7 @@ fn renderCensusValleySvg(
         .{ .v = 1.0, .lbl = "1.0" },
         .{ .v = 1.8, .lbl = "1.8" },
         .{ .v = 3.0, .lbl = "3.0" },
-        .{ .v = 5.0, .lbl = "5.0 R⊕" },
+        .{ .v = 5.0, .lbl = "5.0 R<tspan font-size=\"4.2\" dy=\"1.2\">⊕</tspan>" },
     };
     for (rticks) |rt| {
         const tx = rx0 + ((@log10(rt.v) - log_min) / (log_max - log_min)) * rw;
@@ -697,7 +697,7 @@ fn renderMassRadiusSvg(
         .{ .v = 1.0, .lbl = "1" },
         .{ .v = 10.0, .lbl = "10" },
         .{ .v = 100.0, .lbl = "100" },
-        .{ .v = 1000.0, .lbl = "1,000 M⊕" },
+        .{ .v = 1000.0, .lbl = "1,000 M<tspan font-size=\"4.2\" dy=\"1.2\">⊕</tspan>" },
     };
     for (m_ticks) |mt| {
         const px = lx0 + ((@log10(mt.v) - lm_min) / (lm_max - lm_min)) * lw;
@@ -754,7 +754,7 @@ fn renderMassRadiusSvg(
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#45525E" stroke-width="0.7" />
         \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#45525E" stroke-width="0.7" />
-        \\<text x="12" y="{d:.1}" transform="rotate(-90 12 {d:.1})" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#45525E">Radius (R⊕)</text>
+        \\<text x="12" y="{d:.1}" transform="rotate(-90 12 {d:.1})" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#45525E">Radius (R<tspan font-size="4.3" dy="1.2">⊕</tspan><tspan dy="-1.2">)</tspan></text>
         \\
     , .{ lx0, ly0 + lh, lx0 + lw, ly0 + lh, lx0, ly0, lx0, ly0 + lh, ly0 + lh * 0.5, ly0 + lh * 0.5 }));
 

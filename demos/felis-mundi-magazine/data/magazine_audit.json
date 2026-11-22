@@ -13,7 +13,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 99.26,
+      "visible_photo_coverage_pct": 99.27,
       "bleed_edges": [
         "B",
         "L",
@@ -35,7 +35,7 @@
         "R",
         "T"
       ],
-      "text_blocks": 19,
+      "text_blocks": 20,
       "text_overflow": false,
       "pass": true
     },
@@ -121,7 +121,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 99.94,
+      "visible_photo_coverage_pct": 99.95,
       "bleed_edges": [
         "B",
         "L",

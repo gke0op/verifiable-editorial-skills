@@ -187,7 +187,7 @@ def svg_keeling_mini(summary: dict) -> str:
       <polyline points="{poly}" fill="none" stroke="{CYAN}" stroke-width="2.2" stroke-linejoin="round"/>
       <circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.5" fill="{ELECTRIC}"/>
       <text x="{last_x - 6:.1f}" y="{last_y - 7:.1f}" text-anchor="end" font-size="9.2" font-weight="700" fill="{NAVY}">{deseas[-1]:.1f} ppm</text>
-      <text x="{sx(dates[0]) + 4:.1f}" y="{sy(deseas[0]) - 6:.1f}" font-size="8.2" fill="{GRAY_MUTED}">{deseas[0]:.1f}</text>
+      <text x="{sx(dates[0]) + 2:.1f}" y="{sy(deseas[0]) - 10:.1f}" font-size="8.2" fill="{GRAY_MUTED}">{deseas[0]:.1f}</text>
     </svg>
     """
 
@@ -675,7 +675,7 @@ def svg_momentum_matrix_mckinsey(summary: dict) -> str:
                 f'<rect x="{cx + 1.2:.1f}" y="{ry + 1.4:.1f}" width="{cw - 2.4:.1f}" height="{ch - 2.8:.1f}" rx="2.0" fill="{bg}"/>'
             )
             elems.append(
-                f'<text x="{cx + cw/2:.1f}" y="{ry + ch/2 + 3.0:.1f}" text-anchor="middle" font-size="8.0" '
+                f'<text x="{cx + cw/2:.1f}" y="{ry + ch/2 + 2.6:.1f}" text-anchor="middle" font-size="8.0" '
                 f'font-weight="{"700" if abs(val) >= 5.0 else "500"}" fill="{fg}">{txt}</text>'
             )
 
@@ -1010,9 +1010,10 @@ html, body {{
 .exec-kpis {{
   display: flex;
   gap: 24pt;
+  align-items: center;
   background: #0A253A;
   border-top: 1.4pt solid {CYAN};
-  padding: 14pt 18pt;
+  padding: 15pt 18pt 15pt 18pt;
   margin-bottom: 12pt;
 }}
 .exec-kpi {{
@@ -1023,8 +1024,8 @@ html, body {{
   font-size: 32pt;
   font-weight: 700;
   color: #38BDF8;
-  line-height: 1.02;
-  margin-bottom: 4pt;
+  line-height: 1.0;
+  margin-bottom: 5pt;
 }}
 .exec-kpi-num.elec {{ color: #7DD3FC; }}
 .exec-kpi-lbl {{
@@ -1176,12 +1177,12 @@ html, body {{
 .s4-audit-box {{
   background: #F3F6FA;
   border-top: 1.2pt solid {NAVY};
-  padding: 8pt 10pt;
+  padding: 9pt 10pt 9.5pt 10pt;
   font-size: 7.9pt;
-  line-height: 1.4;
+  line-height: 1.38;
   color: #374151;
 }}
-.s4-audit-box strong {{ color: {NAVY}; display: block; margin-bottom: 2pt; }}
+.s4-audit-box strong {{ color: {NAVY}; display: block; margin-bottom: 2.5pt; }}
 .giant-kpi {{
   border-top: 0.8pt solid {RULE_LIGHT};
   padding-top: 8pt;
@@ -1212,9 +1213,9 @@ html, body {{
   position: relative;
   padding-left: 11pt;
   font-size: 8.7pt;
-  line-height: 1.46;
+  line-height: 1.45;
   color: #374151;
-  margin-bottom: 10pt;
+  margin-bottom: 8.5pt;
 }}
 .s4-right li::before {{
   content: "–";
@@ -1380,9 +1381,10 @@ html, body {{
 .s8-insights {{
   display: flex;
   gap: 18pt;
+  align-items: flex-start;
   background: #F3F6FA;
   border-top: 1.2pt solid {NAVY};
-  padding: 10pt 14pt;
+  padding: 11.5pt 14pt 11pt 14pt;
 }}
 .s8-in-col {{
   flex: 1;
@@ -1392,8 +1394,8 @@ html, body {{
   font-size: 18pt;
   font-weight: 700;
   color: {ELECTRIC};
-  line-height: 1.05;
-  margin-bottom: 2pt;
+  line-height: 1.02;
+  margin-bottom: 3.5pt;
 }}
 .s8-in-num.navy {{ color: {NAVY}; }}
 .s8-in-txt {{
@@ -1482,7 +1484,7 @@ table.ledger tbody tr.total-row td {{
   align-items: center;
 }}
 .audit-left {{
-  width: 245pt;
+  width: 262pt;
   border-right: 0.6pt solid #1E3A54;
   padding-right: 14pt;
 }}
@@ -1552,11 +1554,13 @@ table.ledger tbody tr.total-row td {{
 }}
 .dark-footer .footer-brand {{ color: #E2E8F0; margin-right: 44pt; }}
 .section-pill {{
+  display: inline-block;
   background: {ICE};
   color: {NAVY};
   font-size: 7.5pt;
   font-weight: 600;
-  padding: 3.5pt 20pt 3.5pt 14pt;
+  line-height: 1.0;
+  padding: 4.5pt 16pt 4.2pt 16pt;
   letter-spacing: 0.01em;
   white-space: nowrap;
 }}
@@ -1724,7 +1728,7 @@ table.ledger tbody tr.total-row td {{
       </div>
     </div>
     <div class="implications-panel">
-      <div class="chevron-badge">»</div>
+      <div class="chevron-badge"><svg width="13pt" height="13pt" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 3.5 L8 8 L3.5 12.5 M8.5 3.5 L13 8 L8.5 12.5" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h4>Key decoupling implications</h4>
       <p><strong>Absolute decoupling scales:</strong> Across all five OECD economies, real GDP expanded <strong>+{m['oecd5_gdp_growth_2000_2024_pct']:.1f}%</strong> while emissions fell <strong>{m['oecd5_co2_change_2000_2024_pct']:.1f}%</strong>, proving sustained growth without rising carbon output.</p>
       <p><strong>UK &amp; Germany lead Europe:</strong> The UK cut territorial CO2 <strong>-47.0%</strong> on +43.4% real GDP growth; Germany cut <strong>-33.4%</strong> on +27.4% GDP growth.</p>
@@ -1845,7 +1849,7 @@ table.ledger tbody tr.total-row td {{
   <div class="audit-bar">
     <div class="audit-left">
       <div class="audit-kicker">5-PHASE ZERO-MOCK AUDIT RECEIPT</div>
-      <p><strong>165 / 165</strong> metrics verified in <code>provenance_ledger.json</code> · Python AST Rule 3 literal-assertion linter PASSED · Accounting identity error &lt; 10<sup>-14</sup> · PyMuPDF visual QA enforced.</p>
+      <p><strong>165 / 165</strong> metrics verified in <code>provenance_ledger.json</code> · AST Rule 3 clean · Identity error &lt; 10<sup>-14</sup> · Visual QA passed.</p>
     </div>
     <div class="sha-grid">{sha_pills}</div>
   </div>

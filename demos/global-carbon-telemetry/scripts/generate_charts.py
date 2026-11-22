@@ -154,7 +154,7 @@ def render_keeling_acceleration(summary: dict, theme_name: str, out_path: Path) 
         fontweight="bold",
     )
     ax1.text(
-        dates[-1] - 0.5,
+        2021.8,
         m["noaa_peak_average_ppm"] + 4.5,
         f"Peak ({meta['noaa_peak_month']}): {m['noaa_peak_average_ppm']:.2f} ppm\nLatest deseas.: {m['noaa_latest_deseasonalized_ppm']:.2f} ppm",
         fontsize=7.5,

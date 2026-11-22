@@ -124,18 +124,18 @@
 ]
 #v(12pt)
 
-// 4-Column Floating KPI Ribbon (uniform height, lining figures, single-line values)
+// 4-Column Floating KPI Ribbon (uniform height, dead-center vertical middle band)
 #let kpi-cell(label, val, sub, accent, val-size: 17.5pt) = box(
   width: 100%,
-  height: 60pt,
+  height: 62pt,
   fill: c-tint,
-  inset: (x: 8.5pt, y: 8pt),
+  inset: (x: 9pt, y: 8pt),
   stroke: (top: 1.5pt + accent),
   [
     #set par(justify: false, leading: 0.45em, spacing: 0pt)
     #text(font: "Inter", size: 6.2pt, weight: "bold", fill: accent, tracking: 0.11em)[#upper(label)]
-    #v(5pt)
-    #text(font: "Cormorant Garamond", size: val-size, weight: "bold", fill: c-ink, number-type: "lining")[#val]
+    #v(1fr)
+    #box(width: 100%, height: 22pt, align(left + horizon, text(font: "Cormorant Garamond", size: val-size, weight: "bold", fill: c-ink, number-type: "lining")[#val]))
     #v(1fr)
     #text(font: "Inter", size: 6.1pt, fill: c-muted)[#sub]
   ]
@@ -147,7 +147,7 @@
   kpi-cell("Mauna Loa Latest", [#fmt2(m.noaa_latest_deseasonalized_ppm) ppm], [Deseasonalized (#meta.noaa_end)], c-navy),
   kpi-cell("Cumulative Rise", [+#fmt2(m.noaa_cumulative_rise_ppm) ppm], [Since #meta.noaa_start (#fmt2(m.noaa_first_deseasonalized_ppm) ppm)], c-cobalt),
   kpi-cell("2020–25 Velocity", [#fmt2(m.noaa_growth_rate_2020_25) ppm/yr], [3.0× 1960s pace (#fmt2(m.noaa_growth_rate_1960s))], c-amber),
-  kpi-cell("OECD-5 vs. EM-3", [#fmt1(m.oecd5_co2_change_2000_2024_pct)% / +#fmt1(m.em3_co2_change_2000_2024_pct)%], [2000–2024 CO#sub[2] divergence], c-green, val-size: 13.8pt),
+  kpi-cell("OECD-5 vs. EM-3", [#fmt1(m.oecd5_co2_change_2000_2024_pct)% / +#fmt1(m.em3_co2_change_2000_2024_pct)%], [2000–2024 CO#sub[2] divergence], c-green, val-size: 14.4pt),
 )
 #v(14pt)
 
@@ -334,14 +334,15 @@ Every figure, scalar, and prose numeral in this monograph is governed by exact a
   ],
   [
     #box(
+      width: 100%,
       fill: c-tint,
-      inset: 10pt,
+      inset: (x: 10pt, y: 11pt),
       stroke: (top: 1.5pt + c-navy),
       [
         #text(font: "Inter", size: 6.7pt, weight: "bold", fill: c-navy, tracking: 0.14em)[THE 5-GATE `vedit` AUDIT COURT]
         #v(5pt)
         #set text(size: 8.0pt)
-        #set par(justify: false, leading: 0.52em, spacing: 0.65em)
+        #set par(justify: false, leading: 0.54em, spacing: 0.72em)
         *1. `vedit contrast` (WCAG 2.1):* Strips `BT..ET` text streams in-memory to sample actual background pixels behind every span.
 
         *2. `vedit geometry`:* Checks cross-line & same-line span collisions, `W n` PDF clip-path slicing, trim overflow, and headline orphan wraps.
@@ -353,29 +354,31 @@ Every figure, scalar, and prose numeral in this monograph is governed by exact a
         *5. Adversarial CI:* Runs an automated sabotage `pytest` suite on Ubuntu Linux verifying every gate rejects deliberate cheats.
       ],
     )
-    #v(10pt)
+    #v(13pt)
     #box(
+      width: 100%,
       fill: rgb("#EEF4F0"),
-      inset: 10pt,
+      inset: (x: 10pt, y: 11pt),
       stroke: (left: 2pt + c-green),
       [
         #text(font: "Inter", size: 6.6pt, weight: "bold", fill: c-green, tracking: 0.12em)[RULE 5 · NEGATIVE CAPABILITY]
-        #v(3pt)
+        #v(4pt)
         #set text(size: 7.9pt)
-        #set par(justify: false, leading: 0.52em)
+        #set par(justify: false, leading: 0.54em)
         Missing upstream data (2025 CO#sub[2] emissions and 2024 WDI renewable shares) are never extrapolated or backfilled; they render explicitly as `[N/A]` in @tbl-economies.
       ],
     )
-    #v(10pt)
+    #v(13pt)
     #box(
+      width: 100%,
       fill: c-tint,
-      inset: 10pt,
+      inset: (x: 10pt, y: 11pt),
       stroke: (left: 2pt + c-cobalt),
       [
         #text(font: "Inter", size: 6.6pt, weight: "bold", fill: c-cobalt, tracking: 0.12em)[SIL-OFL CROSS-PLATFORM FONTS]
-        #v(3pt)
+        #v(4pt)
         #set text(size: 7.8pt)
-        #set par(justify: false, leading: 0.50em)
+        #set par(justify: false, leading: 0.52em)
         `vedit fetch-fonts` provisions 8 SHA-256 verified open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) for bit-exact macOS and Ubuntu Linux CI builds.
       ],
     )
@@ -405,7 +408,7 @@ Every figure, scalar, and prose numeral in this monograph is governed by exact a
     }
   ),
   caption: text(font: "Source Serif 4", size: 7.5pt, style: "italic", fill: c-muted)[
-    OLS linear trend velocity across deseasonalized Mauna Loa monthly concentrations (`summary_metrics.json → noaa_series.decadal_growth`) @lan2026noaa.
+    OLS linear trend velocity across deseasonalized Mauna Loa concentrations (`noaa_series.decadal_growth`) @lan2026noaa.
   ],
 ) <tbl-decades>
 

@@ -493,8 +493,8 @@ html, body {{
 }}
 .p4-bottom-grid {{
   display: grid;
-  grid-template-columns: 1.15fr 1.15fr 0.72fr;
-  column-gap: 20pt;
+  grid-template-columns: 1.08fr 1.08fr 0.86fr;
+  column-gap: 18pt;
   align-items: end;
 }}
 .p4-body {{

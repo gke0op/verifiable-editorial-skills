@@ -62,15 +62,26 @@ def svg_phylogenetic_cladogram(summary: dict[str, Any], width: float = 540.0, he
     x_root = 22.0
     x_leaf = 248.0
     y_top = 34.0
-    y_bot = height - 18.0
-    step_y = (y_bot - y_top) / max(1, len(leaves) - 1)
+    y_bot = height - 16.0
+    # Add extra vertical separation between Angiosperm (0..2) and Gymnosperm (3..5) clades
+    clade_gap = 12.0
+    step_y = (y_bot - y_top - clade_gap) / max(1, len(leaves) - 1)
+
+    def leaf_y(idx: float) -> float:
+        base = y_top + idx * step_y
+        if idx >= 3.0:
+            base += clade_gap
+        elif idx > 2.0:
+            base += (idx - 2.0) * clade_gap
+        return base
 
     def node_xy(node: dict) -> tuple[float, float]:
         if not node["children"]:
-            return x_leaf, y_top + node["_y_idx"] * step_y
-        # Spread internal nodes cleanly by depth
+            return x_leaf, leaf_y(node["_y_idx"])
+        # Spread internal nodes cleanly by depth; center vertically between direct children
         frac = node["_depth"] / max(1, max_depth)
-        return x_root + frac * (x_leaf - x_root - 22.0), y_top + node["_y_idx"] * step_y
+        child_ys = [node_xy(ch)[1] for ch in node["children"]]
+        return x_root + frac * (x_leaf - x_root - 22.0), sum(child_ys) / len(child_ys)
 
     # Semantic clade labels matching the OpenTree topology (strictly descriptive clade names)
     def clade_tag(node: dict) -> str:
@@ -108,17 +119,17 @@ def svg_phylogenetic_cladogram(summary: dict[str, Any], width: float = 540.0, he
             gymno_ys.append(ly)
 
     if angio_ys:
-        ay0, ay1 = min(angio_ys) - 22, max(angio_ys) + 12
+        ay0, ay1 = min(angio_ys) - 24, max(angio_ys) + 12
         lines.append(f'<rect x="10" y="{ay0:.1f}" width="{width - 20:.1f}" height="{ay1 - ay0:.1f}" rx="3" fill="#EEF4F0" />')
         lines.append(
-            f'<text x="{width - 16:.1f}" y="{ay0 + 10.0:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" '
+            f'<text x="{width - 16:.1f}" y="{ay0 + 11.0:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" '
             f'font-size="5.9" font-weight="700" letter-spacing="1.0" fill="#185D3B">ANGIOSPERMS · TRUE FLOWERS</text>'
         )
     if gymno_ys:
-        gy0, gy1 = min(gymno_ys) - 20, max(gymno_ys) + 12
+        gy0, gy1 = min(gymno_ys) - 24, max(gymno_ys) + 12
         lines.append(f'<rect x="10" y="{gy0:.1f}" width="{width - 20:.1f}" height="{gy1 - gy0:.1f}" rx="3" fill="#F4EFE4" />')
         lines.append(
-            f'<text x="{width - 16:.1f}" y="{gy0 + 10.0:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" '
+            f'<text x="{width - 16:.1f}" y="{gy0 + 11.0:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" '
             f'font-size="5.9" font-weight="700" letter-spacing="1.0" fill="#8A530B">GYMNOSPERMS · NAKED SEEDS / CONES</text>'
         )
 
@@ -201,10 +212,10 @@ def svg_morphology_strip(width: float = 540.0, height: float = 96.0) -> str:
             )
         elif kind == "welwitschia":
             out.append(
-                f'<rect x="{cx-6:.1f}" y="30" width="12" height="16" rx="2" fill="{col}" fill-opacity="0.30" stroke="{col}" stroke-width="1.1" />'
-                f'<path d="M {cx-6:.1f},34 C {cx-18:.1f},24 {cx-28:.1f},34 {cx-32:.1f},48 C {cx-24:.1f},46 {cx-16:.1f},38 {cx-6:.1f},40 Z" fill="{col}" fill-opacity="0.18" stroke="{col}" stroke-width="1.1" />'
-                f'<path d="M {cx+6:.1f},34 C {cx+18:.1f},24 {cx+28:.1f},34 {cx+32:.1f},48 C {cx+24:.1f},46 {cx+16:.1f},38 {cx+6:.1f},40 Z" fill="{col}" fill-opacity="0.18" stroke="{col}" stroke-width="1.1" />'
-                f'<circle cx="{cx-4:.1f}" cy="26" r="2.2" fill="{col}" /><circle cx="{cx+4:.1f}" cy="26" r="2.2" fill="{col}" />'
+                f'<rect x="{cx-6:.1f}" y="27" width="12" height="16" rx="2" fill="{col}" fill-opacity="0.30" stroke="{col}" stroke-width="1.1" />'
+                f'<path d="M {cx-6:.1f},31 C {cx-18:.1f},21 {cx-28:.1f},31 {cx-32:.1f},45 C {cx-24:.1f},43 {cx-16:.1f},35 {cx-6:.1f},37 Z" fill="{col}" fill-opacity="0.18" stroke="{col}" stroke-width="1.1" />'
+                f'<path d="M {cx+6:.1f},31 C {cx+18:.1f},21 {cx+28:.1f},31 {cx+32:.1f},45 C {cx+24:.1f},43 {cx+16:.1f},35 {cx+6:.1f},37 Z" fill="{col}" fill-opacity="0.18" stroke="{col}" stroke-width="1.1" />'
+                f'<circle cx="{cx-4:.1f}" cy="23" r="2.2" fill="{col}" /><circle cx="{cx+4:.1f}" cy="23" r="2.2" fill="{col}" />'
             )
         elif kind == "sequoia":
             out.append(f'<line x1="{cx:.1f}" y1="14" x2="{cx:.1f}" y2="54" stroke="{col}" stroke-width="1.4" />')
@@ -238,11 +249,11 @@ def svg_morphology_strip(width: float = 540.0, height: float = 96.0) -> str:
             )
 
         out.append(
-            f'<text x="{cx:.1f}" y="71" text-anchor="middle" font-family="Charter, Georgia, serif" '
+            f'<text x="{cx:.1f}" y="71.5" text-anchor="middle" font-family="Charter, Georgia, serif" '
             f'font-style="italic" font-size="7.6" font-weight="700" fill="#181A18">{html.escape(name)}</text>'
         )
         out.append(
-            f'<text x="{cx:.1f}" y="83" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
+            f'<text x="{cx:.1f}" y="83.5" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
             f'font-size="6.2" font-weight="600" fill="{col}">{html.escape(trait)}</text>'
         )
 
@@ -254,25 +265,25 @@ def svg_morphology_strip(width: float = 540.0, height: float = 96.0) -> str:
     )
 
 
-def svg_scale_lineup(width: float = 540.0, height: float = 92.0) -> str:
+def svg_scale_lineup(width: float = 540.0, height: float = 94.0) -> str:
     """National Geographic-inspired log-scale structural comparison across 4 orders of magnitude."""
     out = [
         f'<rect x="0" y="0" width="{width:.0f}" height="{height:.0f}" fill="#FBF9F4" />',
-        f'<line x1="16" y1="62" x2="{width - 16:.0f}" y2="62" stroke="#C7BFB0" stroke-width="0.75" />',
+        f'<line x1="16" y1="66" x2="{width - 16:.0f}" y2="66" stroke="#C7BFB0" stroke-width="0.75" />',
     ]
     # 5 structural benchmarks on clean visual progression (explicitly labeled schematic log progression)
     items = [
         ("Dionaea trap", "~3 cm", 10, "#9C1F32"),
         ("Ginkgo leaf", "~8 cm", 16, "#8A530B"),
-        ("Human (1.7 m)", "Ref. 1×", 28, "#4E5650"),
-        ("Victoria pad", "~2.5 m", 36, "#185D3B"),
-        ("Adansonia trunk", "~10 m Ø", 48, "#2C4966"),
-        ("Sequoia canopy", "~100+ m", 54, "#7D2F24"),
+        ("Human (1.7 m)", "Ref. 1×", 27, "#4E5650"),
+        ("Victoria pad", "~2.5 m", 35, "#185D3B"),
+        ("Adansonia trunk", "~10 m Ø", 44, "#2C4966"),
+        ("Sequoia canopy", "~100+ m", 50, "#7D2F24"),
     ]
     step = (width - 40) / len(items)
     for i, (label, dim, h_bar, col) in enumerate(items):
         cx = 20 + step * (i + 0.5)
-        y_top = 62 - h_bar
+        y_top = 66 - h_bar
         is_ref = label.startswith("Human")
         fill = "none" if is_ref else col
         fill_op = "1" if is_ref else "0.22"
@@ -282,15 +293,15 @@ def svg_scale_lineup(width: float = 540.0, height: float = 92.0) -> str:
             f'fill="{fill}" fill-opacity="{fill_op}" stroke="{col}" stroke-width="1.2"{dash} rx="1.5" />'
         )
         out.append(
-            f'<text x="{cx:.1f}" y="{y_top - 4:.1f}" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
+            f'<text x="{cx:.1f}" y="{y_top - 4.8:.1f}" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
             f'font-size="6.8" font-weight="700" fill="{col}">{html.escape(dim)}</text>'
         )
         out.append(
-            f'<text x="{cx:.1f}" y="75" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
+            f'<text x="{cx:.1f}" y="79" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" '
             f'font-size="6.6" font-weight="600" fill="#181A18">{html.escape(label)}</text>'
         )
     out.append(
-        f'<text x="{width - 16:.0f}" y="88" text-anchor="end" font-family="Charter, Georgia, serif" '
+        f'<text x="{width - 16:.0f}" y="91" text-anchor="end" font-family="Charter, Georgia, serif" '
         f'font-style="italic" font-size="6.5" fill="#4E5650">Schematic logarithmic comparison across 3.5 orders of magnitude (not to linear scale).</text>'
     )
     return (
@@ -608,8 +619,12 @@ def svg_anatomy_overlay(
         box_w = float(c.get("box_w", 142.0))
 
         if pill_mode:
+            # Snug optical width + symmetric vertical padding inside 26pt archival plaque
+            auto_w = max(len(c["title"]) * 4.95, len(c["sub"]) * 3.75) + 16.0
+            box_w = float(c.get("box_w", auto_w))
+            box_h = 26.0
             bx = lx - box_w - 4 if align == "left" else lx + 4
-            by = ly - 11.5
+            by = ly - box_h / 2.0
             # Attach leader line cleanly to the pill edge nearest the target organ (zero line-behind-pill crossing!)
             if px > bx + box_w:
                 attach_x = bx + box_w
@@ -631,17 +646,17 @@ def svg_anatomy_overlay(
             out.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4.2" fill="#FBF9F4" />')
             out.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="2.7" fill="{col}" />')
             out.append(
-                f'<rect x="{bx:.1f}" y="{by:.1f}" width="{box_w:.1f}" height="24" rx="2" '
-                f'fill="#FBF9F4" fill-opacity="0.95" stroke="{col}" stroke-width="0.65" />'
+                f'<rect x="{bx:.1f}" y="{by:.1f}" width="{box_w:.1f}" height="{box_h:.1f}" rx="2.2" '
+                f'fill="#FBF9F4" fill-opacity="0.96" stroke="{col}" stroke-width="0.7" />'
             )
-            tx = bx + 6.0
+            tx = bx + 7.5
             out.append(
-                f'<text x="{tx:.1f}" y="{ly - 1.5:.1f}" text-anchor="start" '
+                f'<text x="{tx:.1f}" y="{by + 10.2:.1f}" text-anchor="start" '
                 f'font-family="Inter, Helvetica Neue, sans-serif" font-size="6.4" font-weight="700" '
                 f'letter-spacing="0.6" fill="{col}">{title}</text>'
             )
             out.append(
-                f'<text x="{tx:.1f}" y="{ly + 8.5:.1f}" text-anchor="start" '
+                f'<text x="{tx:.1f}" y="{by + 19.8:.1f}" text-anchor="start" '
                 f'font-family="Charter, Georgia, serif" font-size="6.9" fill="#181A18">{sub}</text>'
             )
         else:
@@ -692,61 +707,61 @@ def svg_dichotomous_key(width: float = 540.0, height: float = 258.0) -> str:
 
     def q_box(x: float, y: float, w: float, h: float, step: str, question: str) -> None:
         out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="3" fill="#F3EFE5" stroke="#005F5A" stroke-width="0.9" />')
-        out.append(f'<text x="{x + 7:.1f}" y="{y + 11.5:.1f}" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.2" font-weight="700" letter-spacing="0.8" fill="#005F5A">{html.escape(step)}</text>')
-        out.append(f'<text x="{x + 7:.1f}" y="{y + 22.5:.1f}" font-family="Charter, Georgia, serif" font-size="7.6" font-weight="700" fill="#181A18">{html.escape(question)}</text>')
+        out.append(f'<text x="{x + 8:.1f}" y="{y + 11.0:.1f}" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.2" font-weight="700" letter-spacing="0.8" fill="#005F5A">{html.escape(step)}</text>')
+        out.append(f'<text x="{x + 8:.1f}" y="{y + 21.8:.1f}" font-family="Charter, Georgia, serif" font-size="7.6" font-weight="700" fill="#181A18">{html.escape(question)}</text>')
 
     def sp_box(x: float, y: float, w: float, h: float, slug: str, name: str, pg: str, cue: str) -> None:
         col = SPECIES_COLOR[slug]
         out.append(f'<a href="#species-{slug}">')
         out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="3" fill="#FBF9F4" stroke="{col}" stroke-width="1.2" />')
         out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="4" height="{h:.1f}" fill="{col}" />')
-        out.append(f'<text x="{x + 9:.1f}" y="{y + 12.5:.1f}" font-family="Charter, Georgia, serif" font-style="italic" font-size="8.2" font-weight="700" fill="#181A18">{html.escape(name)}</text>')
-        out.append(f'<text x="{x + w - 6:.1f}" y="{y + 12.5:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.4" font-weight="700" fill="{col}">p. {pg}</text>')
-        out.append(f'<text x="{x + 9:.1f}" y="{y + 23.0:.1f}" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.2" fill="#464E49">{html.escape(cue)}</text>')
+        out.append(f'<text x="{x + 10:.1f}" y="{y + 11.8:.1f}" font-family="Charter, Georgia, serif" font-style="italic" font-size="8.2" font-weight="700" fill="#181A18">{html.escape(name)}</text>')
+        out.append(f'<text x="{x + w - 7:.1f}" y="{y + 11.5:.1f}" text-anchor="end" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.4" font-weight="700" fill="{col}">p. {pg}</text>')
+        out.append(f'<text x="{x + 10:.1f}" y="{y + 22.3:.1f}" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.2" fill="#464E49">{html.escape(cue)}</text>')
         out.append("</a>")
 
     def branch(x1: float, y1: float, x2: float, y2: float, tag: str, tx: float, ty: float) -> None:
         out.append(f'<path d="M {x1:.1f},{y1:.1f} L {x1:.1f},{y2:.1f} L {x2:.1f},{y2:.1f}" fill="none" stroke="#68706A" stroke-width="1.0" />')
-        out.append(f'<rect x="{tx - 2:.1f}" y="{ty - 8.5:.1f}" width="{len(tag) * 3.8 + 6:.1f}" height="11" fill="#FBF9F4" />')
+        out.append(f'<rect x="{tx - 2:.1f}" y="{ty - 7.5:.1f}" width="{len(tag) * 3.8 + 6:.1f}" height="10" fill="#FBF9F4" />')
         out.append(f'<text x="{tx:.1f}" y="{ty:.1f}" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.0" font-weight="700" fill="#2D312E">{html.escape(tag)}</text>')
 
     # Root Q1 (left center)
-    q_box(4, 108, 126, 30, "KEY 1 · REPRODUCTION", "Naked seeds or flowers?")
+    q_box(4, 109, 126, 30, "KEY 1 · REPRODUCTION", "Naked seeds or flowers?")
 
     # Upper track: Gymnosperms (Q2a -> Ginkgo / Q3a -> Welwitschia & Sequoia)
-    branch(67, 108, 152, 52, "1A · Cones / naked ovules", 72, 74)
-    q_box(152, 37, 134, 30, "KEY 2A · LEAF VENATION", "Fan leaf w/ forking veins?")
+    branch(67, 109, 152, 50, "1A · Cones / naked ovules", 72, 74)
+    q_box(152, 35, 134, 30, "KEY 2A · LEAF VENATION", "Fan leaf w/ forking veins?")
 
-    branch(286, 44, 366, 18, "YES · Fan blade", 292, 29)
+    branch(286, 43, 366, 19, "YES · Fan blade", 292, 29)
     sp_box(366, 4, 170, 30, "ginkgo", "Ginkgo biloba", "04", "Dichotomous fan · Fleshy ovule")
 
-    q_box(152, 82, 134, 30, "KEY 3A · HABIT", "Only 2 lifelong strap leaves?")
-    out.append('<path d="M 219,67 L 219,82" fill="none" stroke="#68706A" stroke-width="1.0" />')
-    out.append('<rect x="223" y="69" width="60" height="10" fill="#FBF9F4" />')
+    q_box(152, 84, 134, 30, "KEY 3A · HABIT", "Only 2 lifelong strap leaves?")
+    out.append('<path d="M 219,65 L 219,84" fill="none" stroke="#68706A" stroke-width="1.0" />')
+    out.append('<rect x="223" y="69.5" width="60" height="10" fill="#FBF9F4" />')
     out.append('<text x="225" y="76.5" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.0" font-weight="700" fill="#2D312E">NO · Strap/needle</text>')
 
-    branch(286, 91, 366, 58, "YES · Namib desert", 292, 70)
+    branch(286, 92, 366, 58, "YES · Namib desert", 292, 70)
     sp_box(366, 43, 170, 30, "welwitschia", "Welwitschia mirabilis", "05", "Basal meristem · Twin straps")
 
-    branch(286, 103, 366, 98, "NO · Tall conifer", 292, 111)
+    branch(286, 105, 366, 97, "NO · Tall conifer", 292, 111)
     sp_box(366, 82, 170, 30, "sequoia", "Sequoia sempervirens", "06", "2-ranked needles · Woody cones")
 
     # Lower track: Angiosperms (Q2b -> Victoria / Q3b -> Dionaea & Adansonia)
-    branch(67, 138, 152, 172, "1B · True flowers / fruit", 72, 162)
-    q_box(152, 157, 134, 30, "KEY 2B · HABITAT", "Giant floating radial pad?")
+    branch(67, 139, 152, 171, "1B · True flowers / fruit", 72, 162)
+    q_box(152, 156, 134, 30, "KEY 2B · HABITAT", "Giant floating radial pad?")
 
     branch(286, 164, 366, 146, "YES · Aquatic pad", 292, 157)
     sp_box(366, 131, 170, 30, "victoria", "Victoria amazonica", "07", "Radial underside ribs · Notch")
 
-    out.append('<path d="M 219,187 L 219,204" fill="none" stroke="#68706A" stroke-width="1.0" />')
-    out.append('<rect x="223" y="190" width="56" height="10" fill="#FBF9F4" />')
+    out.append('<path d="M 219,186 L 219,205" fill="none" stroke="#68706A" stroke-width="1.0" />')
+    out.append('<rect x="223" y="190.5" width="56" height="10" fill="#FBF9F4" />')
     out.append('<text x="225" y="197.5" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.0" font-weight="700" fill="#2D312E">NO · Terrestrial</text>')
-    q_box(152, 204, 134, 30, "KEY 3B · ARCHITECTURE", "Active insect snap-trap?")
+    q_box(152, 205, 134, 30, "KEY 3B · ARCHITECTURE", "Active insect snap-trap?")
 
-    branch(286, 212, 366, 188, "YES · Carnivorous", 292, 200)
+    branch(286, 213, 366, 188, "YES · Carnivorous", 292, 200)
     sp_box(366, 173, 170, 30, "dionaea", "Dionaea muscipula", "08", "3 trigger hairs · Marginal cilia")
 
-    branch(286, 226, 366, 232, "NO · Bottle trunk", 292, 245)
+    branch(286, 227, 366, 232, "NO · Bottle trunk", 292, 245)
     sp_box(366, 217, 170, 30, "adansonia", "Adansonia digitata", "09", "Pachycaul trunk · Bat flowers")
 
     return (

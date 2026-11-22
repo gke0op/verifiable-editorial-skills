@@ -187,7 +187,7 @@ def build_styles(fonts: dict[str, str]) -> dict[str, ParagraphStyle]:
             fontSize=21.0,
             leading=23.5,
             textColor=colors.HexColor(NAVY_HEX),
-            spaceAfter=2,
+            spaceAfter=3,
         ),
         "kpi_label": ParagraphStyle(
             "kpi_label",
@@ -195,7 +195,7 @@ def build_styles(fonts: dict[str, str]) -> dict[str, ParagraphStyle]:
             fontSize=7.2,
             leading=9.2,
             textColor=colors.HexColor(COBALT_HEX),
-            spaceAfter=2,
+            spaceAfter=3,
         ),
         "kpi_sub": ParagraphStyle(
             "kpi_sub",
@@ -277,8 +277,8 @@ def make_kpi_ribbon(items: list[tuple[str, str, str, str]], styles: dict[str, Pa
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("LINEABOVE", (0, 0), (-1, 0), 1.0, colors.HexColor(NAVY_HEX)),
                 ("LINEBELOW", (0, -1), (-1, -1), 0.5, colors.HexColor(RULE_HEX)),
-                ("TOPPADDING", (0, 0), (-1, -1), 8),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 9),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
                 ("LEFTPADDING", (0, 0), (-1, -1), 2),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 8),
             ]
@@ -306,10 +306,10 @@ def make_asymmetric_spread(
             [
                 ("BACKGROUND", (2, 0), (2, 0), colors.HexColor(TINT_HEX)),
                 ("LINEABOVE", (2, 0), (2, 0), 1.2, colors.HexColor(COBALT_HEX)),
-                ("LEFTPADDING", (2, 0), (2, 0), 9),
-                ("RIGHTPADDING", (2, 0), (2, 0), 9),
-                ("TOPPADDING", (2, 0), (2, 0), 8),
-                ("BOTTOMPADDING", (2, 0), (2, 0), 8),
+                ("LEFTPADDING", (2, 0), (2, 0), 10),
+                ("RIGHTPADDING", (2, 0), (2, 0), 10),
+                ("TOPPADDING", (2, 0), (2, 0), 10),
+                ("BOTTOMPADDING", (2, 0), (2, 0), 10),
             ]
         )
     else:
@@ -377,19 +377,19 @@ def compile_report() -> None:
                 (
                     "MAUNA LOA DESEASONALIZED",
                     f"{m['noaa_latest_deseasonalized_ppm']:.2f} ppm",
-                    f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} ppm vs 1958); peak {m['noaa_peak_average_ppm']:.2f} ppm",
+                    f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} ppm vs 1958)<br/>May 2026 peak: {m['noaa_peak_average_ppm']:.2f} ppm",
                     CRIMSON_HEX,
                 ),
                 (
                     "8-ECONOMY 2024 TOTAL",
                     f"{m['panel8_co2_2024_mt']/1000:.2f} Gt",
-                    f"+{m['panel8_co2_change_2000_2024_pct']:.1f}% vs 2000 (OECD-5 {m['oecd5_co2_change_2000_2024_pct']:+.1f}%, EM-3 +{m['em3_co2_change_2000_2024_pct']:.1f}%)",
+                    f"+{m['panel8_co2_change_2000_2024_pct']:.1f}% vs 2000 (OECD-5 {m['oecd5_co2_change_2000_2024_pct']:+.1f}%,<br/>Emerging-3 +{m['em3_co2_change_2000_2024_pct']:.1f}%)",
                     NAVY_HEX,
                 ),
                 (
                     "PROVENANCE COVERAGE",
                     f"{len(m)} / {len(m)}",
-                    "100% metrics sealed to 6 SHA-256 raw files; zero proxies",
+                    "100% metrics sealed to 6 SHA-256<br/>raw files; zero proxies",
                     EMERALD_HEX,
                 ),
             ],

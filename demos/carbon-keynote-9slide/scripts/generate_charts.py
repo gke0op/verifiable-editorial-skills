@@ -151,7 +151,7 @@ def render_keeling_acceleration(summary: dict, theme_name: str, out_path: Path) 
     ax1.scatter([dates[0], dates[-1]], [deseas[0], deseas[-1]], color=[t["muted"], t["crimson"]], s=26, zorder=5)
     ax1.text(dates[0] + 1.2, deseas[0] - 5.5, f"{meta['noaa_start']}: {m['noaa_first_deseasonalized_ppm']:.1f} ppm", fontsize=7.6, color=t["subtext"], fontweight="bold")
     ax1.text(
-        dates[-1] - 0.5,
+        2021.8,
         m["noaa_peak_average_ppm"] + 4.5,
         f"Peak ({meta['noaa_peak_month']}): {m['noaa_peak_average_ppm']:.2f} ppm\nLatest deseas.: {m['noaa_latest_deseasonalized_ppm']:.2f} ppm",
         fontsize=7.5,
@@ -429,23 +429,23 @@ def render_per_capita_footprint(summary: dict, theme_name: str, out_path: Path) 
                 # IND is short (2.17 t) -> label cleanly above bar
                 ax1.text(cx, h + 0.45, f"IND — {h:.2f} t/cap\n(1.45B pop · 3.15 Gt)", fontsize=7.4, fontweight="bold", color=col, ha="center", va="bottom")
             elif e["iso3"] == "USA":
-                ax1.text(cx, h * 0.52, f"USA\n{h:.1f} t\n4.63 Gt", fontsize=7.2, fontweight="bold", color="#ffffff", ha="center", va="center")
+                ax1.text(cx, h * 0.72, f"USA\n{h:.1f} t\n4.63 Gt", fontsize=7.2, fontweight="bold", color="#ffffff", ha="center", va="center")
             else:
                 ax1.text(cx, h * 0.52, f"{e['iso3']} — {h:.2f} t/cap\n(1.41B pop · 13.12 Gt)", fontsize=7.8, fontweight="bold", color="#ffffff", ha="center", va="center")
         else:
             # Narrow bars (JPN, DEU, GBR, FRA, BRA) -> staggered clean top callouts cleanly ABOVE weighted mean line
             y_targets = {"JPN": 13.7, "DEU": 12.3, "GBR": 10.9, "FRA": 9.5, "BRA": 8.0}
             ty = y_targets[e["iso3"]]
-            ax1.annotate(
+            ax1.plot([cx, cx + 0.14], [h + 0.18, ty], color=col, linewidth=0.75, solid_capstyle="round")
+            ax1.text(
+                cx + 0.17,
+                ty,
                 f"{e['iso3']} ({h:.1f} t)",
-                xy=(cx, h),
-                xytext=(cx + 0.14, ty),
                 fontsize=6.9,
                 fontweight="bold",
                 color=col if theme_name == "light" else t["text"],
                 ha="left",
                 va="center",
-                arrowprops={"arrowstyle": "-", "color": col, "lw": 0.7},
             )
 
         x_cursor += w + gap

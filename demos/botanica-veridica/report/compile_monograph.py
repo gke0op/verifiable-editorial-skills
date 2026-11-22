@@ -140,9 +140,9 @@ def build_html(summary: dict, manifest_count: int, ledger_count: int, prepress: 
     p8 = asset_uri("plate_08_adansonia_baobab.jpg")
 
     # Core scientific SVGs (Pages 2, 3, 10)
-    svg_clado = svg_phylogenetic_cladogram(summary, 540, 224)
-    svg_morph = svg_morphology_strip(540, 94)
-    svg_scale = svg_scale_lineup(540, 90)
+    svg_clado = svg_phylogenetic_cladogram(summary, 540, 228)
+    svg_morph = svg_morphology_strip(540, 96)
+    svg_scale = svg_scale_lineup(540, 94)
     svg_map = svg_gbif_world_map(summary, 540, 222)
     svg_herb = svg_herbarium_ratio_bars(summary, 540, 128)
     svg_pheno = svg_phenology_matrix(summary, 540, 134)
@@ -203,9 +203,9 @@ def build_html(summary: dict, manifest_count: int, ledger_count: int, prepress: 
         374,
         791.5,
         [
-            {"px": 144, "py": 362, "lx": 18, "ly": 158, "align": "right", "box_w": 158, "color": "#964123", "title": "STROBILI CONES", "sub": "Dioecious reproductive cones"},
-            {"px": 188, "py": 434, "lx": 198, "ly": 228, "align": "right", "box_w": 158, "color": "#005F5A", "title": "BASAL MERISTEM CROWN", "sub": "Woody stem apex grows forever"},
-            {"px": 266, "py": 518, "lx": 186, "ly": 698, "align": "right", "box_w": 170, "color": "#185D3B", "title": "TWIN PERMANENT LEAVES", "sub": "Only 2 foliage leaves for centuries"},
+            {"px": 144, "py": 362, "lx": 14, "ly": 158, "align": "right", "box_w": 122, "color": "#964123", "title": "STROBILI CONES", "sub": "Dioecious reproductive cones"},
+            {"px": 188, "py": 434, "lx": 208, "ly": 228, "align": "right", "box_w": 146, "color": "#005F5A", "title": "BASAL MERISTEM CROWN", "sub": "Woody stem apex grows forever"},
+            {"px": 266, "py": 518, "lx": 204, "ly": 698, "align": "right", "box_w": 150, "color": "#185D3B", "title": "TWIN PERMANENT LEAVES", "sub": "Only 2 foliage leaves for centuries"},
         ],
         scale_label=None,
         pill_mode=True,
@@ -215,11 +215,11 @@ def build_html(summary: dict, manifest_count: int, ledger_count: int, prepress: 
         612,
         444,
         [
-            {"px": 420, "py": 176, "lx": 334, "ly": 66, "align": "left", "box_w": 162, "color": "#185D3B", "title": "RADIAL PRIMARY RIBS", "sub": "Air-filled buoyant girder spokes"},
-            {"px": 496, "py": 214, "lx": 442, "ly": 36, "align": "right", "box_w": 154, "color": "#9C1F32", "title": "CROSS-VEIN STRUTS", "sub": "Orthogonal stiffening web"},
-            {"px": 422, "py": 304, "lx": 432, "ly": 400, "align": "right", "box_w": 164, "color": "#8A530B", "title": "THERMOGENIC BLOSSOM", "sub": "Nocturnal beetle-trap flower"},
-            {"px": 156, "py": 348, "lx": 14, "ly": 198, "align": "right", "box_w": 156, "color": "#9C1F32", "title": "UPTURNED BURGUNDY RIM", "sub": "Hydrostatic perimeter lip"},
-            {"px": 302, "py": 366, "lx": 14, "ly": 404, "align": "right", "box_w": 154, "color": "#005F5A", "title": "DRAINAGE NOTCH", "sub": "Spills tropical rainwater"},
+            {"px": 420, "py": 176, "lx": 334, "ly": 66, "align": "left", "box_w": 138, "color": "#185D3B", "title": "RADIAL PRIMARY RIBS", "sub": "Air-filled buoyant girder spokes"},
+            {"px": 496, "py": 214, "lx": 462, "ly": 36, "align": "right", "box_w": 130, "color": "#9C1F32", "title": "CROSS-VEIN STRUTS", "sub": "Orthogonal stiffening web"},
+            {"px": 422, "py": 304, "lx": 456, "ly": 400, "align": "right", "box_w": 136, "color": "#8A530B", "title": "THERMOGENIC BLOSSOM", "sub": "Nocturnal beetle-trap flower"},
+            {"px": 156, "py": 348, "lx": 14, "ly": 198, "align": "right", "box_w": 140, "color": "#9C1F32", "title": "UPTURNED BURGUNDY RIM", "sub": "Hydrostatic perimeter lip"},
+            {"px": 302, "py": 366, "lx": 14, "ly": 404, "align": "right", "box_w": 116, "color": "#005F5A", "title": "DRAINAGE NOTCH", "sub": "Spills tropical rainwater"},
         ],
         scale_label=None,
         pill_mode=True,
@@ -243,8 +243,8 @@ def build_html(summary: dict, manifest_count: int, ledger_count: int, prepress: 
         612,
         483.5,
         [
-            {"px": 228, "py": 182, "lx": 410, "ly": 72, "align": "right", "box_w": 182, "color": "#2C4966", "title": "DECIDUOUS CROWN", "sub": "Sheds foliage in dry season"},
-            {"px": 232, "py": 308, "lx": 410, "ly": 152, "align": "right", "box_w": 182, "color": "#8A530B", "title": "PACHYCAUL RESERVOIR", "sub": "Fibrous parenchyma stores water"},
+            {"px": 228, "py": 182, "lx": 448, "ly": 72, "align": "right", "box_w": 144, "color": "#2C4966", "title": "DECIDUOUS CROWN", "sub": "Sheds foliage in dry season"},
+            {"px": 232, "py": 308, "lx": 448, "ly": 152, "align": "right", "box_w": 144, "color": "#8A530B", "title": "PACHYCAUL RESERVOIR", "sub": "Fibrous parenchyma stores water"},
         ],
         scale_label=None,
         pill_mode=True,
@@ -354,7 +354,8 @@ a {{
   font-size: 6.1pt;
   font-weight: 700;
   letter-spacing: 0.11em;
-  padding: 2.5pt 6pt;
+  line-height: 1.0;
+  padding: 3.4pt 6.5pt 3.0pt 6.5pt;
   border-radius: 2pt;
   color: #FFFFFF;
   vertical-align: middle;
@@ -519,13 +520,14 @@ a {{
 }}
 .p1-telemetry-pill {{
   margin-top: 10pt;
-  padding: 6pt 9pt;
+  padding: 6.5pt 9pt 6pt 9pt;
   background: rgba(15, 28, 25, 0.88);
   border-left: 2pt solid #E8C77B;
   font-family: 'Inter', 'Avenir Next', 'Helvetica Neue', sans-serif;
   font-size: 6.3pt;
   font-weight: 600;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
+  line-height: 1.0;
   color: #F4F2EA;
 }}
 
@@ -552,11 +554,12 @@ a {{
   left: 16pt;
   background: rgba(251, 249, 244, 0.94);
   border: 0.5pt solid #C8C0AE;
-  padding: 3pt 7pt;
+  padding: 3.8pt 7.5pt 3.4pt 7.5pt;
   font-family: 'Inter', 'Avenir Next', 'Helvetica Neue', sans-serif;
   font-size: 6.1pt;
   font-weight: 700;
   letter-spacing: 0.14em;
+  line-height: 1.0;
   text-transform: uppercase;
   color: #181A18;
 }}
@@ -663,8 +666,8 @@ a {{
   right: 164pt;
   background: rgba(251, 249, 244, 0.95);
   border-left: 2pt solid #7D2F24;
-  padding: 5pt 8pt;
-  width: 126pt;
+  padding: 6pt 9pt;
+  width: 132pt;
 }}
 
 /* Page 8 Dionaea — 3-Step NatGeo Action-Potential Badges */
@@ -674,19 +677,10 @@ a {{
   gap: 6pt;
   margin-top: 5pt;
 }}
-.step-badge {{
+.step-badge-svg {{
   flex-shrink: 0;
-  width: 13pt;
-  height: 13pt;
-  border-radius: 6.5pt;
-  background: #9C1F32;
-  color: #FFFFFF;
-  font-family: 'Inter', 'Avenir Next', 'Helvetica Neue', sans-serif;
-  font-size: 6.6pt;
-  font-weight: 700;
-  text-align: center;
-  line-height: 13pt;
-  margin-top: 1pt;
+  display: block;
+  margin-top: 0.8pt;
 }}
 .step-text {{
   font-family: 'Charter', 'Baskerville', 'Georgia', serif;
@@ -807,7 +801,7 @@ a {{
         From ancient gymnosperm fan-leaves to rapid carnivorous snap-buckling shells—every Latin authority, phylogenetic branch, occurrence dot, and bloom curve verified live from open biodiversity registries.
       </p>
       <div class="p1-telemetry-pill">
-        LIVE AUDITED: {port['total_gbif_occurrences']:,} GBIF OCCURRENCES · {port['total_herbarium_specimens']:,} HERBARIA · {port['total_inat_observations']:,} iNAT RECORDS
+        LIVE AUDITED: {port['total_gbif_occurrences']:,} GBIF · {port['total_herbarium_specimens']:,} HERBARIA · {port['total_inat_observations']:,} iNAT
       </div>
     </div>
 
@@ -841,11 +835,11 @@ a {{
 
     <div class="exhibit-label">Exhibit 1 · Live Open Tree of Life Phylogenetic Cladogram (Collapsed Induced Subtree)</div>
     <div class="exhibit-sub">Parsed deterministically from raw Newick topology (SHA-256 {newick_sha}…); internal nodes reflect live OpenTree consensus.</div>
-    <div style="margin-bottom:12pt;">{svg_clado}</div>
+    <div style="margin-bottom:9pt;">{svg_clado}</div>
 
     <div class="exhibit-label">Exhibit 2 · Comparative Morphology Diagnostic Silhouettes (Field Pattern Recognition)</div>
     <div class="exhibit-sub">Pairing real specimens with simplified 2D structural silhouettes trains rapid taxonomic diagnosis across clades.</div>
-    <div style="margin-bottom:12pt;">{svg_morph}</div>
+    <div style="margin-bottom:9pt;">{svg_morph}</div>
 
     <div class="exhibit-label">Exhibit 3 · Structural Scale Span Across Featured Organs &amp; Organisms</div>
     <div style="margin-top:4pt;">{svg_scale}</div>
@@ -968,7 +962,7 @@ a {{
     <div class="plate-tag-pill">Plate 04 · Coastal Fog Belt · Habitat Plate</div>
     <div class="zoom-caption">
       <div class="kicker" style="color:#7D2F24; font-size:5.9pt;">Plate 05 · Macro Detail</div>
-      <div style="font-family:'Charter',serif; font-size:7.4pt; line-height:1.35; color:#181A18; margin-top:2pt;">Two-ranked flat needles &amp; ~2 cm woody seed cones (<em>Cupressaceae</em>).</div>
+      <div style="font-family:'Charter',serif; font-size:7.4pt; line-height:1.35; color:#181A18; margin-top:2.5pt;">Two-ranked flat needles &amp; ~2&nbsp;cm woody seed cones (<em>Cupressaceae</em>).</div>
     </div>
     <div class="zoom-medallion">
       <img src="{p5}" alt="Magnified macro view of Sequoia sempervirens flat green needles and two woody oval seed cones" />
@@ -1071,9 +1065,9 @@ a {{
     <div class="sp-2col">
       <div>
         <p class="body-p"><span class="dropcap" style="color:{SPECIES_COLOR['dionaea']};">E</span>ndemic to nitrogen-poor coastal-plain pine savannas of the Carolinas—<strong>{dio['top_countries'][0]['count']:,}</strong> of <strong>{dio['gbif_total_occurrences']:,}</strong> GBIF occurrences (<strong>{dio['top_countries'][0]['count']/dio['gbif_total_occurrences']*100:.1f}%</strong>) lie in the United States—<em>Dionaea muscipula</em> supplements nutrient-starved soils with one of the fastest movements in botany.</p>
-        <div class="step-row"><div class="step-badge">1</div><div class="step-text"><strong>First Mechanical Touch:</strong> Deflecting a sensory trichome triggers a calcium-ion action potential that primes electrical memory without closing on raindrops.</div></div>
-        <div class="step-row"><div class="step-badge">2</div><div class="step-text"><strong>Second Touch (&lt;20 s):</strong> Crosses threshold; rapid turgor shift flips lobe curvature from convex to concave via elastic <em>snap-buckling</em> in ~100 ms.</div></div>
-        <div class="step-row"><div class="step-badge">3</div><div class="step-text"><strong>Struggle Confirmation:</strong> Three additional touches seal the rim airtight and activate acid digestive enzymes.</div></div>
+        <div class="step-row"><svg class="step-badge-svg" width="13pt" height="13pt" viewBox="0 0 13 13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6.5" fill="#9C1F32"/><text x="6.5" y="8.85" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.7" font-weight="700" fill="#FFFFFF">1</text></svg><div class="step-text"><strong>First Mechanical Touch:</strong> Deflecting a sensory trichome triggers a calcium-ion action potential that primes electrical memory without closing on raindrops.</div></div>
+        <div class="step-row"><svg class="step-badge-svg" width="13pt" height="13pt" viewBox="0 0 13 13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6.5" fill="#9C1F32"/><text x="6.5" y="8.85" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.7" font-weight="700" fill="#FFFFFF">2</text></svg><div class="step-text"><strong>Second Touch (&lt;20 s):</strong> Crosses threshold; rapid turgor shift flips lobe curvature from convex to concave via elastic <em>snap-buckling</em> in ~100 ms.</div></div>
+        <div class="step-row"><svg class="step-badge-svg" width="13pt" height="13pt" viewBox="0 0 13 13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6.5" fill="#9C1F32"/><text x="6.5" y="8.85" text-anchor="middle" font-family="Inter, Helvetica Neue, sans-serif" font-size="6.7" font-weight="700" fill="#FFFFFF">3</text></svg><div class="step-text"><strong>Struggle Confirmation:</strong> Three additional touches seal the rim airtight and activate acid digestive enzymes.</div></div>
       </div>
 
       <div>

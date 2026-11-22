@@ -18,7 +18,7 @@
 <line x1="189.1" y1="24.0" x2="189.1" y2="152.0" stroke="#E2DBC9" stroke-width="0.45" />
 <text x="189.1" y="163.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#45525E">100</text>
 <line x1="246.5" y1="24.0" x2="246.5" y2="152.0" stroke="#E2DBC9" stroke-width="0.45" />
-<text x="246.5" y="163.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#45525E">1,000 M⊕</text>
+<text x="246.5" y="163.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#45525E">1,000 M<tspan font-size="4.2" dy="1.2">⊕</tspan></text>
 <line x1="44.1" y1="142.5" x2="154.5" y2="94.8" stroke="#146646" stroke-width="0.85" stroke-dasharray="3,2" />
 <text x="157.5" y="97.8" font-family="Inter, sans-serif" font-size="5.5" font-weight="600" fill="#146646">Earth density (5.5 g/cm³)</text>
 <circle cx="236.6" cy="39.8" r="1.35" fill="#0B5CAD" fill-opacity="0.32" />
@@ -1620,7 +1620,7 @@
 <text x="70.0" y="143.2" text-anchor="start" font-family="Inter, sans-serif" font-size="5.8" font-weight="700" fill="#0E243D">TRAPPIST-1 e</text>
 <line x1="34.0" y1="152.0" x2="304.0" y2="152.0" stroke="#45525E" stroke-width="0.7" />
 <line x1="34.0" y1="24.0" x2="34.0" y2="152.0" stroke="#45525E" stroke-width="0.7" />
-<text x="12" y="88.0" transform="rotate(-90 12 88.0)" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#45525E">Radius (R⊕)</text>
+<text x="12" y="88.0" transform="rotate(-90 12 88.0)" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#45525E">Radius (R<tspan font-size="4.3" dy="1.2">⊕</tspan><tspan dy="-1.2">)</tspan></text>
 <text x="332" y="12" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" letter-spacing="0.8" fill="#0E243D">B · OBSERVED VS. [N/A] GAPS (RULE 5)</text>
 <text x="332.0" y="32.0" font-family="Inter, sans-serif" font-size="6.4" font-weight="600" fill="#141A20">Observed Radius</text>
 <text x="498.0" y="32.0" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.3" font-weight="700" fill="#0B5CAD">74.8% (4841)</text>

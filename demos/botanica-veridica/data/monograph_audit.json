@@ -22,7 +22,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 99.41,
+      "visible_photo_coverage_pct": 99.4,
       "bleed_edges": [
         "B",
         "L",
@@ -32,8 +32,8 @@
       "links_count": 45,
       "text_overflow": false,
       "wcag": {
-        "checked_spans": 34,
-        "min_contrast_ratio": 11.62,
+        "checked_spans": 33,
+        "min_contrast_ratio": 11.69,
         "violation_count": 0,
         "violations": []
       },
@@ -81,7 +81,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 56.0,
+      "visible_photo_coverage_pct": 56.01,
       "bleed_edges": [
         "L",
         "R",
@@ -147,7 +147,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 56.0,
+      "visible_photo_coverage_pct": 56.01,
       "bleed_edges": [
         "L",
         "R",
@@ -157,7 +157,7 @@
       "text_overflow": false,
       "wcag": {
         "checked_spans": 58,
-        "min_contrast_ratio": 5.35,
+        "min_contrast_ratio": 5.45,
         "violation_count": 0,
         "violations": []
       },
@@ -169,7 +169,7 @@
       "width_pt": 612.0,
       "height_pt": 792.0,
       "image_count": 1,
-      "visible_photo_coverage_pct": 56.0,
+      "visible_photo_coverage_pct": 56.01,
       "bleed_edges": [
         "L",
         "R",
@@ -201,7 +201,7 @@
       "text_overflow": false,
       "wcag": {
         "checked_spans": 55,
-        "min_contrast_ratio": 5.8,
+        "min_contrast_ratio": 5.84,
         "violation_count": 0,
         "violations": []
       },

@@ -135,8 +135,8 @@ def build_styles(fonts: dict[str, str], p: dict[str, str]) -> dict[str, Paragrap
         "cover_title": ParagraphStyle("cover_title", fontName=fonts["bold"], fontSize=27.0, leading=33.0, textColor=colors.HexColor(p["title"]), spaceAfter=10),
         "cover_deck": ParagraphStyle("cover_deck", fontName=fonts["regular"], fontSize=11.6, leading=16.8, textColor=colors.HexColor(p["body"]), spaceAfter=16),
         "action_title": ParagraphStyle("action_title", fontName=fonts["bold"], fontSize=14.8, leading=19.2, textColor=colors.HexColor(p["title"]), spaceAfter=6),
-        "kpi_num": ParagraphStyle("kpi_num", fontName=fonts["bold"], fontSize=22.5, leading=25.5, textColor=colors.HexColor(p["title"]), spaceAfter=2),
-        "kpi_label": ParagraphStyle("kpi_label", fontName=fonts["bold"], fontSize=7.4, leading=9.5, textColor=colors.HexColor(p["accent"]), spaceAfter=3),
+        "kpi_num": ParagraphStyle("kpi_num", fontName=fonts["bold"], fontSize=22.5, leading=25.5, textColor=colors.HexColor(p["title"]), spaceAfter=4),
+        "kpi_label": ParagraphStyle("kpi_label", fontName=fonts["bold"], fontSize=7.4, leading=9.5, textColor=colors.HexColor(p["accent"]), spaceAfter=4),
         "kpi_sub": ParagraphStyle("kpi_sub", fontName=fonts["regular"], fontSize=7.8, leading=10.6, textColor=colors.HexColor(p["muted"])),
         "takeaway_head": ParagraphStyle("takeaway_head", fontName=fonts["bold"], fontSize=8.5, leading=11.2, textColor=colors.HexColor(p["title"]), spaceAfter=3),
         "takeaway_body": ParagraphStyle("takeaway_body", fontName=fonts["regular"], fontSize=8.2, leading=11.6, textColor=colors.HexColor(p["body"])),
@@ -164,12 +164,12 @@ def make_kpi_strip(items: list[tuple[str, str, str, str]], styles: dict[str, Par
     t.setStyle(
         TableStyle(
             [
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(p["band"])),
                 ("LINEABOVE", (0, 0), (-1, 0), 1.3, colors.HexColor(p["hdr_rule"])),
                 ("LINEBELOW", (0, -1), (-1, -1), 0.6, colors.HexColor(p["rule"])),
-                ("TOPPADDING", (0, 0), (-1, -1), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
                 ("LEFTPADDING", (0, 0), (-1, -1), 11),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 11),
             ]
@@ -242,7 +242,7 @@ def compile_keynote(theme: str, summary: dict, fonts: dict[str, str]) -> Path:
     story.append(Spacer(1, 16))
     story.append(Paragraph(f"INSTITUTIONAL 9-SLIDE KEYNOTE  //  {'DARK EXECUTIVE' if theme == 'dark' else 'SWISS IVORY BOARDROOM'} EDITION", styles["kicker"]))
     story.append(Spacer(1, 4))
-    story.append(Paragraph("Global Atmospheric Carbon &amp; Major-Economy Decoupling Telemetry", styles["cover_title"]))
+    story.append(Paragraph("Global Atmospheric Carbon &amp;<br/>Major-Economy Decoupling Telemetry", styles["cover_title"]))
     story.append(
         Paragraph(
             f"A 9-slide visual synthesis of {m['noaa_observation_count']} NOAA Mauna Loa monthly observations "
@@ -255,10 +255,10 @@ def compile_keynote(theme: str, summary: dict, fonts: dict[str, str]) -> Path:
     story.append(
         make_kpi_strip(
             [
-                ("MAUNA LOA DESEASONALIZED", f"{m['noaa_latest_deseasonalized_ppm']:.2f} ppm", f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} ppm vs 1958); peak {m['noaa_peak_average_ppm']:.2f} ppm", p["crimson"]),
-                ("RECORD SINGLE-YEAR JUMP", f"+{m['noaa_max_annual_jump_ppm']:.2f} ppm", f"Calendar year {m['noaa_max_annual_jump_year']} — highest annual surge since 1959", p["amber"]),
-                ("OECD-5 DECOUPLING", f"{m['oecd5_co2_change_2000_2024_pct']:+.1f}% CO2", f"Achieved while real GDP expanded +{m['oecd5_gdp_growth_2000_2024_pct']:.1f}% (2000–24)", p["emerald"]),
-                ("CHINA PER-CAPITA SHIFT", f"{econ_map['CHN']['co2_per_capita_2000_t']:.1f}→{econ_map['CHN']['co2_per_capita_2024_t']:.1f} t", f"+{econ_map['CHN']['co2_per_capita_change_pct']:.0f}% — overtook Europe & Japan by 2024", p["accent"]),
+                ("MAUNA LOA DESEASONALIZED", f"{m['noaa_latest_deseasonalized_ppm']:.2f} ppm", f"Oct 2026 (+{m['noaa_cumulative_rise_ppm']:.1f} vs 1958); peak {m['noaa_peak_average_ppm']:.2f}", p["crimson"]),
+                ("RECORD SINGLE-YEAR JUMP", f"+{m['noaa_max_annual_jump_ppm']:.2f} ppm", f"Year {m['noaa_max_annual_jump_year']} — highest annual surge since 1959", p["amber"]),
+                ("OECD-5 DECOUPLING", f"{m['oecd5_co2_change_2000_2024_pct']:+.1f}% CO2", f"While real GDP expanded +{m['oecd5_gdp_growth_2000_2024_pct']:.1f}% (2000–24)", p["emerald"]),
+                ("CHINA PER-CAPITA SHIFT", f"{econ_map['CHN']['co2_per_capita_2000_t']:.1f}→{econ_map['CHN']['co2_per_capita_2024_t']:.1f} t", f"+{econ_map['CHN']['co2_per_capita_change_pct']:.0f}% — overtook Europe &amp; Japan by 2024", p["accent"]),
             ],
             styles,
             p,

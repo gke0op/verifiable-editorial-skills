@@ -125,15 +125,15 @@
 
 #let kpi-cell(label, val, sub, accent) = box(
   width: 100%,
-  height: 60pt,
+  height: 62pt,
   fill: c-tint,
-  inset: (x: 8.5pt, y: 8pt),
+  inset: (x: 9pt, y: 8pt),
   stroke: (top: 1.5pt + accent),
   [
     #set par(justify: false, leading: 0.45em, spacing: 0pt)
     #text(font: "Inter", size: 6.2pt, weight: "bold", fill: accent, tracking: 0.11em)[#upper(label)]
-    #v(5pt)
-    #text(font: "Cormorant Garamond", size: 18pt, weight: "bold", fill: c-ink, number-type: "lining")[#val]
+    #v(1fr)
+    #box(width: 100%, height: 22pt, align(left + horizon, text(font: "Cormorant Garamond", size: 18pt, weight: "bold", fill: c-ink, number-type: "lining")[#val]))
     #v(1fr)
     #text(font: "Inter", size: 6.1pt, fill: c-muted)[#sub]
   ]
@@ -256,8 +256,8 @@ Determining whether an exoplanet is rocky, ocean-rich, or hydrogen-enveloped req
       text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[YEAR],
       text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[DIST (pc)],
       text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[P (days)],
-      text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[R (R⊕)],
-      text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[M (M⊕)],
+      text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[R (R#sub[⊕])],
+      text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[M (M#sub[⊕])],
       text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[ρ (g/cm³)],
       text(font: "Inter", size: 6.4pt, weight: "bold", fill: c-navy)[T#sub[eq] (K)],
     ),
@@ -342,8 +342,9 @@ Every derived density and demographic boundary in this monograph obeys exact orb
   ],
   [
     #box(
+      width: 100%,
       fill: c-tint,
-      inset: 10pt,
+      inset: (x: 10pt, y: 10.5pt),
       stroke: (top: 1.5pt + c-navy),
       [
         #text(font: "Inter", size: 6.7pt, weight: "bold", fill: c-navy, tracking: 0.14em)[SOVEREIGN ZIG 0.17.0 HARNESS]
@@ -361,10 +362,11 @@ Every derived density and demographic boundary in this monograph obeys exact orb
         *5. `vedit inject`:* Dissects this monograph into a reusable `archetypes/` Design DNA blueprint.
       ],
     )
-    #v(10pt)
+    #v(11pt)
     #box(
+      width: 100%,
       fill: rgb("#EEF4F0"),
-      inset: 10pt,
+      inset: (x: 10pt, y: 10pt),
       stroke: (left: 2pt + c-green),
       [
         #text(font: "Inter", size: 6.6pt, weight: "bold", fill: c-green, tracking: 0.12em)[OBSERVATIONAL SELECTION BIAS]
@@ -372,6 +374,20 @@ Every derived density and demographic boundary in this monograph obeys exact orb
         #set text(size: 7.8pt)
         #set par(justify: false, leading: 0.50em)
         Transit probability scales inversely with orbital separation (#math.equation(alt: "R star divided by a", $R_star / a$)), heavily over-representing short-period worlds while leaving wide-orbit ice giants mostly to microlensing and direct imaging.
+      ],
+    )
+    #v(11pt)
+    #box(
+      width: 100%,
+      fill: c-tint,
+      inset: (x: 10pt, y: 10pt),
+      stroke: (left: 2pt + c-amber),
+      [
+        #text(font: "Inter", size: 6.6pt, weight: "bold", fill: c-amber, tracking: 0.12em)[RULE 5 · ZERO-IMPUTATION GUARD]
+        #v(3pt)
+        #set text(size: 7.8pt)
+        #set par(justify: false, leading: 0.50em)
+        Unmeasured observables—*#fmt-int(m.missing_mass_count)* masses and *#fmt-int(m.missing_radius_count)* radii across NASA's `ps` table—remain explicit `[N/A]` rather than model-imputed regressions.
       ],
     )
   ],

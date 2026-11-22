@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-21T22:27:10Z",
+  "fetched_at_utc": "2026-11-22T14:31:52Z",
   "sources": [
     {
       "filename": "noaa_co2_mm_mlo.csv",
@@ -7,7 +7,7 @@
       "url": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv",
       "bytes": 38821,
       "sha256": "163cadae3baa6dec7d3ae066108b50d1018a78447b1b6fc2b6e3936465549d16",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     },
     {
       "filename": "wb_co2_total_mt.json",
@@ -15,7 +15,7 @@
       "url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;IND;JPN;GBR;FRA;BRA/indicator/EN.GHG.CO2.MT.CE.AR5?format=json&per_page=500&date=2000:2025",
       "bytes": 52898,
       "sha256": "03af41701c7afa0d02cc2c8d1486a7d7098e663dda0b7017da9a222c0b53b06f",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     },
     {
       "filename": "wb_co2_per_capita.json",
@@ -23,7 +23,7 @@
       "url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;IND;JPN;GBR;FRA;BRA/indicator/EN.GHG.CO2.PC.CE.AR5?format=json&per_page=500&date=2000:2025",
       "bytes": 56478,
       "sha256": "ffd7a3738edd8b92324487cdf0d05a19dce3168dbae90c0e7af55004671d946a",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     },
     {
       "filename": "wb_gdp_const2015.json",
@@ -31,7 +31,7 @@
       "url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;IND;JPN;GBR;FRA;BRA/indicator/NY.GDP.MKTP.KD?format=json&per_page=500&date=2000:2025",
       "bytes": 44496,
       "sha256": "0a90ef2c050dbe0a52a73ebe351b3b5134dd9db38f23a51f2523833317c1f2e3",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     },
     {
       "filename": "wb_population.json",
@@ -39,7 +39,7 @@
       "url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;IND;JPN;GBR;FRA;BRA/indicator/SP.POP.TOTL?format=json&per_page=500&date=2000:2025",
       "bytes": 41173,
       "sha256": "bcb8d780b29c38a4916e95f6346d48ea79ffcc5bb7c57a4bc68bf1c3617f7192",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     },
     {
       "filename": "wb_renewables_share.json",
@@ -47,7 +47,7 @@
       "url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;IND;JPN;GBR;FRA;BRA/indicator/EG.FEC.RNEW.ZS?format=json&per_page=500&date=2000:2025",
       "bytes": 50871,
       "sha256": "e36c97fba395548b3362d10184307abc5b2778003bc5a3e73bcf9ffbdc59ba5d",
-      "fetched_at_utc": "2026-11-21T22:27:10Z"
+      "fetched_at_utc": "2026-11-22T14:31:52Z"
     }
   ]
 }
