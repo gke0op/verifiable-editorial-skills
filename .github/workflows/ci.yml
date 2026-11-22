@@ -70,6 +70,10 @@ jobs:
         run: |
           bash demos/caie-flowshop-journal/run_pipeline.sh
 
+      - name: Build & Certify APS Physical Review Letters (100% Zero-Python Zig 0.17 Yang-Mills Chaos + Typst REVTeX 4.2 PDF/UA-1) LIVE on Linux
+        run: |
+          bash demos/prl-yang-mills-chaos/run_pipeline.sh
+
       - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch, Coverage & Archetype Dissector LIVE on Ubuntu Linux
         run: |
           ./zig/zig-out/bin/vedit latch demos/global-carbon-telemetry
@@ -83,7 +87,7 @@ jobs:
           ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
           ./zig/zig-out/bin/vedit archetypes
 
-      - name: Run Full 21-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
+      - name: Run Full 22-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
         run: pytest
 
       - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos

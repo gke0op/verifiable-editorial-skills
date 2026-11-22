@@ -225,7 +225,7 @@
       pill(c-cyan, "5-GATE ZIG COURT"),
       pill(c-emerald, "VERAPDF 106/106"),
       pill(c-orange, "PDF SAMPLE INJECT"),
-      pill(c-gold, "7 ARCHETYPES"),
+      pill(c-gold, "8 ARCHETYPES"),
     )
 
     #v(18pt)

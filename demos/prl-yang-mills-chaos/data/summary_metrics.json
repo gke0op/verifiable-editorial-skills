@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "title": "Classical-to-Quantum Chaos and Bohigas-Giannoni-Schmit Universality in the SU(2) Yang-Mills Oscillator",
+    "source": "First-principles Zig 0.17.0 symplectic & C4v-desymmetrized exact diagonalization on sealed yang_mills_protocol.csv",
+    "raw_file_hashes": {
+      "yang_mills_protocol.csv": "48988322b9e7946a5d0f358e56874ed24868d568dd6923547d95bc1ad0c91dcd"
+    }
+  },
+  "metrics": {
+    "sweep_points": 9,
+    "orbits_per_coupling": 24,
+    "classical_energy": 20.0,
+    "basis_dim_small": 676,
+    "basis_dim_large": 900,
+    "bulk_window_size": 203,
+    "global_max_rel_dE_e11": 93.29,
+    "rk4_vs_yoshida_drift_ratio": 22.5,
+    "kam_lyap_mean": 0.017,
+    "kam_chaotic_pct": 0.0,
+    "kam_r_mean": 0.4159,
+    "mixed_lyap_mean": 0.137,
+    "mixed_chaotic_pct": 70.8,
+    "mixed_r_mean": 0.5601,
+    "a1_r_mean": 0.5119,
+    "chaotic_lyap_mean": 0.916,
+    "chaotic_lyap_max": 1.090,
+    "chaotic_chaotic_pct": 95.8,
+    "chaotic_n_conv": 233,
+    "chaotic_r_mean": 0.5255,
+    "chaotic_brody_beta": 0.945,
+    "chaotic_ks_goe": 0.0473,
+    "chaotic_ks_poisson": 0.2133,
+    "ks_poisson_to_goe_ratio": 4.5,
+    "sigma2_L5_kam": 1.12,
+    "sigma2_L5_chaotic": 0.65,
+    "poincare_pts_a": 866,
+    "poincare_pts_b": 1116,
+    "poincare_pts_c": 2449
+  },
+  "sweep": [
+    { "alpha": 0.000, "gamma": 0.00, "regime": "Integrable (2D HO)", "max_dE_e11": 76.03, "mean_lyap": 0.000, "chaotic_pct": 0.0, "n_conv": 500, "r_mean": 0.0000, "brody_beta": 0.000, "ks_goe": 0.9226, "ks_poisson": 0.9226 },
+    { "alpha": 0.010, "gamma": 0.20, "regime": "Near-integrable KAM", "max_dE_e11": 93.29, "mean_lyap": 0.013, "chaotic_pct": 0.0, "n_conv": 500, "r_mean": 0.4466, "brody_beta": 0.415, "ks_goe": 0.1253, "ks_poisson": 0.1168 },
+    { "alpha": 0.025, "gamma": 0.50, "regime": "KAM tori (Panel a)", "max_dE_e11": 81.17, "mean_lyap": 0.017, "chaotic_pct": 0.0, "n_conv": 435, "r_mean": 0.4159, "brody_beta": 0.330, "ks_goe": 0.1438, "ks_poisson": 0.1063 },
+    { "alpha": 0.050, "gamma": 1.00, "regime": "Early separatrix", "max_dE_e11": 62.07, "mean_lyap": 0.026, "chaotic_pct": 20.8, "n_conv": 388, "r_mean": 0.4448, "brody_beta": 0.485, "ks_goe": 0.1011, "ks_poisson": 0.1413 },
+    { "alpha": 0.125, "gamma": 2.50, "regime": "Mixed KAM + sea (Panel b)", "max_dE_e11": 36.21, "mean_lyap": 0.137, "chaotic_pct": 70.8, "n_conv": 332, "r_mean": 0.5601, "brody_beta": 1.000, "ks_goe": 0.0485, "ks_poisson": 0.2538 },
+    { "alpha": 0.250, "gamma": 5.00, "regime": "Broad chaotic sea", "max_dE_e11": 22.43, "mean_lyap": 0.348, "chaotic_pct": 100.0, "n_conv": 295, "r_mean": 0.5234, "brody_beta": 0.975, "ks_goe": 0.0741, "ks_poisson": 0.2015 },
+    { "alpha": 0.500, "gamma": 10.00, "regime": "Dominant chaos", "max_dE_e11": 14.05, "mean_lyap": 0.496, "chaotic_pct": 95.8, "n_conv": 272, "r_mean": 0.5119, "brody_beta": 0.930, "ks_goe": 0.0444, "ks_poisson": 0.2175 },
+    { "alpha": 1.000, "gamma": 20.00, "regime": "Strong chaos", "max_dE_e11": 8.71, "mean_lyap": 0.671, "chaotic_pct": 100.0, "n_conv": 252, "r_mean": 0.5822, "brody_beta": 1.000, "ks_goe": 0.0439, "ks_poisson": 0.2334 },
+    { "alpha": 2.500, "gamma": 50.00, "regime": "Yang-Mills chaotic (Panel c)", "max_dE_e11": 4.38, "mean_lyap": 0.916, "chaotic_pct": 95.8, "n_conv": 233, "r_mean": 0.5255, "brody_beta": 0.945, "ks_goe": 0.0473, "ks_poisson": 0.2133 }
+  ]
+}

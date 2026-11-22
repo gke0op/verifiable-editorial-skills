@@ -5,7 +5,7 @@
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **21 adversarial sabotage tests** on Ubuntu Linux CI.
+Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **22 adversarial sabotage tests** on Ubuntu Linux CI.
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -13,12 +13,12 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ## Gallery
 
-### 01 · *EXOMUNDUS* — 6,473 Confirmed Exoplanets · `100% Zig 0.17 + Typst`
-[PDF](demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf) · [Source](demos/exomundus-nasa-telemetry/) · Live NASA Exoplanet Archive (`ps default_flag=1`) · Zero Python · `299/299` Rule 10 · `630` spans (`4.93:1` worst) · **`veraPDF 106/106`**
+### 01 · *Physical Review Letters* (`APS REVTeX 4.2`) — SU(2) Yang–Mills Chaos & RMT · `100% Zig 0.17 + Typst`
+[PDF](demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf) · [Source](demos/prl-yang-mills-chaos/) · Pure-Zig 4th-order Yoshida symplectic + `C4v A1` Householder–QL (`D=900`, `1e-15` trace error) · Genuine stepped `widetext` brackets · Zero Python · `548/548` Rule 10 · `1,019` spans (`6.46:1` worst) · **`veraPDF 106/106`**
 
-| Cover & Live Fulton Radius Valley | Log–Log Mass–Radius & `[N/A]` Ledger | Optical Scaling Laws & Census | SHA-256 Seal & Live Provenance |
-| :---: | :---: | :---: | :---: |
-| ![Exomundus 1](demos/exomundus-nasa-telemetry/previews/exo_page_01.png) | ![Exomundus 2](demos/exomundus-nasa-telemetry/previews/exo_page_02.png) | ![Exomundus 3](demos/exomundus-nasa-telemetry/previews/exo_page_03.png) | ![Exomundus 4](demos/exomundus-nasa-telemetry/previews/exo_page_04.png) |
+| PRL Masthead, Abstract & Eqs. `(1)–(3)` | Poincaré Sections, GOE `P(s)` & Stepped `widetext` `(4)–(5)` | Double-Rule `TABLE I`, `Σ²(L)` & APS BibTeX |
+| :---: | :---: | :---: |
+| ![PRL 1](demos/prl-yang-mills-chaos/previews/prl_page_01.png) | ![PRL 2](demos/prl-yang-mills-chaos/previews/prl_page_02.png) | ![PRL 3](demos/prl-yang-mills-chaos/previews/prl_page_03.png) |
 
 ---
 
@@ -31,7 +31,16 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 03 · *BOTANICA VERIDICA* — Scientific Monograph × Magazine · `PDF/UA-1 + 3mm Bleed + Living Web`
+### 03 · *EXOMUNDUS* — 6,473 Confirmed Exoplanets · `100% Zig 0.17 + Typst`
+[PDF](demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf) · [Source](demos/exomundus-nasa-telemetry/) · Live NASA Exoplanet Archive (`ps default_flag=1`) · Zero Python · `299/299` Rule 10 · `630` spans (`4.93:1` worst) · **`veraPDF 106/106`**
+
+| Cover & Live Fulton Radius Valley | Log–Log Mass–Radius & `[N/A]` Ledger | Optical Scaling Laws & Census | SHA-256 Seal & Live Provenance |
+| :---: | :---: | :---: | :---: |
+| ![Exomundus 1](demos/exomundus-nasa-telemetry/previews/exo_page_01.png) | ![Exomundus 2](demos/exomundus-nasa-telemetry/previews/exo_page_02.png) | ![Exomundus 3](demos/exomundus-nasa-telemetry/previews/exo_page_03.png) | ![Exomundus 4](demos/exomundus-nasa-telemetry/previews/exo_page_04.png) |
+
+---
+
+### 04 · *BOTANICA VERIDICA* — Scientific Monograph × Magazine · `PDF/UA-1 + 3mm Bleed + Living Web`
 [PDF/UA-1](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf) · [Prepress](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf) · [Living Web HTML](demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html) · [Source](demos/botanica-veridica/) · Live GBIF / iNaturalist / OpenTree · `113,962` records · `55.9%–99.4%` plate coverage · `0` WCAG / geometry hits
 
 | Spread 2–3 · OpenTree Cladogram & GBIF Map | Spread 4–5 · *Ginkgo* SVG Anatomy & *Welwitschia* |
@@ -42,7 +51,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 04 · *Global Carbon Telemetry* — `415 ms` Typst Monograph · `veraPDF 106/106`
+### 05 · *Global Carbon Telemetry* — `415 ms` Typst Monograph · `veraPDF 106/106`
 [PDF](demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf) · [Source](demos/typst-carbon-monograph/) · Live NOAA (`1958–2026`) + World Bank WDI · Pure-vector SVG (`∞ DPI`) · `304/304` Rule 10 · `5.29:1` worst CR
 
 | Swiss Ivory Cover & Keeling Curve | Bloc Bifurcation & Tufte Ledger | Kaya / OLS Math & 5-Gate Court | SHA-256 Seal, Ledger & BibTeX |
@@ -51,7 +60,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 05 · *FELIS MUNDI* — Full-Bleed Print Magazine · `61.1%–99.9%` Audited Photo Coverage
+### 06 · *FELIS MUNDI* — Full-Bleed Print Magazine · `61.1%–99.9%` Audited Photo Coverage
 [PDF](demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf) · [Source](demos/felis-mundi-magazine/) · 11 locked Leica/Portra plates · `80.6%` avg visible photography verified by dual-key pixel diff
 
 | Cover (`99.3%`) | Kyoto 65/35 (`64.7%`) | Chefchaouen (`99.6%`) | Triptych (`76.8%`) |
@@ -60,7 +69,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 06 · *Consulting Flagship Deck* (16:9 Vector SVG) & *Dual-Theme Keynote* (Dark / Light)
+### 07 · *Consulting Flagship Deck* (16:9 Vector SVG) & *Dual-Theme Keynote* (Dark / Light)
 [Flagship PDF](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf) · [Dark Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf) · [Light Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf) · [Letter Report](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)
 
 | Midnight Hero + Parametric Wave | Mass-Balance Waterfall Bridge |
@@ -108,6 +117,7 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
 | Slug | Trim / Polarity | Palette (`bg` / `accent`) | Source |
 | :--- | :--- | :--- | :--- |
+| `aps-prl-letter` | `612×792` · PRL light (`3p`) | `#f8f8f8` / `#b81818` | `PRL_YANG_MILLS_CHAOS_UA1.pdf` |
 | `elsevier-caie-journal` | `595×842` · A4 light (`4p`) | `#f8f8f8` / `#082840` | `CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf` |
 | `exomundus-astrophysics` | `612×792` · light (`4p`) | `#f8f8f0` / `#0858a8` | `EXOMUNDUS_NASA_TELEMETRY_UA1.pdf` |
 | `typst-monograph` | `612×792` · light (`4p`) | `#f8f8f0` / `#005898` | `TYPST_CARBON_MONOGRAPH_UA1.pdf` |
@@ -131,7 +141,7 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
 (cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
 
-# Optional: Python CLI + 21-test adversarial sabotage & parity suite
+# Optional: Python CLI + 22-test adversarial sabotage & parity suite
 pip install -e ".[dev]" && pytest
 ```
 
@@ -139,11 +149,11 @@ pip install -e ".[dev]" && pytest
 
 ```
 zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 5-gate court
-archetypes/              7 dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
+archetypes/              8 dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
 skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
-demos/                   8 live open-data publications (OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
+demos/                   9 live open-data & physics publications (PRL, CAIE/OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
 verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   21-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
+tests/                   22-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
 ```
 
 ### The 10 Anti-Cheat Rules

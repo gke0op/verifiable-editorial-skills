@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="252pt" height="166pt" viewBox="0 0 252 166">
+<rect width="252" height="166" fill="#FFFFFF" />
+<text x="32" y="11" font-family="Inter, sans-serif" font-size="6.1" font-weight="700" fill="#111827">LONG-RANGE RIGIDITY Sigma^2(L) &amp; SYMPLECTIC PROOF</text>
+<rect x="32" y="18" width="212" height="114" fill="#FAFBFD" stroke="#1E293B" stroke-width="0.7" />
+<line x1="32.0" y1="132.0" x2="32.0" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="32.0" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">0</text>
+<line x1="29.5" y1="132.0" x2="32.0" y2="132.0" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="134.0" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">0</text>
+<line x1="74.4" y1="132.0" x2="74.4" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="74.4" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">1</text>
+<line x1="29.5" y1="110.1" x2="32.0" y2="110.1" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="112.1" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">1</text>
+<line x1="116.8" y1="132.0" x2="116.8" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="116.8" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">2</text>
+<line x1="29.5" y1="88.2" x2="32.0" y2="88.2" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="90.2" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">2</text>
+<line x1="159.2" y1="132.0" x2="159.2" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="159.2" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">3</text>
+<line x1="29.5" y1="66.2" x2="32.0" y2="66.2" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="68.2" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">3</text>
+<line x1="201.6" y1="132.0" x2="201.6" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="201.6" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">4</text>
+<line x1="29.5" y1="44.3" x2="32.0" y2="44.3" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="46.3" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">4</text>
+<line x1="244.0" y1="132.0" x2="244.0" y2="134.5" stroke="#1E293B" stroke-width="0.55" />
+<text x="244.0" y="141.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">5</text>
+<line x1="29.5" y1="22.4" x2="32.0" y2="22.4" stroke="#1E293B" stroke-width="0.55" />
+<text x="28.0" y="24.4" text-anchor="end" font-family="Inter, sans-serif" font-size="5.5" fill="#334155">5</text>
+<line x1="32.0" y1="132.0" x2="244.0" y2="22.4" stroke="#475569" stroke-width="0.95" stroke-dasharray="3,2" />
+<polyline points="37.3,131.5 42.6,128.5 47.9,126.7 53.2,125.4 58.5,124.4 63.8,123.6 69.1,122.9 74.4,122.3 79.7,121.8 85.0,121.3 90.3,120.9 95.6,120.5 100.9,120.2 106.2,119.8 111.5,119.5 116.8,119.2 122.1,119.0 127.4,118.7 132.7,118.5 138.0,118.2 143.3,118.0 148.6,117.8 153.9,117.6 159.2,117.4 164.5,117.2 169.8,117.1 175.1,116.9 180.4,116.7 185.7,116.6 191.0,116.4 196.3,116.3 201.6,116.2 206.9,116.0 212.2,115.9 217.5,115.8 222.8,115.6 228.1,115.5 233.4,115.4 238.7,115.3 244.0,115.2" fill="none" stroke="#1E293B" stroke-width="0.95" stroke-dasharray="1.8,1.5" />
+<polyline points="53.2,124.0 74.4,116.8 95.6,112.4 116.8,108.7 138.0,106.8 159.2,107.1 180.4,107.4 201.6,107.8 222.8,108.7 244.0,107.4" fill="none" stroke="#0F766E" stroke-width="1.45" />
+<polyline points="53.2,125.3 74.4,123.2 95.6,120.7 116.8,119.3 138.0,118.1 159.2,116.4 180.4,117.1 201.6,116.8 222.8,115.3 244.0,115.1" fill="none" stroke="#B45309" stroke-width="1.45" />
+<polyline points="53.2,124.7 74.4,121.5 95.6,119.8 116.8,119.3 138.0,118.3 159.2,117.1 180.4,117.1 201.6,116.9 222.8,116.8 244.0,117.8" fill="none" stroke="#B91C1C" stroke-width="1.45" />
+<rect x="42.0" y="24.0" width="98.0" height="48.0" fill="#FFFFFF" stroke="#94A3B8" stroke-width="0.55" />
+<text x="45.0" y="31.5" font-family="Inter, sans-serif" font-size="4.8" font-weight="700" fill="#1E293B">log10|dE/E| (T=2000)</text>
+<polyline points="46.0,47.8 48.3,47.8 50.6,47.8 52.9,47.8 55.2,47.9 57.5,47.8 59.8,47.8 62.2,47.8 64.5,47.8 66.8,47.8 69.1,48.0 71.4,47.8 73.7,47.8 76.0,47.8 78.3,48.1 80.6,47.9 82.9,47.8 85.2,47.8 87.5,47.8 89.8,47.9 92.2,47.8 94.5,47.8 96.8,47.8 99.1,47.8 101.4,47.8 103.7,47.8 106.0,47.8 108.3,47.8 110.6,47.8 112.9,47.8 115.2,47.8 117.5,47.8 119.8,47.9 122.2,47.8 124.5,47.8 126.8,47.8 129.1,47.8 131.4,47.8 133.7,47.8 136.0,47.8" fill="none" stroke="#1D4ED8" stroke-width="1.2" />
+<polyline points="46.0,48.5 48.3,47.6 50.6,47.1 52.9,46.7 55.2,46.4 57.5,46.2 59.8,46.0 62.2,45.8 64.5,45.7 66.8,45.5 69.1,45.4 71.4,45.3 73.7,45.2 76.0,45.1 78.3,45.0 80.6,44.9 82.9,44.8 85.2,44.8 87.5,44.7 89.8,44.6 92.2,44.6 94.5,44.5 96.8,44.5 99.1,44.4 101.4,44.3 103.7,44.3 106.0,44.2 108.3,44.2 110.6,44.2 112.9,44.1 115.2,44.1 117.5,44.0 119.8,44.0 122.2,43.9 124.5,43.9 126.8,43.9 129.1,43.8 131.4,43.8 133.7,43.8 136.0,43.7" fill="none" stroke="#991B1B" stroke-width="1.15" stroke-dasharray="2.5,1.5" />
+<text x="46.0" y="39.5" font-family="Inter, sans-serif" font-size="4.6" font-weight="700" fill="#991B1B">RK4 drift</text>
+<text x="136.5" y="69.0" text-anchor="end" font-family="Inter, sans-serif" font-size="4.6" font-weight="700" fill="#1D4ED8">Yoshida-4</text>
+<text x="138" y="156" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.4" fill="#1E293B">Interval L  |  Teal: 0.025  Amber: 0.125  Red: 2.50</text>
+</svg>

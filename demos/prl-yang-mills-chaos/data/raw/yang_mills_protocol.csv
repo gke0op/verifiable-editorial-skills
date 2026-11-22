@@ -1,0 +1,16 @@
+# Immutable Computational Physics Protocol & Analytical RMT Reference Table
+# System: Quartic-Regularized SU(2) Yang-Mills / Bohigas-Tomsovic-Ullmo C4v Oscillator
+# Hamiltonian: H(x,y,px,py; alpha) = 0.5*(px^2 + py^2 + x^2 + y^2) + alpha * (x^2 * y^2 + 0.025*(x^4 + y^4))  (hbar = 1, eps = 0.05)
+# Classical energy shell: E_cl = 20.0 (dimensionless chaos parameter gamma = alpha * E_cl)
+# Analytical references: Berry & Tabor (1977) Poisson <r>_P = 2*ln(2)-1 = 0.386294;
+#                        Atas et al., Phys. Rev. Lett. 110, 084101 (2013) GOE <r>_GOE = 0.5307 (large-N GOE), 4-2*sqrt(3) = 0.5359 (3x3 surmise)
+sweep_idx,alpha,e_classical,gamma_cl,poincare_panel,regime_label
+0,0.000,20.0,0.00,0,Integrable (2D HO)
+1,0.010,20.0,0.20,0,Near-integrable KAM
+2,0.025,20.0,0.50,1,KAM tori (Panel a)
+3,0.050,20.0,1.00,0,Early separatrix
+4,0.125,20.0,2.50,2,Mixed KAM + sea (Panel b)
+5,0.250,20.0,5.00,0,Broad chaotic sea
+6,0.500,20.0,10.00,0,Dominant chaos
+7,1.000,20.0,20.00,0,Strong chaos
+8,2.500,20.0,50.00,3,Yang-Mills chaotic (Panel c)

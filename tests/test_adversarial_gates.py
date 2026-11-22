@@ -560,3 +560,40 @@ def test_caie_flowshop_journal_passes_zig_latch_and_all_five_gates() -> None:
     assert "[vedit:prepress]      PASS" in aud.stdout
     if shutil.which("verapdf"):
         assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout
+
+
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_prl_yang_mills_chaos_passes_zig_latch_and_all_five_gates() -> None:
+    """Zero-Python APS Physical Review Letters (REVTeX 4.2) Yang-Mills chaos Letter MUST pass Zig SHA-256 latch, 5-gate court & veraPDF."""
+    prl = REPO_ROOT / "demos" / "prl-yang-mills-chaos"
+    pdf = prl / "report" / "PRL_YANG_MILLS_CHAOS_UA1.pdf"
+
+    lt = subprocess.run([str(ZIG_VEDIT), "latch", str(prl)], capture_output=True, text=True)
+    assert lt.returncode == 0, lt.stdout + lt.stderr
+    assert "manifest=1/1 SHA-256 verified" in lt.stdout
+
+    aud = subprocess.run(
+        [
+            str(ZIG_VEDIT),
+            "audit-all",
+            str(pdf),
+            "--ledger",
+            str(prl / "data" / "provenance_ledger.json"),
+            "--summary",
+            str(prl / "data" / "summary_metrics.json"),
+            "--citations",
+            str(prl / "data" / "background_citations.json"),
+            "--manifest",
+            str(prl / "data" / "manifest.sha256"),
+            "--require-ua",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert aud.returncode == 0, aud.stdout + aud.stderr
+    assert "[vedit:rule10_prose] PASS" in aud.stdout
+    assert "[vedit:wcag_contrast] PASS" in aud.stdout
+    assert "[vedit:geometry]      PASS" in aud.stdout
+    assert "[vedit:prepress]      PASS" in aud.stdout
+    if shutil.which("verapdf"):
+        assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout

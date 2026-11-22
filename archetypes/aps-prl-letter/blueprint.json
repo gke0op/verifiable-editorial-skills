@@ -1,0 +1,36 @@
+{
+  "schema_version": "vedit.blueprint.v1",
+  "slug": "aps-prl-letter",
+  "source_pdf": "PRL_YANG_MILLS_CHAOS_UA1.pdf",
+  "source_sha256": "6f75d1db81578e9262d95024526ad762431c0afbda9dc51f63fa9c972db8dd14",
+  "page_count": 3,
+  "format_class": "letter_portrait",
+  "polarity": "light",
+  "trim_pt": [612.0, 792.0],
+  "margins_pt": { "top": 28.0, "bottom": 40.7, "left": 45.0, "right": 40.7 },
+  "palette_60_30_10": {
+    "canvas_bg": "#f8f8f8",
+    "surface_tint": "#eeece8",
+    "primary_ink": "#101820",
+    "muted_ink": "#44505c",
+    "accent_primary": "#b81818",
+    "accent_secondary": "#1848d8",
+    "wcag_ink_cr": 16.85,
+    "wcag_accent_cr": 6.21
+  },
+  "typography": {
+    "display": { "source": "Cormorant Garamond", "sil_ofl": "Cormorant Garamond", "size_pt": 24.0 },
+    "body":    { "source": "SourceSerif4Roman-Regula", "sil_ofl": "Source Serif 4", "size_pt": 8.5 },
+    "ui_sans": { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 9.0 },
+    "mono":    { "source": "DejaVuSansMono-Oblique", "sil_ofl": "IBM Plex Mono", "size_pt": 6.4 }
+  },
+  "cadence_summary": {
+    "avg_vertical_fill_pct": 98.3,
+    "avg_photo_coverage_pct": 0.0
+  },
+  "pages": [
+    { "page": 1, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 97.8, "photo_pct": 0.0, "spans": 405, "images": 0, "strokes": 17, "max_font_pt": 13.4 },
+    { "page": 2, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 97.0, "photo_pct": 0.0, "spans": 261, "images": 0, "strokes": 84, "max_font_pt": 8.8 },
+    { "page": 3, "archetype": "colophon_references", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 416, "images": 0, "strokes": 35, "max_font_pt": 8.8 }
+  ]
+}
