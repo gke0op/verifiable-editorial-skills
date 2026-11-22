@@ -441,12 +441,59 @@ def test_zig_harness_full_sovereign_parity_on_botanica_and_felis() -> None:
     for cmd in [
         [str(ZIG_VEDIT), "contrast", str(bot_pdf)],
         [str(ZIG_VEDIT), "geometry", str(bot_pdf)],
+        [
+            str(ZIG_VEDIT),
+            "prose",
+            str(bot_pdf),
+            "--ledger",
+            str(BOTANICA / "data" / "provenance_ledger.json"),
+            "--summary",
+            str(BOTANICA / "data" / "summary_metrics.json"),
+            "--citations",
+            str(BOTANICA / "data" / "background_citations.json"),
+            "--manifest",
+            str(BOTANICA / "data" / "manifest.sha256"),
+        ],
         [str(ZIG_VEDIT), "coverage", str(bot_pdf), "--min-pct", "50", "--pages", "1,4-9"],
         [str(ZIG_VEDIT), "geometry", str(fel_pdf)],
         [str(ZIG_VEDIT), "coverage", str(fel_pdf), "--min-pct", "50"],
     ]:
         res = subprocess.run(cmd, capture_output=True, text=True)
         assert res.returncode == 0, f"CMD={cmd}\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
+
+    # Verify exact Zig vs Python Rule 10 prose parity on Botanica, PRL, CAIE, and Exomundus
+    for demo_pdf, demo_data in [
+        (bot_pdf, BOTANICA / "data"),
+        (REPO_ROOT / "demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf", REPO_ROOT / "demos/prl-yang-mills-chaos/data"),
+        (REPO_ROOT / "demos/caie-flowshop-journal/report/CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf", REPO_ROOT / "demos/caie-flowshop-journal/data"),
+        (REPO_ROOT / "demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf", REPO_ROOT / "demos/exomundus-nasa-telemetry/data"),
+    ]:
+        py_res = audit_prose(
+            demo_pdf,
+            demo_data / "provenance_ledger.json",
+            demo_data / "summary_metrics.json",
+            demo_data / "background_citations.json",
+            demo_data / "manifest.sha256",
+        )
+        assert py_res["passed"], f"Python Rule 10 failed on {demo_pdf.name}: {py_res['ungrounded']}"
+        zig_res = subprocess.run(
+            [
+                str(ZIG_VEDIT),
+                "prose",
+                str(demo_pdf),
+                "--ledger",
+                str(demo_data / "provenance_ledger.json"),
+                "--summary",
+                str(demo_data / "summary_metrics.json"),
+                "--citations",
+                str(demo_data / "background_citations.json"),
+                "--manifest",
+                str(demo_data / "manifest.sha256"),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert zig_res.returncode == 0, f"Zig Rule 10 failed on {demo_pdf.name}:\n{zig_res.stdout}"
 
 
 @pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")

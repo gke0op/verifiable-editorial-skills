@@ -5,7 +5,7 @@
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **22 adversarial sabotage tests** on Ubuntu Linux CI.
+Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **23 adversarial sabotage tests** on Ubuntu Linux CI.
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -138,10 +138,13 @@ cd verifiable-editorial-skills
 cp -r skills/* ~/.gemini/config/skills/   # Antigravity
 cp -r skills/* ~/.claude/skills/          # Claude Code
 
+# System deps: Zig 0.17.0, Typst 0.15.1, mupdf-tools (`mutool`), optional veraPDF
+# Ubuntu: sudo apt install mupdf-tools   |   macOS: brew install mupdf-tools typst
+
 # Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
 (cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
 
-# Optional: Python CLI + 22-test adversarial sabotage & parity suite
+# Optional: Python CLI + 23-test adversarial sabotage & parity suite
 pip install -e ".[dev]" && pytest
 ```
 
@@ -153,7 +156,7 @@ archetypes/              8 dissected PDF Design DNAs (`blueprint.json`, `skeleto
 skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
 demos/                   9 live open-data & physics publications (PRL, CAIE/OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
 verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   22-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
+tests/                   23-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
 ```
 
 ### The 10 Anti-Cheat Rules

@@ -275,7 +275,10 @@ pub fn auditGeometry(
     for (pages, 0..) |pg, pg_idx| {
         tot_spans += pg.spans.len;
 
-        // 0. PDF `W n` / `W* n` clip-path character slicing differential check
+        // 0. PDF `W n` / `W* n` clip-path character slicing check:
+        //    Combines version-independent `trace` `<clip_path>` stack glyph auditing (works on mutool 1.23+)
+        //    with `stext` unclipped-vs-clipped differential frequency checking (mutool 1.24+).
+        var missing_chars: usize = pg.trace_clipped_chars;
         if (unclip_pages) |upgs| {
             if (pg_idx < upgs.len) {
                 var vis_freq: [128]usize = @splat(0);
@@ -292,19 +295,20 @@ pub fn auditGeometry(
                         if (ch < 128 and isAsciiAlnum(ch)) raw_freq[ch] += 1;
                     }
                 }
-                var missing_chars: usize = 0;
+                var stext_missing: usize = 0;
                 for (0..128) |ci| {
-                    if (raw_freq[ci] > vis_freq[ci]) missing_chars += (raw_freq[ci] - vis_freq[ci]);
+                    if (raw_freq[ci] > vis_freq[ci]) stext_missing += (raw_freq[ci] - vis_freq[ci]);
                 }
-                if (missing_chars > 0) {
-                    tot_clipped += 1;
-                    try issues.append(alloc, .{
-                        .page = pg.page_num,
-                        .kind = "clip_path_sliced_text",
-                        .detail = try std.fmt.allocPrint(alloc, "{d} alphanumeric character(s) sliced by W/W* clip path", .{missing_chars}),
-                    });
-                }
+                if (stext_missing > missing_chars) missing_chars = stext_missing;
             }
+        }
+        if (missing_chars > 0) {
+            tot_clipped += 1;
+            try issues.append(alloc, .{
+                .page = pg.page_num,
+                .kind = "clip_path_sliced_text",
+                .detail = try std.fmt.allocPrint(alloc, "{d} alphanumeric character(s) sliced by W/W* clip path", .{missing_chars}),
+            });
         }
 
         // 1. Pairwise AABB collisions via p2zig kernel
@@ -612,6 +616,66 @@ fn isSkipJsonKey(k: []const u8) bool {
     return false;
 }
 
+fn addExactScaledNum(alloc: std.mem.Allocator, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64), val: f64) !void {
+    if (!std.math.isFinite(val) or @abs(val) > 1e14) return;
+    const scaled: i64 = @intFromFloat(@round(val * 100.0));
+    if (!seen.contains(scaled)) {
+        try seen.put(scaled, {});
+        try out.append(alloc, scaled);
+    }
+}
+
+fn jsonToFloat(v: std.json.Value) ?f64 {
+    return switch (v) {
+        .integer => |iv| @floatFromInt(iv),
+        .float => |fv| fv,
+        else => null,
+    };
+}
+
+/// Mirror Python `_derive_exact_ratios`: register exact percentages derived from species/country counts.
+fn deriveExactSpeciesRatios(alloc: std.mem.Allocator, summary: std.json.Value, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64)) !void {
+    if (summary != .object) return;
+    const sp_val = summary.object.get("species") orelse return;
+    if (sp_val != .array) return;
+    for (sp_val.array.items) |sp| {
+        if (sp != .object) continue;
+        const tot = jsonToFloat(sp.object.get("gbif_total_occurrences") orelse continue) orelse continue;
+        if (tot <= 0.0) continue;
+        const tc_val = sp.object.get("top_countries") orelse continue;
+        if (tc_val != .array) continue;
+        for (tc_val.array.items) |c| {
+            if (c != .object) continue;
+            const cnt = jsonToFloat(c.object.get("count") orelse continue) orelse continue;
+            const pct = (cnt / tot) * 100.0;
+            try addScaledNum(alloc, seen, out, pct);
+        }
+    }
+}
+
+/// Mirror Python `_load_authorized_numbers` for `background_citations.json`: register ONLY explicit
+/// `citations[].values[]` / `citations[].value` scalars (never synthetic pairwise sums of citation years).
+fn collectCitationNumbers(alloc: std.mem.Allocator, parsed: std.json.Value, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64)) !void {
+    const entries: []const std.json.Value = switch (parsed) {
+        .object => |obj| if (obj.get("citations")) |cv| (if (cv == .array) cv.array.items else &.{}) else &.{},
+        .array => |arr| arr.items,
+        else => &.{},
+    };
+    for (entries) |entry| {
+        if (entry != .object) continue;
+        if (entry.object.get("values")) |vv| {
+            if (vv == .array) {
+                for (vv.array.items) |item| {
+                    if (jsonToFloat(item)) |fv| try addExactScaledNum(alloc, seen, out, fv);
+                }
+            }
+        }
+        if (entry.object.get("value")) |v1| {
+            if (jsonToFloat(v1)) |fv| try addExactScaledNum(alloc, seen, out, fv);
+        }
+    }
+}
+
 fn addScaledNum(alloc: std.mem.Allocator, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64), val: f64) !void {
     if (!std.math.isFinite(val) or @abs(val) > 1e14) return;
     const candidates = [_]f64{
@@ -687,8 +751,23 @@ fn isUrlOrDoiChar(ch: u8) bool {
     return ch > 32 and ch != ')' and ch != ']' and ch != ',' and ch != ';';
 }
 
-/// Strip URLs, DOIs, long SHA-256 hex digests, and version strings (`PDF/UA-1`, `ISO 14289-1`, `Typst 0.15.1`).
-fn cleanProseText(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
+/// Strip soft hyphens (U+00AD), URLs, DOIs, long SHA-256 hex digests, and version strings (`PDF/UA-1`, `ISO 14289-1`, `Typst 0.15.1`).
+pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8) ![]u8 {
+    // First remove UTF-8 soft hyphens (U+00AD = 0xC2 0xAD) so hyphenated tokens like "SHA\u00AD256" stay intact
+    var norm: std.ArrayList(u8) = .empty;
+    defer norm.deinit(alloc);
+    try norm.ensureTotalCapacity(alloc, raw_in.len);
+    var ni: usize = 0;
+    while (ni < raw_in.len) {
+        if (ni + 1 < raw_in.len and raw_in[ni] == 0xC2 and raw_in[ni + 1] == 0xAD) {
+            ni += 2;
+            continue;
+        }
+        try norm.append(alloc, raw_in[ni]);
+        ni += 1;
+    }
+    const raw = norm.items;
+
     var out: std.ArrayList(u8) = .empty;
     try out.ensureTotalCapacity(alloc, raw.len);
     var i: usize = 0;
@@ -717,15 +796,21 @@ fn cleanProseText(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
                 continue;
             }
         }
-        // Strip SHA-256 + optional hex digest
-        if (std.mem.startsWith(u8, raw[i..], "SHA-256")) {
-            i += 7;
-            while (i < raw.len and (raw[i] == ' ' or raw[i] == '\t')) : (i += 1) {}
-            var h = i;
-            while (h < raw.len and isHexDigit(raw[h])) : (h += 1) {}
-            if (h - i >= 6) i = h;
-            try out.append(alloc, ' ');
-            continue;
+        // Strip SHA-256 / SHA256 / line-wrapped SHA-\n256 + optional hex digest
+        if (std.mem.startsWith(u8, raw[i..], "SHA")) {
+            var k = i + 3;
+            if (k < raw.len and raw[k] == '-') k += 1;
+            while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == '\n' or raw[k] == '\r')) : (k += 1) {}
+            if (std.mem.startsWith(u8, raw[k..], "256")) {
+                k += 3;
+                while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == ':')) : (k += 1) {}
+                var h = k;
+                while (h < raw.len and isHexDigit(raw[h])) : (h += 1) {}
+                if (h - k >= 6) k = h;
+                i = k;
+                try out.append(alloc, ' ');
+                continue;
+            }
         }
         // Strip standard/version tokens: PDF/UA-1, ISO 14289-1, WCAG 2.1, Typst 0.15.1, WeasyPrint 67.0, veraPDF 1.30
         const prefixes = [_][]const u8{ "PDF/UA-", "ISO ", "WCAG ", "Typst ", "WeasyPrint ", "veraPDF ", "term_id=" };
@@ -796,11 +881,12 @@ pub fn auditProse(
         const raw = try std.Io.Dir.cwd().readFileAlloc(io, sp, alloc, .unlimited);
         const parsed = try std.json.parseFromSliceLeaky(std.json.Value, alloc, raw, .{});
         try collectJsonNumbers(alloc, parsed, &seen, &auth_list);
+        try deriveExactSpeciesRatios(alloc, parsed, &seen, &auth_list);
     }
     if (citations_path) |cp| {
         const raw = try std.Io.Dir.cwd().readFileAlloc(io, cp, alloc, .unlimited);
         const parsed = try std.json.parseFromSliceLeaky(std.json.Value, alloc, raw, .{});
-        try collectJsonNumbers(alloc, parsed, &seen, &auth_list);
+        try collectCitationNumbers(alloc, parsed, &seen, &auth_list);
     }
     if (manifest_path) |mp| {
         const raw = try std.Io.Dir.cwd().readFileAlloc(io, mp, alloc, .unlimited);
@@ -1186,4 +1272,34 @@ pub fn auditLatch(alloc: std.mem.Allocator, io: std.Io, project_dir: []const u8)
         .failures = flist,
         .passed = flist.len == 0,
     };
+}
+
+test "cleanProseText strips soft-hyphenated SHA-256 and line-wrapped SHA-256" {
+    const alloc = std.testing.allocator;
+    const raw = "Verified via SHA\xc2\xad256 and SHA-\n256 48988322b9e7946a with 91.8%";
+    const cleaned = try cleanProseText(alloc, raw);
+    defer alloc.free(cleaned);
+    try std.testing.expect(std.mem.find(u8, cleaned, "256") == null);
+    try std.testing.expect(std.mem.find(u8, cleaned, "48988322") == null);
+    try std.testing.expect(std.mem.find(u8, cleaned, "91.8%") != null);
+}
+
+test "collectCitationNumbers registers only explicit cited values without pairwise sums" {
+    const alloc = std.testing.allocator;
+    const raw =
+        \\{"citations":[{"id":"c1","values":[1977, 1984, 0.5307]}]}
+    ;
+    var parsed = try std.json.parseFromSlice(std.json.Value, alloc, raw, .{});
+    defer parsed.deinit();
+    var seen = std.AutoHashMap(i64, void).init(alloc);
+    defer seen.deinit();
+    var list: std.ArrayList(i64) = .empty;
+    defer list.deinit(alloc);
+    try collectCitationNumbers(alloc, parsed.value, &seen, &list);
+    // Exactly 3 explicit values (no 1977+1984=3961 pairwise sum bloat!)
+    try std.testing.expectEqual(@as(usize, 3), list.items.len);
+    try std.testing.expect(seen.contains(197700));
+    try std.testing.expect(seen.contains(198400));
+    try std.testing.expect(seen.contains(53));
+    try std.testing.expect(!seen.contains(396100));
 }

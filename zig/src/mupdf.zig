@@ -60,6 +60,9 @@ pub const PageData = struct {
     images: []const PlacedImage,
     graphics: []const FillSample,
     stroke_count: usize,
+    /// Count of visible alphanumeric glyphs sliced by an active `<clip_path>` in `mutool draw -F trace`
+    /// (works identically on mutool 1.23 where `stext` ignores W/W* clip paths as well as 1.24+).
+    trace_clipped_chars: usize = 0,
     /// Full page text with whitespace breaks inserted at >=1.5pt font-size (superscript/subscript) boundaries.
     prose_text: []const u8,
 };
@@ -101,12 +104,21 @@ pub const RunResult = struct {
 };
 
 pub fn runCmd(alloc: std.mem.Allocator, io: std.Io, argv: []const []const u8, cwd: ?[]const u8) !RunResult {
-    const res = try std.process.run(alloc, io, .{
+    const res = std.process.run(alloc, io, .{
         .argv = argv,
         .cwd = if (cwd) |p| .{ .path = p } else .inherit,
         .stdout_limit = .unlimited,
         .stderr_limit = .unlimited,
-    });
+    }) catch |err| {
+        if (err == error.FileNotFound and argv.len > 0 and std.mem.eql(u8, argv[0], "mutool")) {
+            std.Io.File.stderr().writeStreamingAll(
+                io,
+                "[vedit] error: 'mutool' not found on PATH — install mupdf-tools (Ubuntu: sudo apt install mupdf-tools | macOS: brew install mupdf-tools)\n",
+            ) catch {};
+            return error.MutoolNotFound;
+        }
+        return err;
+    };
     const code: u8 = switch (res.term) {
         .exited => |c| c,
         else => 255,
@@ -206,6 +218,150 @@ fn containsFold(haystack: []const u8, needle: []const u8) bool {
         if (std.ascii.eqlIgnoreCase(haystack[i .. i + needle.len], needle)) return true;
     }
     return false;
+}
+
+const ClipRect = struct { x0: f64, y0: f64, x1: f64, y1: f64 };
+
+fn isAsciiAlnum(ch: u8) bool {
+    return (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9');
+}
+
+/// Count alphanumeric glyphs inside `<fill_text>`/`<stroke_text>` whose page-space midpoint lies inside
+/// the visible page `[0, page_w] x [0, page_h]` yet outside the active `<clip_path>` bounding box.
+/// Version-independent across mutool 1.20–1.28+ (closes the mutool 1.23 stext non-clipping escape).
+pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) usize {
+    var stack: [64]ClipRect = undefined;
+    stack[0] = .{ .x0 = 0.0, .y0 = 0.0, .x1 = page_w, .y1 = page_h };
+    var depth: usize = 1;
+
+    var in_clip_path = false;
+    var clip_tf: [6]f64 = .{ 1, 0, 0, 1, 0, 0 };
+    var cp_x0: f64 = 1e18;
+    var cp_y0: f64 = 1e18;
+    var cp_x1: f64 = -1e18;
+    var cp_y1: f64 = -1e18;
+    var cp_has_pts = false;
+
+    var in_text = false;
+    var txt_tf: [6]f64 = .{ 1, 0, 0, 1, 0, 0 };
+    var trm: [4]f64 = .{ 10, 0, 0, 10 };
+    var clipped: usize = 0;
+
+    var pos: usize = 0;
+    while (std.mem.findScalarPos(u8, page_xml, pos, '<')) |lt| {
+        const gt = std.mem.findScalarPos(u8, page_xml, lt + 1, '>') orelse break;
+        const tag = page_xml[lt + 1 .. gt];
+        pos = gt + 1;
+        const self_closing = (tag.len > 0 and tag[tag.len - 1] == '/');
+
+        if (std.mem.startsWith(u8, tag, "clip_path")) {
+            in_clip_path = !self_closing;
+            clip_tf = .{ 1, 0, 0, 1, 0, 0 };
+            if (extractAttr(tag, "transform")) |tv| _ = parseFloatSlice(tv, &clip_tf);
+            cp_x0 = 1e18;
+            cp_y0 = 1e18;
+            cp_x1 = -1e18;
+            cp_y1 = -1e18;
+            cp_has_pts = false;
+            if (self_closing and depth < stack.len) {
+                stack[depth] = stack[depth - 1];
+                depth += 1;
+            }
+        } else if (std.mem.eql(u8, tag, "/clip_path")) {
+            in_clip_path = false;
+            if (depth < stack.len) {
+                const prev = stack[depth - 1];
+                stack[depth] = if (cp_has_pts) .{
+                    .x0 = @max(prev.x0, cp_x0),
+                    .y0 = @max(prev.y0, cp_y0),
+                    .x1 = @min(prev.x1, cp_x1),
+                    .y1 = @min(prev.y1, cp_y1),
+                } else prev;
+                depth += 1;
+            }
+        } else if (std.mem.startsWith(u8, tag, "clip_stroke_path") or
+            std.mem.startsWith(u8, tag, "clip_text") or
+            std.mem.startsWith(u8, tag, "clip_image_mask"))
+        {
+            if (depth < stack.len) {
+                stack[depth] = stack[depth - 1];
+                depth += 1;
+            }
+        } else if (std.mem.startsWith(u8, tag, "pop_clip")) {
+            if (depth > 1) depth -= 1;
+        } else if (in_clip_path) {
+            if (std.mem.startsWith(u8, tag, "moveto ") or std.mem.startsWith(u8, tag, "lineto ")) {
+                if (extractAttr(tag, "x")) |xv| {
+                    if (extractAttr(tag, "y")) |yv| {
+                        const x = std.fmt.parseFloat(f64, xv) catch continue;
+                        const y = std.fmt.parseFloat(f64, yv) catch continue;
+                        const tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4];
+                        const ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5];
+                        cp_x0 = @min(cp_x0, tx);
+                        cp_y0 = @min(cp_y0, ty);
+                        cp_x1 = @max(cp_x1, tx);
+                        cp_y1 = @max(cp_y1, ty);
+                        cp_has_pts = true;
+                    }
+                }
+            } else if (std.mem.startsWith(u8, tag, "curveto ")) {
+                const xkeys = [_][]const u8{ "x1", "x2", "x3" };
+                const ykeys = [_][]const u8{ "y1", "y2", "y3" };
+                for (0..3) |ki| {
+                    if (extractAttr(tag, xkeys[ki])) |xv| {
+                        if (extractAttr(tag, ykeys[ki])) |yv| {
+                            const x = std.fmt.parseFloat(f64, xv) catch continue;
+                            const y = std.fmt.parseFloat(f64, yv) catch continue;
+                            const tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4];
+                            const ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5];
+                            cp_x0 = @min(cp_x0, tx);
+                            cp_y0 = @min(cp_y0, ty);
+                            cp_x1 = @max(cp_x1, tx);
+                            cp_y1 = @max(cp_y1, ty);
+                            cp_has_pts = true;
+                        }
+                    }
+                }
+            }
+        } else if (std.mem.startsWith(u8, tag, "fill_text") or std.mem.startsWith(u8, tag, "stroke_text")) {
+            in_text = !self_closing;
+            txt_tf = .{ 1, 0, 0, 1, 0, 0 };
+            if (extractAttr(tag, "transform")) |tv| _ = parseFloatSlice(tv, &txt_tf);
+            trm = .{ 10, 0, 0, 10 };
+        } else if (std.mem.eql(u8, tag, "/fill_text") or std.mem.eql(u8, tag, "/stroke_text")) {
+            in_text = false;
+        } else if (in_text and std.mem.startsWith(u8, tag, "span ")) {
+            trm = .{ 10, 0, 0, 10 };
+            if (extractAttr(tag, "trm")) |trv| _ = parseFloatSlice(trv, &trm);
+        } else if (in_text and depth > 1 and std.mem.startsWith(u8, tag, "g ")) {
+            const uval = extractAttr(tag, "unicode") orelse continue;
+            if (uval.len != 1 or !isAsciiAlnum(uval[0])) continue;
+            const xv = extractAttr(tag, "x") orelse continue;
+            const yv = extractAttr(tag, "y") orelse continue;
+            const x = std.fmt.parseFloat(f64, xv) catch continue;
+            const y = std.fmt.parseFloat(f64, yv) catch continue;
+            const adv = if (extractAttr(tag, "adv")) |av| (std.fmt.parseFloat(f64, av) catch 0.5) else 0.5;
+
+            const gx = txt_tf[0] * x + txt_tf[2] * y + txt_tf[4];
+            const gy = txt_tf[1] * x + txt_tf[3] * y + txt_tf[5];
+            const dx = txt_tf[0] * (adv * trm[0]) + txt_tf[2] * (adv * trm[1]);
+            const dy = txt_tf[1] * (adv * trm[0]) + txt_tf[3] * (adv * trm[1]);
+            const ux = txt_tf[0] * (0.30 * trm[2]) + txt_tf[2] * (0.30 * trm[3]);
+            const uy = txt_tf[1] * (0.30 * trm[2]) + txt_tf[3] * (0.30 * trm[3]);
+            const mx = gx + 0.5 * dx + ux;
+            const my = gy + 0.5 * dy + uy;
+
+            // Only flag glyphs inside visible trim box that fall outside the active W/W* clip box
+            if (mx >= 0.0 and mx <= page_w and my >= 0.0 and my <= page_h) {
+                const top = stack[depth - 1];
+                const tol: f64 = 1.5;
+                if (mx < top.x0 - tol or mx > top.x1 + tol or my < top.y0 - tol or my > top.y1 + tol) {
+                    clipped += 1;
+                }
+            }
+        }
+    }
+    return clipped;
 }
 
 /// Extract structured spans, typography, images, and graphics for all pages of a PDF using `mutool`.
@@ -409,10 +565,11 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
         }
     }
 
-    // Parse trace XML to attach placed images, fill colors, and vector stroke counts per page
+    // Parse trace XML to attach placed images, fill colors, vector stroke counts, and clip-sliced glyph counts per page
     const txml = trace_res.stdout;
     var tpos: usize = 0;
     var tpage_idx: usize = 0;
+    var tpage_body_start: usize = 0;
     var imgs: std.ArrayList(PlacedImage) = .empty;
     var gfx: std.ArrayList(FillSample) = .empty;
     var strokes: usize = 0;
@@ -424,14 +581,17 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
 
         if (std.mem.startsWith(u8, tag, "page ")) {
             tpage_idx = if (extractAttr(tag, "number")) |v| std.fmt.parseInt(usize, v, 10) catch (tpage_idx + 1) else (tpage_idx + 1);
+            tpage_body_start = tpos;
             imgs = .empty;
             gfx = .empty;
             strokes = 0;
         } else if (std.mem.eql(u8, tag, "/page")) {
             if (tpage_idx >= 1 and tpage_idx <= pages.items.len) {
-                pages.items[tpage_idx - 1].images = try imgs.toOwnedSlice(alloc);
-                pages.items[tpage_idx - 1].graphics = try gfx.toOwnedSlice(alloc);
-                pages.items[tpage_idx - 1].stroke_count = strokes;
+                const p_ref = &pages.items[tpage_idx - 1];
+                p_ref.images = try imgs.toOwnedSlice(alloc);
+                p_ref.graphics = try gfx.toOwnedSlice(alloc);
+                p_ref.stroke_count = strokes;
+                p_ref.trace_clipped_chars = countTraceClippedAlnum(txml[tpage_body_start..lt], p_ref.width, p_ref.height);
             }
         } else if (std.mem.startsWith(u8, tag, "fill_image ")) {
             const nw = if (extractAttr(tag, "width")) |v| std.fmt.parseInt(i64, v, 10) catch 0 else 0;
@@ -1110,4 +1270,33 @@ test "rewriteImagesToSolidKey swaps Image XObject and preserves SMask object unt
     try std.testing.expectEqual(sample.len, res.bytes.len);
     try std.testing.expect(std.mem.find(u8, res.bytes, "/SMask 6 0 R") != null);
     try std.testing.expect(std.mem.find(u8, res.bytes, "BBBBBBBBBBBBBBBBBBBB") != null);
+}
+
+test "countTraceClippedAlnum catches W/W* clipped glyphs independent of mutool stext" {
+    const trace_xml =
+        \\<clip_path winding="eofill" transform="1 0 0 -1 0 792">
+        \\    <moveto x="50" y="680"/>
+        \\    <lineto x="130" y="680"/>
+        \\    <lineto x="130" y="710"/>
+        \\    <lineto x="50" y="710"/>
+        \\    <closepath/>
+        \\</clip_path>
+        \\<fill_text transform="1 0 0 -1 0 792">
+        \\    <span font="Helvetica" trm="12 0 0 12">
+        \\        <g unicode="T" x="54" y="690" adv="0.611"/>
+        \\        <g unicode="b" x="137.34" y="690" adv="0.556"/>
+        \\        <g unicode="a" x="144.01" y="690" adv="0.556"/>
+        \\        <g unicode="r" x="150.68" y="690" adv="0.333"/>
+        \\        <g unicode="k" x="154.68" y="690" adv="0.500"/>
+        \\    </span>
+        \\</fill_text>
+        \\<pop_clip/>
+        \\<fill_text transform="1 0 0 -1 0 792">
+        \\    <span font="Helvetica" trm="12 0 0 12">
+        \\        <g unicode="Z" x="200" y="690" adv="0.611"/>
+        \\    </span>
+        \\</fill_text>
+    ;
+    // "T" is inside [50, 130], "bark" (4 chars) are outside, "Z" is after pop_clip so unclipped
+    try std.testing.expectEqual(@as(usize, 4), countTraceClippedAlnum(trace_xml, 612.0, 792.0));
 }

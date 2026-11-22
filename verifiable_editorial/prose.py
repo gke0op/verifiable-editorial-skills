@@ -17,12 +17,12 @@ from pathlib import Path
 from typing import Any
 import fitz  # PyMuPDF
 
-# Match signed/unsigned numbers including comma-formatted integers, decimals, optional % suffix
+# Match signed/unsigned numbers including comma-formatted integers/decimals, plain decimals, optional % suffix
 NUM_TOKEN_RE = re.compile(
-    r"(?<![A-Za-z0-9_#-])([+\-\u2212]?)(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(%?)(?![A-Za-z0-9_])"
+    r"(?<![A-Za-z0-9_#-])([+\-\u2212]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(%?)(?![A-Za-z0-9_])"
 )
 HEX_HASH_RE = re.compile(r"\b[0-9a-f]{8,64}\b")
-DOI_RE = re.compile(r"(?:doi:\s*)?\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+", re.IGNORECASE)
+DOI_RE = re.compile(r"(?:doi:\s*)?\b10\.\d{4,9}/\s*[-._;()/:A-Za-z0-9]+", re.IGNORECASE)
 
 
 SKIP_KEYS = {
@@ -203,13 +203,13 @@ def audit_prose(
     total_checked = 0
 
     for idx, page in enumerate(doc, start=1):
-        # Strip long hex SHA-256 strings, DOIs, and URLs before scanning quantitative prose numbers
-        raw_text = _extract_page_text_with_script_breaks(page)
+        # Strip soft hyphens (U+00AD), long hex SHA-256 strings, DOIs, and URLs before scanning quantitative prose numbers
+        raw_text = _extract_page_text_with_script_breaks(page).replace("\u00ad", "")
         cleaned = re.sub(r"https?://\S+", " ", raw_text)
         cleaned = DOI_RE.sub(" ", cleaned)
         cleaned = HEX_HASH_RE.sub(" ", cleaned)
-        # Strip explicit SHA-256 preview snippets like "(SHA-256 8ec575868d469f97...)"
-        cleaned = re.sub(r"SHA-256\s+[0-9a-fA-F]+", " ", cleaned)
+        # Strip explicit SHA-256 / SHA256 / wrapped SHA-\n256 preview snippets
+        cleaned = re.sub(r"SHA-?\s*256(?::?\s+[0-9a-fA-F]{6,})?", " ", cleaned)
         # Strip ISO standard / software version strings like PDF/UA-1, ISO 14289-1, WCAG 2.1, Typst 0.15.1, WeasyPrint 67.0
         cleaned = re.sub(
             r"(?:PDF/UA-\d+|ISO\s+\d+(?:-\d+)?|WCAG\s+\d+\.\d+|WeasyPrint\s+\d+\.\d+|Typst\s+\d+\.\d+(?:\.\d+)?|veraPDF\s+\d+\.\d+(?:\.\d+)?|SHA-256|term_id=\d+)",

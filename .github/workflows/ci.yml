@@ -87,7 +87,7 @@ jobs:
           ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
           ./zig/zig-out/bin/vedit archetypes
 
-      - name: Run Full 22-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
+      - name: Run Full 23-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
         run: pytest
 
       - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos

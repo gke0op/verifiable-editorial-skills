@@ -21,7 +21,7 @@ fn writeErr(io: std.Io, s: []const u8) void {
 
 fn printUsage(io: std.Io) !void {
     try writeOut(io,
-        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.4.0-zig)
+        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.5.0-zig)
         \\
         \\Commands:
         \\  vedit inject <sample.pdf> --name <slug> [--out-dir archetypes] [--json]
