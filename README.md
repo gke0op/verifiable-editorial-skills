@@ -1,5 +1,7 @@
 # verifiable-editorial-skills
 
+![Verifiable Editorial — Zig 0.17 + Typst PDF/UA-1 Engine & 5-Gate Court](assets/social_preview.png)
+
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
