@@ -657,3 +657,216 @@ def test_prl_yang_mills_chaos_passes_zig_latch_and_all_five_gates() -> None:
     assert "[vedit:prepress]      PASS" in aud.stdout
     if shutil.which("verapdf"):
         assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout
+
+
+# ==============================================================================
+# 4. ROUND-2 ADVERSARIAL REGRESSION TESTS (ISSUE #2 ESCAPES — BOTH ZIG & PYTHON)
+# ==============================================================================
+
+
+def _find_unicode_ttf(required_codepoints: tuple[int, ...] = (0x2077, 0x2076, 0xFF19)) -> Path | None:
+    import glob
+    from reportlab.pdfbase.ttfonts import TTFontFile
+
+    candidates = (
+        glob.glob("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+        + glob.glob("/usr/share/fonts/truetype/noto/NotoSans*.ttf")
+        + glob.glob("/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
+        + glob.glob(str(Path.home() / ".cache/verifiable-editorial/fonts/**/*.ttf"), recursive=True)
+    )
+    for c in candidates:
+        p = Path(c)
+        if not p.exists():
+            continue
+        try:
+            tf = TTFontFile(str(p), validate=0)
+            if all(cp in tf.charToGlyph for cp in required_codepoints):
+                return p
+        except Exception:
+            continue
+    return None
+
+
+def test_sabotage_rule10_rejects_precision_tolerance_and_blanket_structural_escapes(tmp_path: Path) -> None:
+    """Issue #2 Escape 1: Half-ULP precision & contextual structurals MUST reject fabricated p-values, 52%/300, and 0.57/0.5262."""
+
+    def _run_case(name: str, ledger_vals: list[float], text: str, expect_pass: bool) -> None:
+        led = tmp_path / f"{name}.json"
+        led.write_text(
+            json.dumps({f"k{i}": {"value": v, "source_file": "raw.json"} for i, v in enumerate(ledger_vals)}),
+            encoding="utf-8",
+        )
+        pdf = tmp_path / f"{name}.pdf"
+        c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+        c.setFont("Helvetica", 11)
+        c.drawString(50, 700, text)
+        c.showPage()
+        c.save()
+
+        py = audit_prose(pdf, ledger_path=led)
+        assert py["passed"] is expect_pass, f"Python mismatch on {name}: {py}"
+        if ZIG_VEDIT.exists() and shutil.which("mutool"):
+            z = subprocess.run([str(ZIG_VEDIT), "prose", str(pdf), "--ledger", str(led)], capture_output=True, text=True)
+            assert (z.returncode == 0) is expect_pass, f"Zig mismatch on {name}:\n{z.stdout}"
+
+    # Sabotage vectors (MUST FAIL)
+    _run_case("p0049", [64896], "Significant at p = 0.049.", False)
+    _run_case("p0001", [64896], "Fabricated p = 0.001 effect.", False)
+    _run_case("surge_52", [64896], "A 52% surge in sales.", False)
+    _run_case("specimens_300", [64896], "Only 300 specimens exist.", False)
+    _run_case("specimens_5", [64896], "Only 5 specimens exist.", False)
+    _run_case("ratio_057", [0.5255], "Ratio is 0.57.", False)
+    _run_case("ratio_05262", [0.5255], "Ratio is 0.5262.", False)
+    _run_case("ratio_05260", [0.5255, 64896], "Ratio is 0.5260 across 64,896 records.", False)
+    _run_case("decimal_comma", [64.896], "The share was 64,897 percent.", False)
+    _run_case("eight_digit_int", [45], "The count was 12345678 units.", False)
+
+    # Controls (MUST PASS)
+    _run_case("exact_and_round", [0.5255, 64896], "Ratio is 0.5255 (2dp: 0.53, 3dp: 0.526) across 64,896 records.", True)
+    _run_case("contextual_ordinals", [64896], "See Figure 2 and Table 3 on Page 1 (Rule 10) for 64,896 rows.", True)
+
+
+def test_sabotage_rule10_rejects_forged_exponents_and_fullwidth_digits(tmp_path: Path) -> None:
+    """Issue #2 Escape 2 (+ Minor P9): Caret, layout-raised, and Unicode exponents + fullwidth digits MUST be audited."""
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    def _check_pdf(pdf: Path, ledger_vals: list[float], expect_pass: bool) -> None:
+        led = tmp_path / f"{pdf.stem}.json"
+        led.write_text(
+            json.dumps({f"k{i}": {"value": v, "source_file": "raw.json"} for i, v in enumerate(ledger_vals)}),
+            encoding="utf-8",
+        )
+        py = audit_prose(pdf, ledger_path=led)
+        assert py["passed"] is expect_pass, f"Python mismatch on {pdf.name}: {py}"
+        if ZIG_VEDIT.exists() and shutil.which("mutool"):
+            z = subprocess.run([str(ZIG_VEDIT), "prose", str(pdf), "--ledger", str(led)], capture_output=True, text=True)
+            assert (z.returncode == 0) is expect_pass, f"Zig mismatch on {pdf.name}:\n{z.stdout}"
+
+    # 1. Caret 10^7 vs ledger 1e6 -> FAIL; 10^6 -> PASS
+    for name, txt, exp_pass in [
+        ("caret_10_7", "We sampled 10^7 points.", False),
+        ("caret_10_6_ok", "We sampled 10^6 points.", True),
+        ("sci_97e9_forged", "Flux is 9.7*10^9 erg.", False),
+        ("sci_97e6_ok", "Flux is 9.7*10^6 erg.", True),
+    ]:
+        pdf = tmp_path / f"{name}.pdf"
+        c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+        c.setFont("Helvetica", 11)
+        c.drawString(50, 700, txt)
+        c.showPage()
+        c.save()
+        _check_pdf(pdf, [9700000.0] if "97e6" in name else ([9.7] if "97e9" in name else [1000000.0]), exp_pass)
+
+    # 2. Layout-positioned raised superscript 10^7 (as Typst/LaTeX emit) vs ledger 1e6 -> FAIL
+    sup_pdf = tmp_path / "layout_sup_10_7.pdf"
+    c = canvas.Canvas(str(sup_pdf), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "We sampled 10")
+    c.setFont("Helvetica", 7)
+    c.drawString(121, 704, "7")
+    c.setFont("Helvetica", 11)
+    c.drawString(127, 700, "points.")
+    c.showPage()
+    c.save()
+    _check_pdf(sup_pdf, [1000000.0], False)
+
+    # 3. Unicode superscript 10⁷ (when a TTF covering U+2076/U+2077 is present)
+    sup_ttf = _find_unicode_ttf((0x2076, 0x2077))
+    if sup_ttf is not None:
+        fname = "TestUniSupR2"
+        if fname not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(fname, str(sup_ttf)))
+        for name, vals, txt, exp_pass in [
+            ("uni_sup_10_7", [1000000.0], "We sampled 10\u2077 points.", False),
+            ("uni_sup_10_6_ok", [1000000.0], "We sampled 10\u2076 points.", True),
+        ]:
+            pdf = tmp_path / f"{name}.pdf"
+            c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+            c.setFont(fname, 11)
+            c.drawString(50, 700, txt)
+            c.showPage()
+            c.save()
+            _check_pdf(pdf, vals, exp_pass)
+
+    # 4. Fullwidth digits ９９ (end-to-end PDF when a CJK/Unicode TTF is present, plus direct cleaner assertion)
+    from verifiable_editorial.prose import _clean_page_text
+
+    assert "99" in _clean_page_text("The count was \uff19\uff19 units.", 612.0, 792.0)
+    fw_ttf = _find_unicode_ttf((0xFF19,))
+    if fw_ttf is not None:
+        fname_fw = "TestUniFwR2"
+        if fname_fw not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(fname_fw, str(fw_ttf)))
+        pdf = tmp_path / "uni_fullwidth_99.pdf"
+        c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+        c.setFont(fname_fw, 11)
+        c.drawString(50, 700, "The count was \uff19\uff19 units.")
+        c.showPage()
+        c.save()
+        _check_pdf(pdf, [45.0], False)
+
+
+def test_sabotage_geometry_rejects_horizontal_and_bottom_half_glyph_slicing(tmp_path: Path) -> None:
+    """Issue #2 Escape 3: Clipping the top half (or bottom half) of glyphs MUST fail BOTH Python & Zig geometry gates."""
+    line = "Thick low-resin bark insulates cambium from fire"
+
+    def _draw_text(c: canvas.Canvas) -> None:
+        c.setFillColor(HexColor("#111111"))
+        c.setFont("Helvetica", 12)
+        c.drawString(54, 690, line)
+
+    def _clip_rect(c: canvas.Canvas, x: float, y: float, w: float, h: float) -> None:
+        p = c.beginPath()
+        p.rect(x, y, w, h)
+        c.clipPath(p, stroke=0, fill=0)
+
+    cases = [
+        ("F_top_half_slice", lambda c: (c.saveState(), _clip_rect(c, 40, 680, 400, 14), _draw_text(c), c.restoreState()), True),
+        ("F2_bottom_half_slice", lambda c: (c.saveState(), _clip_rect(c, 40, 694, 400, 20), _draw_text(c), c.restoreState()), True),
+        (
+            "A_clip_in_form_xobject",
+            lambda c: (
+                c.beginForm("F1"),
+                c.saveState(),
+                _clip_rect(c, 50, 680, 80, 30),
+                _draw_text(c),
+                c.restoreState(),
+                c.endForm(),
+                c.doForm("F1"),
+            ),
+            True,
+        ),
+        (
+            "C_nested_inner_slices",
+            lambda c: (
+                c.saveState(),
+                _clip_rect(c, 0, 0, 612, 792),
+                c.saveState(),
+                _clip_rect(c, 50, 680, 80, 30),
+                _draw_text(c),
+                c.restoreState(),
+                c.restoreState(),
+            ),
+            True,
+        ),
+        ("D_clip_popped_control", lambda c: (c.saveState(), _clip_rect(c, 50, 680, 80, 30), c.restoreState(), _draw_text(c)), False),
+        ("E_generous_clip_control", lambda c: (c.saveState(), _clip_rect(c, 40, 670, 400, 50), _draw_text(c), c.restoreState()), False),
+    ]
+
+    for name, draw_fn, expect_fail in cases:
+        pdf = tmp_path / f"{name}.pdf"
+        c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+        draw_fn(c)
+        c.showPage()
+        c.save()
+
+        py = audit_geometry(pdf)
+        assert (not py["passed"]) is expect_fail, f"Python geometry mismatch on {name}: {py}"
+        if expect_fail:
+            assert py["total_clipped"] >= 1, py
+        if ZIG_VEDIT.exists() and shutil.which("mutool"):
+            z = subprocess.run([str(ZIG_VEDIT), "geometry", str(pdf)], capture_output=True, text=True)
+            assert (z.returncode != 0) is expect_fail, f"Zig geometry mismatch on {name}:\n{z.stdout}"
+            if expect_fail:
+                assert "clip_path_sliced_text" in z.stdout, z.stdout

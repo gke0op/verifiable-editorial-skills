@@ -226,16 +226,53 @@ fn isAsciiAlnum(ch: u8) bool {
     return (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9');
 }
 
-/// Count alphanumeric glyphs inside `<fill_text>`/`<stroke_text>` whose page-space midpoint lies inside
-/// the visible page `[0, page_w] x [0, page_h]` yet outside the active `<clip_path>` bounding box.
-/// Version-independent across mutool 1.20–1.28+ (closes the mutool 1.23 stext non-clipping escape).
+fn isTallGlyph(ch: u8) bool {
+    return (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or
+        ch == 'b' or ch == 'd' or ch == 'f' or ch == 'h' or ch == 'i' or ch == 'k' or ch == 'l' or ch == 't';
+}
+
+fn isDescGlyph(ch: u8) bool {
+    return ch == 'g' or ch == 'j' or ch == 'p' or ch == 'q' or ch == 'y';
+}
+
+fn isSignedDigitsTrimmed(raw: []const u8) bool {
+    const s = std.mem.trim(u8, raw, " \t\r\n");
+    if (s.len == 0) return false;
+    var i: usize = 0;
+    if (s[0] == '+' or s[0] == '-') {
+        i = 1;
+    } else if (s.len >= 3 and s[0] == 0xE2 and s[1] == 0x88 and s[2] == 0x92) {
+        i = 3; // UTF-8 Unicode minus '−' (U+2212)
+    }
+    if (i >= s.len) return false;
+    while (i < s.len) : (i += 1) {
+        if (s[i] < '0' or s[i] > '9') return false;
+    }
+    return true;
+}
+
+fn proseEndsWithStandalone10(items: []const u8) bool {
+    var end = items.len;
+    while (end > 0 and (items[end - 1] == ' ' or items[end - 1] == '\t')) : (end -= 1) {}
+    if (end < 2) return false;
+    if (items[end - 2] != '1' or items[end - 1] != '0') return false;
+    if (end >= 3 and items[end - 3] >= '0' and items[end - 3] <= '9') return false;
+    return true;
+}
+
+/// Count alphanumeric glyphs inside `<fill_text>`/`<stroke_text>` whose 4-corner ink core lies inside
+/// the visible page `[0, page_w] x [0, page_h]` yet extends outside the active `<clip_path>`/`<clip_text>` box.
+/// Catches both full glyph disappearance (mutool 1.23 stext escape) AND partial horizontal/vertical slicing
+/// (e.g. top half of every letter cut off while glyph baselines stay inside the clip rectangle).
 pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) usize {
     var stack: [64]ClipRect = undefined;
     stack[0] = .{ .x0 = 0.0, .y0 = 0.0, .x1 = page_w, .y1 = page_h };
     var depth: usize = 1;
 
     var in_clip_path = false;
+    var in_clip_text = false;
     var clip_tf: [6]f64 = .{ 1, 0, 0, 1, 0, 0 };
+    var clip_trm: [4]f64 = .{ 10, 0, 0, 10 };
     var cp_x0: f64 = 1e18;
     var cp_y0: f64 = 1e18;
     var cp_x1: f64 = -1e18;
@@ -279,8 +316,33 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
                 } else prev;
                 depth += 1;
             }
+        } else if (std.mem.startsWith(u8, tag, "clip_text")) {
+            in_clip_text = !self_closing;
+            clip_tf = .{ 1, 0, 0, 1, 0, 0 };
+            if (extractAttr(tag, "transform")) |tv| _ = parseFloatSlice(tv, &clip_tf);
+            clip_trm = .{ 10, 0, 0, 10 };
+            cp_x0 = 1e18;
+            cp_y0 = 1e18;
+            cp_x1 = -1e18;
+            cp_y1 = -1e18;
+            cp_has_pts = false;
+            if (self_closing and depth < stack.len) {
+                stack[depth] = stack[depth - 1];
+                depth += 1;
+            }
+        } else if (std.mem.eql(u8, tag, "/clip_text")) {
+            in_clip_text = false;
+            if (depth < stack.len) {
+                const prev = stack[depth - 1];
+                stack[depth] = if (cp_has_pts) .{
+                    .x0 = @max(prev.x0, cp_x0),
+                    .y0 = @max(prev.y0, cp_y0),
+                    .x1 = @min(prev.x1, cp_x1),
+                    .y1 = @min(prev.y1, cp_y1),
+                } else prev;
+                depth += 1;
+            }
         } else if (std.mem.startsWith(u8, tag, "clip_stroke_path") or
-            std.mem.startsWith(u8, tag, "clip_text") or
             std.mem.startsWith(u8, tag, "clip_image_mask"))
         {
             if (depth < stack.len) {
@@ -323,6 +385,36 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
                     }
                 }
             }
+        } else if (in_clip_text) {
+            if (std.mem.startsWith(u8, tag, "span ")) {
+                clip_trm = .{ 10, 0, 0, 10 };
+                if (extractAttr(tag, "trm")) |trv| _ = parseFloatSlice(trv, &clip_trm);
+            } else if (std.mem.startsWith(u8, tag, "g ")) {
+                const xv = extractAttr(tag, "x") orelse continue;
+                const yv = extractAttr(tag, "y") orelse continue;
+                const x = std.fmt.parseFloat(f64, xv) catch continue;
+                const y = std.fmt.parseFloat(f64, yv) catch continue;
+                const adv = if (extractAttr(tag, "adv")) |av| (std.fmt.parseFloat(f64, av) catch 0.5) else 0.5;
+                const ox = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4];
+                const oy = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5];
+                const dx = clip_tf[0] * (adv * clip_trm[0]) + clip_tf[2] * (adv * clip_trm[1]);
+                const dy = clip_tf[1] * (adv * clip_trm[0]) + clip_tf[3] * (adv * clip_trm[1]);
+                const ax = clip_tf[0] * clip_trm[2] + clip_tf[2] * clip_trm[3];
+                const ay = clip_tf[1] * clip_trm[2] + clip_tf[3] * clip_trm[3];
+                const us = [_]f64{ 0.0, 1.0 };
+                const vs = [_]f64{ -0.25, 0.85 };
+                for (us) |u| {
+                    for (vs) |v| {
+                        const px = ox + u * dx + v * ax;
+                        const py = oy + u * dy + v * ay;
+                        cp_x0 = @min(cp_x0, px);
+                        cp_y0 = @min(cp_y0, py);
+                        cp_x1 = @max(cp_x1, px);
+                        cp_y1 = @max(cp_y1, py);
+                        cp_has_pts = true;
+                    }
+                }
+            }
         } else if (std.mem.startsWith(u8, tag, "fill_text") or std.mem.startsWith(u8, tag, "stroke_text")) {
             in_text = !self_closing;
             txt_tf = .{ 1, 0, 0, 1, 0, 0 };
@@ -342,20 +434,36 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
             const y = std.fmt.parseFloat(f64, yv) catch continue;
             const adv = if (extractAttr(tag, "adv")) |av| (std.fmt.parseFloat(f64, av) catch 0.5) else 0.5;
 
-            const gx = txt_tf[0] * x + txt_tf[2] * y + txt_tf[4];
-            const gy = txt_tf[1] * x + txt_tf[3] * y + txt_tf[5];
+            const ox = txt_tf[0] * x + txt_tf[2] * y + txt_tf[4];
+            const oy = txt_tf[1] * x + txt_tf[3] * y + txt_tf[5];
             const dx = txt_tf[0] * (adv * trm[0]) + txt_tf[2] * (adv * trm[1]);
             const dy = txt_tf[1] * (adv * trm[0]) + txt_tf[3] * (adv * trm[1]);
-            const ux = txt_tf[0] * (0.30 * trm[2]) + txt_tf[2] * (0.30 * trm[3]);
-            const uy = txt_tf[1] * (0.30 * trm[2]) + txt_tf[3] * (0.30 * trm[3]);
-            const mx = gx + 0.5 * dx + ux;
-            const my = gy + 0.5 * dy + uy;
+            const ax = txt_tf[0] * trm[2] + txt_tf[2] * trm[3];
+            const ay = txt_tf[1] * trm[2] + txt_tf[3] * trm[3];
 
-            // Only flag glyphs inside visible trim box that fall outside the active W/W* clip box
+            const v0: f64 = if (isDescGlyph(uval[0])) -0.14 else 0.05;
+            const v1: f64 = if (isTallGlyph(uval[0])) 0.62 else 0.48;
+            const p00_x = ox + 0.15 * dx + v0 * ax;
+            const p00_y = oy + 0.15 * dy + v0 * ay;
+            const p10_x = ox + 0.85 * dx + v0 * ax;
+            const p10_y = oy + 0.85 * dy + v0 * ay;
+            const p01_x = ox + 0.15 * dx + v1 * ax;
+            const p01_y = oy + 0.15 * dy + v1 * ay;
+            const p11_x = ox + 0.85 * dx + v1 * ax;
+            const p11_y = oy + 0.85 * dy + v1 * ay;
+
+            const gx0 = @min(@min(p00_x, p10_x), @min(p01_x, p11_x));
+            const gx1 = @max(@max(p00_x, p10_x), @max(p01_x, p11_x));
+            const gy0 = @min(@min(p00_y, p10_y), @min(p01_y, p11_y));
+            const gy1 = @max(@max(p00_y, p10_y), @max(p01_y, p11_y));
+            const mx = 0.5 * (gx0 + gx1);
+            const my = 0.5 * (gy0 + gy1);
+
+            // Flag any visible-page glyph whose ink core extends outside the active W/W*/clip_text box
             if (mx >= 0.0 and mx <= page_w and my >= 0.0 and my <= page_h) {
                 const top = stack[depth - 1];
-                const tol: f64 = 1.5;
-                if (mx < top.x0 - tol or mx > top.x1 + tol or my < top.y0 - tol or my > top.y1 + tol) {
+                const tol: f64 = 1.0;
+                if (gx0 < top.x0 - tol or gx1 > top.x1 + tol or gy0 < top.y0 - tol or gy1 > top.y1 + tol) {
                     clipped += 1;
                 }
             }
@@ -383,6 +491,7 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
     var line_dir_x: f64 = 1.0;
     var line_dir_y: f64 = 0.0;
     var prev_line_span_size: f64 = -1.0;
+    var prev_line_span_cy: f64 = -1e9;
 
     var in_font = false;
     var cur_font: []const u8 = "";
@@ -431,6 +540,7 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
         } else if (std.mem.startsWith(u8, tag, "line ")) {
             line_idx += 1;
             prev_line_span_size = -1.0;
+            prev_line_span_cy = -1e9;
             if (extractAttr(tag, "dir")) |dv| {
                 var dnums: [2]f64 = .{ 1.0, 0.0 };
                 _ = parseFloatSlice(dv, &dnums);
@@ -500,6 +610,8 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                         if (cur_chars.items.len > 0) {
                             try prose.appendSlice(alloc, cur_chars.items);
                             try prose.append(alloc, ' ');
+                            prev_line_span_size = cur_size;
+                            prev_line_span_cy = (sy0 + sy1) * 0.5;
                         }
                         cur_chars.clearRetainingCapacity();
                         sx0 = 1e9;
@@ -532,15 +644,30 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
         } else if (std.mem.eql(u8, tag, "/font") and in_font) {
             in_font = false;
             const raw_txt = cur_chars.items;
-            // Append to prose text with superscript/subscript font-size break detection (>=1.5pt jump)
+            const cur_cy: f64 = if (has_glyph) (sy0 + sy1) * 0.5 else prev_line_span_cy;
+            // Preserve raised scientific `10^exp` superscripts while separating other script/footnote transitions
             if (raw_txt.len > 0) {
-                if (prev_line_span_size > 0.0 and @abs(cur_size - prev_line_span_size) >= 1.5) {
-                    if (prose.items.len > 0 and prose.items[prose.items.len - 1] != ' ' and prose.items[prose.items.len - 1] != '\n' and raw_txt[0] != ' ') {
-                        try prose.append(alloc, ' ');
+                const is_raised_exp = prev_line_span_size > 0.0 and
+                    cur_size <= prev_line_span_size - 1.5 and
+                    cur_cy < prev_line_span_cy - prev_line_span_size * 0.10 and
+                    isSignedDigitsTrimmed(raw_txt) and
+                    proseEndsWithStandalone10(prose.items);
+                if (is_raised_exp) {
+                    while (prose.items.len > 0 and (prose.items[prose.items.len - 1] == ' ' or prose.items[prose.items.len - 1] == '\t')) {
+                        _ = prose.pop();
                     }
+                    try prose.append(alloc, '^');
+                    try prose.appendSlice(alloc, std.mem.trim(u8, raw_txt, " \t\r\n"));
+                } else {
+                    if (prev_line_span_size > 0.0 and @abs(cur_size - prev_line_span_size) >= 1.5) {
+                        if (prose.items.len > 0 and prose.items[prose.items.len - 1] != ' ' and prose.items[prose.items.len - 1] != '\n' and raw_txt[0] != ' ') {
+                            try prose.append(alloc, ' ');
+                        }
+                    }
+                    try prose.appendSlice(alloc, raw_txt);
                 }
-                try prose.appendSlice(alloc, raw_txt);
                 prev_line_span_size = cur_size;
+                if (has_glyph) prev_line_span_cy = cur_cy;
             }
             const trimmed = std.mem.trim(u8, raw_txt, " \t\r\n");
             if (trimmed.len > 0 and has_glyph and sx1 > sx0 and sy1 > sy0) {
@@ -1299,4 +1426,45 @@ test "countTraceClippedAlnum catches W/W* clipped glyphs independent of mutool s
     ;
     // "T" is inside [50, 130], "bark" (4 chars) are outside, "Z" is after pop_clip so unclipped
     try std.testing.expectEqual(@as(usize, 4), countTraceClippedAlnum(trace_xml, 612.0, 792.0));
+}
+
+test "countTraceClippedAlnum catches horizontal top-half glyph slicing while passing generous clips" {
+    // Issue #2 Escape 3 (F_horizontal_half_slice): 12pt Helvetica at y=690 clipped to y in [680, 694]
+    const half_sliced =
+        \\<clip_path winding="eofill" transform="1 0 0 -1 0 792">
+        \\    <moveto x="40" y="680"/>
+        \\    <lineto x="440" y="680"/>
+        \\    <lineto x="440" y="694"/>
+        \\    <lineto x="40" y="694"/>
+        \\    <closepath/>
+        \\</clip_path>
+        \\<fill_text transform="1 0 0 -1 0 792">
+        \\    <span font="Helvetica" trm="12 0 0 12">
+        \\        <g unicode="T" x="54" y="690" adv="0.611"/>
+        \\        <g unicode="h" x="61.33" y="690" adv="0.556"/>
+        \\        <g unicode="o" x="68.00" y="690" adv="0.556"/>
+        \\    </span>
+        \\</fill_text>
+        \\<pop_clip/>
+    ;
+    try std.testing.expectEqual(@as(usize, 3), countTraceClippedAlnum(half_sliced, 612.0, 792.0));
+
+    // Generous control (E_generous_clip_control): clip y in [670, 720] covers full cap-height + descenders
+    const generous =
+        \\<clip_path winding="eofill" transform="1 0 0 -1 0 792">
+        \\    <moveto x="40" y="670"/>
+        \\    <lineto x="440" y="670"/>
+        \\    <lineto x="440" y="720"/>
+        \\    <lineto x="40" y="720"/>
+        \\    <closepath/>
+        \\</clip_path>
+        \\<fill_text transform="1 0 0 -1 0 792">
+        \\    <span font="Helvetica" trm="12 0 0 12">
+        \\        <g unicode="T" x="54" y="690" adv="0.611"/>
+        \\        <g unicode="g" x="61.33" y="690" adv="0.556"/>
+        \\    </span>
+        \\</fill_text>
+        \\<pop_clip/>
+    ;
+    try std.testing.expectEqual(@as(usize, 0), countTraceClippedAlnum(generous, 612.0, 792.0));
 }

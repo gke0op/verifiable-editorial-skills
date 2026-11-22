@@ -64,7 +64,7 @@ pub const CoverageReport = struct {
 pub const UngroundedToken = struct {
     page: usize,
     token: []const u8,
-    value_x100: i64,
+    value: f64,
     context: []const u8,
 };
 
@@ -616,12 +616,13 @@ fn isSkipJsonKey(k: []const u8) bool {
     return false;
 }
 
-fn addExactScaledNum(alloc: std.mem.Allocator, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64), val: f64) !void {
-    if (!std.math.isFinite(val) or @abs(val) > 1e14) return;
-    const scaled: i64 = @intFromFloat(@round(val * 100.0));
-    if (!seen.contains(scaled)) {
-        try seen.put(scaled, {});
-        try out.append(alloc, scaled);
+fn addExactFloat(alloc: std.mem.Allocator, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64), val: f64) !void {
+    if (!std.math.isFinite(val)) return;
+    const norm_v: f64 = if (val == 0.0) 0.0 else val;
+    const bits: u64 = @bitCast(norm_v);
+    if (!seen.contains(bits)) {
+        try seen.put(bits, {});
+        try out.append(alloc, norm_v);
     }
 }
 
@@ -634,7 +635,7 @@ fn jsonToFloat(v: std.json.Value) ?f64 {
 }
 
 /// Mirror Python `_derive_exact_ratios`: register exact percentages derived from species/country counts.
-fn deriveExactSpeciesRatios(alloc: std.mem.Allocator, summary: std.json.Value, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64)) !void {
+fn deriveExactSpeciesRatios(alloc: std.mem.Allocator, summary: std.json.Value, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64)) !void {
     if (summary != .object) return;
     const sp_val = summary.object.get("species") orelse return;
     if (sp_val != .array) return;
@@ -648,14 +649,14 @@ fn deriveExactSpeciesRatios(alloc: std.mem.Allocator, summary: std.json.Value, s
             if (c != .object) continue;
             const cnt = jsonToFloat(c.object.get("count") orelse continue) orelse continue;
             const pct = (cnt / tot) * 100.0;
-            try addScaledNum(alloc, seen, out, pct);
+            try addExactFloat(alloc, seen, out, pct);
         }
     }
 }
 
 /// Mirror Python `_load_authorized_numbers` for `background_citations.json`: register ONLY explicit
-/// `citations[].values[]` / `citations[].value` scalars (never synthetic pairwise sums of citation years).
-fn collectCitationNumbers(alloc: std.mem.Allocator, parsed: std.json.Value, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64)) !void {
+/// `citations[].values[]` / `citations[].value` exact scalars (never synthetic pairwise sums or pre-rounding).
+fn collectCitationNumbers(alloc: std.mem.Allocator, parsed: std.json.Value, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64)) !void {
     const entries: []const std.json.Value = switch (parsed) {
         .object => |obj| if (obj.get("citations")) |cv| (if (cv == .array) cv.array.items else &.{}) else &.{},
         .array => |arr| arr.items,
@@ -666,37 +667,20 @@ fn collectCitationNumbers(alloc: std.mem.Allocator, parsed: std.json.Value, seen
         if (entry.object.get("values")) |vv| {
             if (vv == .array) {
                 for (vv.array.items) |item| {
-                    if (jsonToFloat(item)) |fv| try addExactScaledNum(alloc, seen, out, fv);
+                    if (jsonToFloat(item)) |fv| try addExactFloat(alloc, seen, out, fv);
                 }
             }
         }
         if (entry.object.get("value")) |v1| {
-            if (jsonToFloat(v1)) |fv| try addExactScaledNum(alloc, seen, out, fv);
+            if (jsonToFloat(v1)) |fv| try addExactFloat(alloc, seen, out, fv);
         }
     }
 }
 
-fn addScaledNum(alloc: std.mem.Allocator, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64), val: f64) !void {
-    if (!std.math.isFinite(val) or @abs(val) > 1e14) return;
-    const candidates = [_]f64{
-        val,
-        @round(val * 10.0) / 10.0,
-        @round(val * 100.0) / 100.0,
-        @round(val),
-    };
-    for (candidates) |cv| {
-        const scaled: i64 = @intFromFloat(@round(cv * 100.0));
-        if (!seen.contains(scaled)) {
-            try seen.put(scaled, {});
-            try out.append(alloc, scaled);
-        }
-    }
-}
-
-fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.AutoHashMap(i64, void), out: *std.ArrayList(i64)) !void {
+fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64)) !void {
     switch (val) {
-        .integer => |iv| try addScaledNum(alloc, seen, out, @floatFromInt(iv)),
-        .float => |fv| try addScaledNum(alloc, seen, out, fv),
+        .integer => |iv| try addExactFloat(alloc, seen, out, @floatFromInt(iv)),
+        .float => |fv| try addExactFloat(alloc, seen, out, fv),
         .object => |obj| {
             var it = obj.iterator();
             while (it.next()) |entry| {
@@ -715,7 +699,7 @@ fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.
                 }
             }
             if (all_num) {
-                try addScaledNum(alloc, seen, out, sum_v);
+                try addExactFloat(alloc, seen, out, sum_v);
                 if (arr.items.len >= 2) {
                     var i: usize = 0;
                     while (i + 1 < arr.items.len) : (i += 1) {
@@ -730,8 +714,8 @@ fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.
                             else => 0.0,
                         };
                         const pair = a_v + b_v;
-                        try addScaledNum(alloc, seen, out, pair);
-                        if (sum_v > 0.0) try addScaledNum(alloc, seen, out, (pair / sum_v) * 100.0);
+                        try addExactFloat(alloc, seen, out, pair);
+                        if (sum_v > 0.0) try addExactFloat(alloc, seen, out, (pair / sum_v) * 100.0);
                     }
                 }
             }
@@ -743,6 +727,33 @@ fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.
     }
 }
 
+/// Precision-aware half-ULP Rule 10 grounding check (full IEEE-754 f64, zero coarse ±0.051 catch-all).
+pub fn rule10IsGrounded(val: f64, decimals: u8, sci_exp: ?i32, bare_power: bool, authorized: []const f64) bool {
+    if (!std.math.isFinite(val)) return false;
+    if (bare_power) {
+        const eps = @max(@as(f64, 1e-30), @abs(val) * 1e-9);
+        for (authorized) |a| {
+            if (@abs(a - val) <= eps) return true;
+        }
+        return false;
+    }
+    if (sci_exp) |ev| {
+        const pow_i: f64 = @floatFromInt(ev - @as(i32, decimals));
+        const half_ulp = 0.5 * std.math.pow(f64, 10.0, pow_i);
+        const eps = @max(@as(f64, 1e-30), @abs(val) * 1e-12);
+        for (authorized) |a| {
+            if (@abs(a - val) <= half_ulp + eps) return true;
+        }
+        return false;
+    }
+    const half_ulp = 0.5 * std.math.pow(f64, 10.0, -@as(f64, @floatFromInt(decimals)));
+    const eps = @max(@as(f64, 1e-12), @abs(val) * 1e-12);
+    for (authorized) |a| {
+        if (@abs(a - val) <= half_ulp + eps) return true;
+    }
+    return false;
+}
+
 fn isHexDigit(ch: u8) bool {
     return (ch >= '0' and ch <= '9') or (ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F');
 }
@@ -751,9 +762,116 @@ fn isUrlOrDoiChar(ch: u8) bool {
     return ch > 32 and ch != ')' and ch != ']' and ch != ',' and ch != ';';
 }
 
-/// Strip soft hyphens (U+00AD), URLs, DOIs, long SHA-256 hex digests, and version strings (`PDF/UA-1`, `ISO 14289-1`, `Typst 0.15.1`).
-pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8) ![]u8 {
-    // First remove UTF-8 soft hyphens (U+00AD = 0xC2 0xAD) so hyphenated tokens like "SHA\u00AD256" stay intact
+const SupChar = struct { ch: u8, len: usize };
+
+fn decodeSupChar(s: []const u8) ?SupChar {
+    if (s.len >= 2 and s[0] == 0xC2) {
+        if (s[1] == 0xB9) return .{ .ch = '1', .len = 2 }; // ¹
+        if (s[1] == 0xB2) return .{ .ch = '2', .len = 2 }; // ²
+        if (s[1] == 0xB3) return .{ .ch = '3', .len = 2 }; // ³
+    }
+    if (s.len >= 3 and s[0] == 0xE2 and s[1] == 0x81) {
+        if (s[2] == 0xB0) return .{ .ch = '0', .len = 3 }; // ⁰
+        if (s[2] >= 0xB4 and s[2] <= 0xB9) return .{ .ch = '4' + (s[2] - 0xB4), .len = 3 }; // ⁴..⁹
+        if (s[2] == 0xBA) return .{ .ch = '+', .len = 3 }; // ⁺
+        if (s[2] == 0xBB) return .{ .ch = '-', .len = 3 }; // ⁻
+    }
+    return null;
+}
+
+fn isLetterOrMathAtEnd(buf: []const u8) bool {
+    if (buf.len == 0) return false;
+    const last = buf[buf.len - 1];
+    if ((last >= 'A' and last <= 'Z') or (last >= 'a' and last <= 'z')) return true;
+    // Greek U+0370..U+03FF: 2-byte UTF-8 0xCD 0xB0..0xCF 0xBF
+    if (buf.len >= 2 and (buf[buf.len - 2] == 0xCD or buf[buf.len - 2] == 0xCE or buf[buf.len - 2] == 0xCF)) {
+        return true;
+    }
+    // Unicode Mathematical Alphanumeric Symbols U+1D400..U+1D7FF: 4-byte UTF-8 0xF0 0x9D 0x90..0x9F ...
+    if (buf.len >= 4 and buf[buf.len - 4] == 0xF0 and buf[buf.len - 3] == 0x9D and buf[buf.len - 2] >= 0x90 and buf[buf.len - 2] <= 0x9F) {
+        return true;
+    }
+    return false;
+}
+
+fn isMathItalicBefore(s: []const u8, pos: usize) bool {
+    if (pos < 4) return false;
+    return s[pos - 4] == 0xF0 and s[pos - 3] == 0x9D and s[pos - 2] >= 0x90 and s[pos - 2] <= 0x9F;
+}
+
+fn matchSiUnitExp(raw: []const u8, i: usize) ?usize {
+    const units = [_][]const u8{
+        "day", "min", "mol", "yr", "cm", "mm", "km", "kg", "Hz", "Pa", "eV", "pc", "AU", "hr",
+        "s",   "m",   "g",   "L",  "K",  "W",  "J",
+    };
+    const prev_ok = (i == 0) or !isAsciiAlnum(raw[i - 1]);
+    if (!prev_ok) return null;
+    for (units) |u| {
+        if (!std.mem.startsWith(u8, raw[i..], u)) continue;
+        var k = i + u.len;
+        if (k < raw.len and isAsciiAlnum(raw[k])) continue;
+        while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t')) : (k += 1) {}
+        if (k >= raw.len) continue;
+        // Branch A: Unicode superscript [⁺⁻][⁰..⁹]+
+        if (decodeSupChar(raw[k..])) |sc| {
+            if (sc.ch == '+' or sc.ch == '-') {
+                var p = k + sc.len;
+                var digs: usize = 0;
+                while (p < raw.len) {
+                    const d = decodeSupChar(raw[p..]) orelse break;
+                    if (d.ch < '0' or d.ch > '9') break;
+                    digs += 1;
+                    p += d.len;
+                }
+                if (digs > 0) return p;
+            }
+        }
+        // Branch B: optional '^' then '-' or '−' then '1' at word boundary
+        var p = k;
+        if (p < raw.len and raw[p] == '^') p += 1;
+        if (p < raw.len and raw[p] == '-') {
+            p += 1;
+        } else if (p + 2 < raw.len and raw[p] == 0xE2 and raw[p + 1] == 0x88 and raw[p + 2] == 0x92) {
+            p += 3;
+        } else continue;
+        if (p < raw.len and raw[p] == '1') {
+            const end = p + 1;
+            if (end == raw.len or (!isAsciiAlnum(raw[end]) and raw[end] != '.')) return end;
+        }
+    }
+    return null;
+}
+
+fn matchTrimDimPt(raw: []const u8, i: usize, page_w: f64, page_h: f64) ?usize {
+    if (i > 0 and isAsciiAlnum(raw[i - 1])) return null;
+    const pw: i64 = @intFromFloat(@round(page_w));
+    const ph: i64 = @intFromFloat(@round(page_h));
+    var wbuf: [24]u8 = undefined;
+    var hbuf: [24]u8 = undefined;
+    const ws = std.fmt.bufPrint(&wbuf, "{d}", .{pw}) catch return null;
+    const hs = std.fmt.bufPrint(&hbuf, "{d}", .{ph}) catch return null;
+    if (!std.mem.startsWith(u8, raw[i..], ws)) return null;
+    var k = i + ws.len;
+    while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t')) : (k += 1) {}
+    if (k + 1 < raw.len and raw[k] == 0xC3 and raw[k + 1] == 0x97) {
+        k += 2; // '×'
+    } else if (k < raw.len and (raw[k] == 'x' or raw[k] == 'X')) {
+        k += 1;
+    } else return null;
+    while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t')) : (k += 1) {}
+    if (!std.mem.startsWith(u8, raw[k..], hs)) return null;
+    k += hs.len;
+    while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t')) : (k += 1) {}
+    if (!std.mem.startsWith(u8, raw[k..], "pt")) return null;
+    k += 2;
+    if (k < raw.len and isAsciiAlnum(raw[k])) return null;
+    return k;
+}
+
+/// Normalize soft hyphens & fullwidth digits, strip URLs, DOIs, SHA-256 hex digests, version strings,
+/// SI unit exponents, letter-attached superscripts, and page trim dimension specs (`W × H pt`).
+pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8, page_w: f64, page_h: f64) ![]u8 {
+    // Pass 1: strip UTF-8 soft hyphens (U+00AD) and normalize fullwidth digits/punctuation (０-９ ＋－．，％)
     var norm: std.ArrayList(u8) = .empty;
     defer norm.deinit(alloc);
     try norm.ensureTotalCapacity(alloc, raw_in.len);
@@ -762,6 +880,34 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8) ![]u8 {
         if (ni + 1 < raw_in.len and raw_in[ni] == 0xC2 and raw_in[ni + 1] == 0xAD) {
             ni += 2;
             continue;
+        }
+        if (ni + 2 < raw_in.len and raw_in[ni] == 0xEF and raw_in[ni + 1] == 0xBC) {
+            const b2 = raw_in[ni + 2];
+            if (b2 >= 0x90 and b2 <= 0x99) {
+                try norm.append(alloc, '0' + (b2 - 0x90));
+                ni += 3;
+                continue;
+            } else if (b2 == 0x8B) {
+                try norm.append(alloc, '+');
+                ni += 3;
+                continue;
+            } else if (b2 == 0x8D) {
+                try norm.append(alloc, '-');
+                ni += 3;
+                continue;
+            } else if (b2 == 0x8E) {
+                try norm.append(alloc, '.');
+                ni += 3;
+                continue;
+            } else if (b2 == 0x8C) {
+                try norm.append(alloc, ',');
+                ni += 3;
+                continue;
+            } else if (b2 == 0x85) {
+                try norm.append(alloc, '%');
+                ni += 3;
+                continue;
+            }
         }
         try norm.append(alloc, raw_in[ni]);
         ni += 1;
@@ -813,9 +959,9 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8) ![]u8 {
             }
         }
         // Strip standard/version tokens: PDF/UA-1, ISO 14289-1, WCAG 2.1, Typst 0.15.1, WeasyPrint 67.0, veraPDF 1.30
-        const prefixes = [_][]const u8{ "PDF/UA-", "ISO ", "WCAG ", "Typst ", "WeasyPrint ", "veraPDF ", "term_id=" };
+        const direct_prefixes = [_][]const u8{ "PDF/UA-", "term_id=" };
         var matched_pre = false;
-        for (prefixes) |pre| {
+        for (direct_prefixes) |pre| {
             if (std.mem.startsWith(u8, raw[i..], pre)) {
                 var k = i + pre.len;
                 while (k < raw.len and ((raw[k] >= '0' and raw[k] <= '9') or raw[k] == '.' or raw[k] == '-')) : (k += 1) {}
@@ -827,9 +973,55 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8) ![]u8 {
                 }
             }
         }
+        if (!matched_pre) {
+            const ws_prefixes = [_][]const u8{ "ISO", "WCAG", "Typst", "WeasyPrint", "veraPDF" };
+            for (ws_prefixes) |pre| {
+                if (std.mem.startsWith(u8, raw[i..], pre)) {
+                    var k = i + pre.len;
+                    const ws_start = k;
+                    while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == '\n' or raw[k] == '\r')) : (k += 1) {}
+                    if (k > ws_start and k < raw.len and raw[k] >= '0' and raw[k] <= '9') {
+                        while (k < raw.len and ((raw[k] >= '0' and raw[k] <= '9') or raw[k] == '.' or raw[k] == '-')) : (k += 1) {}
+                        i = k;
+                        try out.append(alloc, ' ');
+                        matched_pre = true;
+                        break;
+                    }
+                }
+            }
+        }
         if (matched_pre) continue;
 
-        // Strip lowercase 8..64 char hex hashes (e.g., 163cadae3baa...)
+        // Strip SI unit reciprocal/power exponents (e.g. yr⁻¹, yr −1, cm⁻³)
+        if (matchSiUnitExp(raw, i)) |end_si| {
+            i = end_si;
+            try out.append(alloc, ' ');
+            continue;
+        }
+
+        // Strip page trim spec matching `W × H pt`
+        if (matchTrimDimPt(raw, i, page_w, page_h)) |end_trim| {
+            i = end_trim;
+            try out.append(alloc, ' ');
+            continue;
+        }
+
+        // Strip Unicode superscripts attached directly to a letter/Greek/math symbol (e.g. m², Σ², cm³)
+        if (isLetterOrMathAtEnd(out.items)) {
+            if (decodeSupChar(raw[i..])) |sc| {
+                var k = i + sc.len;
+                while (k < raw.len) {
+                    const nxt = decodeSupChar(raw[k..]) orelse break;
+                    if (nxt.ch < '0' or nxt.ch > '9') break;
+                    k += nxt.len;
+                }
+                i = k;
+                try out.append(alloc, ' ');
+                continue;
+            }
+        }
+
+        // Strip lowercase 8..64 char hex hashes (must contain at least one [a-f] so pure digits never strip)
         const prev_bound = (i == 0) or !isAsciiAlnum(raw[i - 1]);
         if (prev_bound and ((raw[i] >= '0' and raw[i] <= '9') or (raw[i] >= 'a' and raw[i] <= 'f'))) {
             var k = i;
@@ -854,7 +1046,181 @@ fn isTokenPrevBlocked(ch: u8) bool {
     return isAsciiAlnum(ch) or ch == '_' or ch == '#' or ch == '-';
 }
 
-/// Gate 3 (Rule 10): Post-render PDF prose-to-ledger grounding via p2zig kernel.
+fn isIdentFollow(ch: u8) bool {
+    return isAsciiAlnum(ch) or ch == '_';
+}
+
+const ExpMatch = struct { exp: i32, end: usize };
+
+/// Parse an exponent immediately at `pos`: either ASCII `^ [({]? [+-−]? digits [)}]?` OR Unicode `[⁺⁻]?[⁰..⁹]+`.
+fn parseExponentAt(s: []const u8, pos: usize, allow_unicode_sup: bool) ?ExpMatch {
+    if (pos >= s.len) return null;
+    if (s[pos] == '^') {
+        var k = pos + 1;
+        while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
+        var close_delim: u8 = 0;
+        if (k < s.len and (s[k] == '(' or s[k] == '{')) {
+            close_delim = if (s[k] == '(') ')' else '}';
+            k += 1;
+            while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
+        }
+        var neg = false;
+        if (k < s.len and (s[k] == '+' or s[k] == '-')) {
+            neg = (s[k] == '-');
+            k += 1;
+        } else if (k + 2 < s.len and s[k] == 0xE2 and s[k + 1] == 0x88 and s[k + 2] == 0x92) {
+            neg = true;
+            k += 3;
+        }
+        const dstart = k;
+        while (k < s.len and s[k] >= '0' and s[k] <= '9') : (k += 1) {}
+        if (k == dstart) return null;
+        var ev = std.fmt.parseInt(i32, s[dstart..k], 10) catch return null;
+        if (neg) ev = -ev;
+        if (ev < -300 or ev > 300) return null;
+        if (close_delim != 0) {
+            while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
+            if (k < s.len and s[k] == close_delim) k += 1 else return null;
+        }
+        if (k < s.len and isIdentFollow(s[k])) return null;
+        return .{ .exp = ev, .end = k };
+    }
+    if (!allow_unicode_sup) return null;
+    var k = pos;
+    var neg = false;
+    if (decodeSupChar(s[k..])) |sc| {
+        if (sc.ch == '+' or sc.ch == '-') {
+            neg = (sc.ch == '-');
+            k += sc.len;
+        }
+    } else return null;
+    var dbuf: [16]u8 = undefined;
+    var dlen: usize = 0;
+    while (k < s.len) {
+        const sc = decodeSupChar(s[k..]) orelse break;
+        if (sc.ch < '0' or sc.ch > '9') break;
+        if (dlen < dbuf.len) {
+            dbuf[dlen] = sc.ch;
+            dlen += 1;
+        }
+        k += sc.len;
+    }
+    if (dlen == 0) return null;
+    if (k < s.len and isIdentFollow(s[k])) return null;
+    var ev = std.fmt.parseInt(i32, dbuf[0..dlen], 10) catch return null;
+    if (neg) ev = -ev;
+    if (ev < -300 or ev > 300) return null;
+    return .{ .exp = ev, .end = k };
+}
+
+/// Match optional whitespace + multiplication operator (`×`, `·`, `*`, `x`, `X`) + optional whitespace + `10`.
+fn matchMul10(s: []const u8, pos: usize) ?usize {
+    var k = pos;
+    while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
+    if (k >= s.len) return null;
+    if (k + 1 < s.len and s[k] == 0xC3 and s[k + 1] == 0x97) {
+        k += 2; // '×'
+    } else if (k + 1 < s.len and s[k] == 0xC2 and s[k + 1] == 0xB7) {
+        k += 2; // '·'
+    } else if (s[k] == '*' or s[k] == 'x' or s[k] == 'X') {
+        k += 1;
+    } else return null;
+    while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
+    if (std.mem.startsWith(u8, s[k..], "10")) return k + 2;
+    return null;
+}
+
+/// Check if an unsigned bare integer at `tok_start` is immediately preceded by an explicit structural keyword
+/// (e.g. `Page`, `Figure`, `Fig.`, `Table`, `Plate`, `Section`, `Eq.`, `Rule`, `Gate`, `Slide`, `§`).
+fn hasStructuralPrefix(cleaned: []const u8, tok_start: usize) bool {
+    var end = tok_start;
+    while (end > 0 and (cleaned[end - 1] == ' ' or cleaned[end - 1] == '\t' or cleaned[end - 1] == '\n' or cleaned[end - 1] == '\r')) : (end -= 1) {}
+    if (end > 0 and (cleaned[end - 1] == '#' or cleaned[end - 1] == '(' or cleaned[end - 1] == '[')) {
+        end -= 1;
+        while (end > 0 and (cleaned[end - 1] == ' ' or cleaned[end - 1] == '\t')) : (end -= 1) {}
+    }
+    if (end == 0) return false;
+    // Check UTF-8 '§' (U+00A7 = 0xC2 0xA7)
+    if (end >= 2 and cleaned[end - 2] == 0xC2 and cleaned[end - 1] == 0xA7) return true;
+    const keywords = [_][]const u8{
+        "equations", "equation", "appendix", "sections", "exhibits", "figures", "section", "chapter",
+        "exhibit",   "figure",   "tables",   "plates",   "slides",   "pillar",  "pages",   "table",
+        "plate",     "slide",    "rules",    "gates",    "issue",    "page",    "rule",    "gate",
+        "figs.",     "eqs.",     "refs.",    "fig.",     "tab.",     "sec.",    "vol.",    "ref.",
+        "ch.",       "eq.",      "no.",      "pp.",      "p.",
+    };
+    for (keywords) |kw| {
+        if (end < kw.len) continue;
+        const start = end - kw.len;
+        if (!std.ascii.eqlIgnoreCase(cleaned[start..end], kw)) continue;
+        if (start == 0) return true;
+        const prev = cleaned[start - 1];
+        if (!isAsciiAlnum(prev) and prev != '_') return true;
+    }
+    return false;
+}
+
+/// Allow explicit page-footer pagination `<page_num> / <page_count>` or `<page_num> of <page_count>`.
+fn isPagePagination(cleaned: []const u8, tok_start: usize, tok_end: usize, int_val: usize, page_num: usize, page_count: usize) bool {
+    if (int_val == page_num) {
+        var k = tok_end;
+        while (k < cleaned.len and (cleaned[k] == ' ' or cleaned[k] == '\t')) : (k += 1) {}
+        var matched_sep = false;
+        if (k < cleaned.len and cleaned[k] == '/') {
+            k += 1;
+            matched_sep = true;
+        } else if (k + 2 <= cleaned.len and std.ascii.eqlIgnoreCase(cleaned[k .. k + 2], "of") and (k + 2 == cleaned.len or !isAsciiAlnum(cleaned[k + 2]))) {
+            k += 2;
+            matched_sep = true;
+        }
+        if (matched_sep) {
+            while (k < cleaned.len and (cleaned[k] == ' ' or cleaned[k] == '\t')) : (k += 1) {}
+            const ds = k;
+            while (k < cleaned.len and cleaned[k] >= '0' and cleaned[k] <= '9') : (k += 1) {}
+            if (k > ds and (k == cleaned.len or (!isAsciiAlnum(cleaned[k]) and cleaned[k] != '.' and cleaned[k] != '%'))) {
+                const rhs = std.fmt.parseInt(usize, cleaned[ds..k], 10) catch 0;
+                if (rhs == page_count) return true;
+            }
+        }
+    }
+    if (int_val == page_count) {
+        var k = tok_start;
+        while (k > 0 and (cleaned[k - 1] == ' ' or cleaned[k - 1] == '\t')) : (k -= 1) {}
+        var matched_sep = false;
+        if (k > 0 and cleaned[k - 1] == '/') {
+            k -= 1;
+            matched_sep = true;
+        } else if (k >= 2 and std.ascii.eqlIgnoreCase(cleaned[k - 2 .. k], "of") and (k == 2 or !isAsciiAlnum(cleaned[k - 3]))) {
+            k -= 2;
+            matched_sep = true;
+        }
+        if (matched_sep) {
+            while (k > 0 and (cleaned[k - 1] == ' ' or cleaned[k - 1] == '\t')) : (k -= 1) {}
+            const de = k;
+            while (k > 0 and cleaned[k - 1] >= '0' and cleaned[k - 1] <= '9') : (k -= 1) {}
+            if (de > k and (k == 0 or (!isAsciiAlnum(cleaned[k - 1]) and cleaned[k - 1] != '.'))) {
+                const lhs = std.fmt.parseInt(usize, cleaned[k..de], 10) catch 0;
+                if (lhs == page_num) return true;
+            }
+        }
+    }
+    return false;
+}
+
+/// Return a UTF-8-boundary-safe, single-line context snippet around `[tok_start..tok_end]`.
+fn utf8ContextSnippet(alloc: std.mem.Allocator, s: []const u8, tok_start: usize, tok_end: usize) ![]u8 {
+    var c0: usize = if (tok_start > 28) tok_start - 28 else 0;
+    while (c0 < tok_start and (s[c0] & 0xC0) == 0x80) : (c0 += 1) {}
+    var c1: usize = @min(s.len, tok_end + 28);
+    while (c1 > tok_end and c1 < s.len and (s[c1] & 0xC0) == 0x80) : (c1 -= 1) {}
+    const out = try alloc.dupe(u8, s[c0..c1]);
+    for (out) |*ch| {
+        if (ch.* == '\n' or ch.* == '\r' or ch.* == '\t') ch.* = ' ';
+    }
+    return out;
+}
+
+/// Gate 3 (Rule 10): Post-render PDF prose-to-ledger grounding (full f64 half-ULP precision, zero blanket structurals).
 pub fn auditProse(
     alloc: std.mem.Allocator,
     io: std.Io,
@@ -864,16 +1230,16 @@ pub fn auditProse(
     citations_path: ?[]const u8,
     manifest_path: ?[]const u8,
 ) !ProseReport {
-    var seen = std.AutoHashMap(i64, void).init(alloc);
-    var auth_list: std.ArrayList(i64) = .empty;
+    var seen = std.AutoHashMap(u64, void).init(alloc);
+    var auth_list: std.ArrayList(f64) = .empty;
 
     if (ledger_path) |lp| {
         const raw = try std.Io.Dir.cwd().readFileAlloc(io, lp, alloc, .unlimited);
         const parsed = try std.json.parseFromSliceLeaky(std.json.Value, alloc, raw, .{});
         try collectJsonNumbers(alloc, parsed, &seen, &auth_list);
         switch (parsed) {
-            .array => |a| try addScaledNum(alloc, &seen, &auth_list, @floatFromInt(a.items.len)),
-            .object => |o| try addScaledNum(alloc, &seen, &auth_list, @floatFromInt(o.count())),
+            .array => |a| try addExactFloat(alloc, &seen, &auth_list, @floatFromInt(a.items.len)),
+            .object => |o| try addExactFloat(alloc, &seen, &auth_list, @floatFromInt(o.count())),
             else => {},
         }
     }
@@ -895,25 +1261,15 @@ pub fn auditProse(
         while (it.next()) |ln| {
             if (std.mem.trim(u8, ln, " \t\r").len > 0) cnt += 1;
         }
-        try addScaledNum(alloc, &seen, &auth_list, @floatFromInt(cnt));
+        try addExactFloat(alloc, &seen, &auth_list, @floatFromInt(cnt));
     }
-
-    // Structural metadata ordinals: -1, 0..max(12, page_count), standard print specs
-    try addScaledNum(alloc, &seen, &auth_list, -1.0);
-    const max_ord = @max(@as(usize, 12), pages.len);
-    var ord: usize = 0;
-    while (ord <= max_ord) : (ord += 1) {
-        try addScaledNum(alloc, &seen, &auth_list, @floatFromInt(ord));
-    }
-    const structurals = [_]f64{ 612, 792, 960, 540, 300, 180, 72, 50, 52, 67.0, 2.1, 2026, 2025, 2024 };
-    for (structurals) |sv| try addScaledNum(alloc, &seen, &auth_list, sv);
 
     const auth_slice = auth_list.items;
     var ungrounded: std.ArrayList(UngroundedToken) = .empty;
     var total_checked: usize = 0;
 
     for (pages) |pg| {
-        const cleaned = try cleanProseText(alloc, pg.prose_text);
+        const cleaned = try cleanProseText(alloc, pg.prose_text, pg.width, pg.height);
         var i: usize = 0;
         while (i < cleaned.len) {
             var sign_neg = false;
@@ -954,6 +1310,8 @@ pub fn auditProse(
             var digits_buf: [64]u8 = undefined;
             var dlen: usize = 0;
             var seen_dot = false;
+            var seen_comma = false;
+            var decs: u8 = 0;
             while (j < cleaned.len) {
                 const ch = cleaned[j];
                 if (ch >= '0' and ch <= '9') {
@@ -961,12 +1319,14 @@ pub fn auditProse(
                         digits_buf[dlen] = ch;
                         dlen += 1;
                     }
+                    if (seen_dot and decs < 20) decs += 1;
                     j += 1;
                 } else if (ch == ',' and !seen_dot and j + 3 < cleaned.len and
                     cleaned[j + 1] >= '0' and cleaned[j + 1] <= '9' and
                     cleaned[j + 2] >= '0' and cleaned[j + 2] <= '9' and
                     cleaned[j + 3] >= '0' and cleaned[j + 3] <= '9')
                 {
+                    seen_comma = true;
                     j += 1;
                 } else if (ch == '.' and !seen_dot and j + 1 < cleaned.len and cleaned[j + 1] >= '0' and cleaned[j + 1] <= '9') {
                     seen_dot = true;
@@ -977,30 +1337,149 @@ pub fn auditProse(
                     j += 1;
                 } else break;
             }
+            if (dlen == 0) {
+                i = j;
+                continue;
+            }
             const raw_num = cleaned[num_start..j];
-            var tok_end = j;
-            if (tok_end < cleaned.len and cleaned[tok_end] == '%') tok_end += 1;
-            const next_ok = (tok_end == cleaned.len) or !(isAsciiAlnum(cleaned[tok_end]) or cleaned[tok_end] == '_');
-            i = tok_end;
-            if (!next_ok or dlen == 0) continue;
 
-            // Ignore leading-zero 2-digit plate/page ordinals "01".."12"
-            if (!has_sign and raw_num.len == 2 and raw_num[0] == '0') continue;
+            // Branch 1: mantissa × 10^exp (caret or Unicode superscript)
+            if (matchMul10(cleaned, j)) |after10| {
+                if (parseExponentAt(cleaned, after10, true)) |em| {
+                    const tok_end = em.end;
+                    i = tok_end;
+                    var mv = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
+                    if (sign_neg) mv = -mv;
+                    const val = mv * std.math.pow(f64, 10.0, @floatFromInt(em.exp));
+                    total_checked += 1;
+                    if (!rule10IsGrounded(val, decs, em.exp, false, auth_slice)) {
+                        try ungrounded.append(alloc, .{
+                            .page = pg.page_num,
+                            .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
+                            .value = val,
+                            .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
+                        });
+                    }
+                    continue;
+                }
+            }
+
+            // Branch 2: bare 10^exp (caret or Unicode superscript)
+            if (std.mem.eql(u8, raw_num, "10")) {
+                if (parseExponentAt(cleaned, j, true)) |em| {
+                    const tok_end = em.end;
+                    i = tok_end;
+                    var val = std.math.pow(f64, 10.0, @floatFromInt(em.exp));
+                    if (sign_neg) val = -val;
+                    total_checked += 1;
+                    if (!rule10IsGrounded(val, 0, em.exp, true, auth_slice)) {
+                        try ungrounded.append(alloc, .{
+                            .page = pg.page_num,
+                            .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
+                            .value = val,
+                            .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
+                        });
+                    }
+                    continue;
+                }
+            }
+
+            // Branch 3: explicit ASCII caret base^exp (e.g. 2^10)
+            if (!seen_comma and j < cleaned.len and cleaned[j] == '^') {
+                if (parseExponentAt(cleaned, j, false)) |em| {
+                    const tok_end = em.end;
+                    i = tok_end;
+                    const bv = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
+                    var val = std.math.pow(f64, bv, @floatFromInt(em.exp));
+                    if (sign_neg) val = -val;
+                    total_checked += 1;
+                    if (!rule10IsGrounded(val, 0, null, true, auth_slice)) {
+                        try ungrounded.append(alloc, .{
+                            .page = pg.page_num,
+                            .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
+                            .value = val,
+                            .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
+                        });
+                    }
+                    continue;
+                }
+            }
+
+            // Branch 4: standard ASCII scientific notation mantissa[eE][+-−]?exp (e.g. 1.25e-15, 1e7)
+            if (!seen_comma and j + 1 < cleaned.len and (cleaned[j] == 'e' or cleaned[j] == 'E')) {
+                var ek = j + 1;
+                var eneg = false;
+                if (ek < cleaned.len and (cleaned[ek] == '+' or cleaned[ek] == '-')) {
+                    eneg = (cleaned[ek] == '-');
+                    ek += 1;
+                } else if (ek + 2 < cleaned.len and cleaned[ek] == 0xE2 and cleaned[ek + 1] == 0x88 and cleaned[ek + 2] == 0x92) {
+                    eneg = true;
+                    ek += 3;
+                }
+                const eds = ek;
+                while (ek < cleaned.len and cleaned[ek] >= '0' and cleaned[ek] <= '9') : (ek += 1) {}
+                if (ek > eds and (ek == cleaned.len or !isIdentFollow(cleaned[ek]))) {
+                    var ev = std.fmt.parseInt(i32, cleaned[eds..ek], 10) catch 9999;
+                    if (eneg) ev = -ev;
+                    if (ev >= -300 and ev <= 300) {
+                        const tok_end = ek;
+                        i = tok_end;
+                        var mv = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
+                        if (sign_neg) mv = -mv;
+                        const val = mv * std.math.pow(f64, 10.0, @floatFromInt(ev));
+                        total_checked += 1;
+                        if (!rule10IsGrounded(val, decs, ev, false, auth_slice)) {
+                            try ungrounded.append(alloc, .{
+                                .page = pg.page_num,
+                                .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
+                                .value = val,
+                                .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
+                            });
+                        }
+                        continue;
+                    }
+                }
+            }
+
+            // Branch 5: plain signed/unsigned number
+            var tok_end = j;
+            var has_pct = false;
+            if (tok_end < cleaned.len and cleaned[tok_end] == '%') {
+                tok_end += 1;
+                has_pct = true;
+            }
+            const next_ok = (tok_end == cleaned.len) or !isIdentFollow(cleaned[tok_end]);
+            i = tok_end;
+            if (!next_ok) continue;
+
+            // Unicode math-italic variable directly before +/− (e.g. 𝑖−1, 𝑘−1) is binary subtraction, not unary sign
+            var disp_start = tok_start;
+            if (has_sign and isMathItalicBefore(cleaned, tok_start)) {
+                has_sign = false;
+                sign_neg = false;
+                disp_start = num_start;
+            }
+
+            // Leading-zero 2-digit plate/page ordinals "01".."12" (unsigned, no %, no decimal)
+            if (!has_sign and !has_pct and !seen_dot and raw_num.len == 2 and raw_num[0] == '0') continue;
+
+            // Contextual structural ordinals: ONLY bare unsigned integers (no %, no decimal, no comma)
+            if (!has_sign and !has_pct and !seen_dot and !seen_comma) {
+                if (hasStructuralPrefix(cleaned, tok_start)) continue;
+                const iv = std.fmt.parseInt(usize, raw_num, 10) catch 0;
+                if (iv >= 1 and isPagePagination(cleaned, tok_start, tok_end, iv, pg.page_num, pages.len)) continue;
+            }
 
             var parsed_v = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
             if (sign_neg) parsed_v = -parsed_v;
-            if (@abs(parsed_v) > 1e14) continue;
-            const val_x100: i64 = @intFromFloat(@round(parsed_v * 100.0));
 
             total_checked += 1;
-            if (!kernels.rule10_is_grounded_x100(val_x100, auth_slice)) {
-                const c0 = if (tok_start > 28) tok_start - 28 else 0;
-                const c1 = @min(cleaned.len, tok_end + 28);
+            if (!rule10IsGrounded(parsed_v, decs, null, false, auth_slice)) {
                 try ungrounded.append(alloc, .{
                     .page = pg.page_num,
-                    .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
-                    .value_x100 = val_x100,
-                    .context = try alloc.dupe(u8, cleaned[c0..c1]),
+                    .token = try alloc.dupe(u8, cleaned[disp_start..tok_end]),
+                    .value = parsed_v,
+                    .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
                 });
             }
         }
@@ -1274,32 +1753,49 @@ pub fn auditLatch(alloc: std.mem.Allocator, io: std.Io, project_dir: []const u8)
     };
 }
 
-test "cleanProseText strips soft-hyphenated SHA-256 and line-wrapped SHA-256" {
+test "cleanProseText strips soft-hyphenated SHA-256, normalizes fullwidth digits, and strips trim specs" {
     const alloc = std.testing.allocator;
-    const raw = "Verified via SHA\xc2\xad256 and SHA-\n256 48988322b9e7946a with 91.8%";
-    const cleaned = try cleanProseText(alloc, raw);
+    const raw = "Verified via SHA\xc2\xad256 and SHA-\n256 48988322b9e7946a with 91.8% count \xef\xbc\x99\xef\xbc\x99 (612 \xc3\x97 792 pt)";
+    const cleaned = try cleanProseText(alloc, raw, 612.0, 792.0);
     defer alloc.free(cleaned);
     try std.testing.expect(std.mem.find(u8, cleaned, "256") == null);
     try std.testing.expect(std.mem.find(u8, cleaned, "48988322") == null);
     try std.testing.expect(std.mem.find(u8, cleaned, "91.8%") != null);
+    try std.testing.expect(std.mem.find(u8, cleaned, "99") != null);
+    try std.testing.expect(std.mem.find(u8, cleaned, "612") == null);
 }
 
-test "collectCitationNumbers registers only explicit cited values without pairwise sums" {
+test "collectCitationNumbers registers only exact cited f64 values without pairwise sums" {
     const alloc = std.testing.allocator;
     const raw =
         \\{"citations":[{"id":"c1","values":[1977, 1984, 0.5307]}]}
     ;
     var parsed = try std.json.parseFromSlice(std.json.Value, alloc, raw, .{});
     defer parsed.deinit();
-    var seen = std.AutoHashMap(i64, void).init(alloc);
+    var seen = std.AutoHashMap(u64, void).init(alloc);
     defer seen.deinit();
-    var list: std.ArrayList(i64) = .empty;
+    var list: std.ArrayList(f64) = .empty;
     defer list.deinit(alloc);
     try collectCitationNumbers(alloc, parsed.value, &seen, &list);
-    // Exactly 3 explicit values (no 1977+1984=3961 pairwise sum bloat!)
     try std.testing.expectEqual(@as(usize, 3), list.items.len);
-    try std.testing.expect(seen.contains(197700));
-    try std.testing.expect(seen.contains(198400));
-    try std.testing.expect(seen.contains(53));
-    try std.testing.expect(!seen.contains(396100));
+    try std.testing.expect(rule10IsGrounded(0.5307, 4, null, false, list.items));
+    try std.testing.expect(!rule10IsGrounded(0.5312, 4, null, false, list.items));
+    try std.testing.expect(!rule10IsGrounded(3961.0, 0, null, false, list.items));
+}
+
+test "rule10IsGrounded enforces half-ULP precision and rejects Issue #2 tolerance & exponent escapes" {
+    const auth = [_]f64{ 0.5255, 64896.0, 1_000_000.0 };
+    // Exact and true rounding PASS
+    try std.testing.expect(rule10IsGrounded(0.5255, 4, null, false, &auth));
+    try std.testing.expect(rule10IsGrounded(0.526, 3, null, false, &auth));
+    try std.testing.expect(rule10IsGrounded(0.53, 2, null, false, &auth));
+    try std.testing.expect(rule10IsGrounded(1e6, 0, 6, true, &auth));
+    // Fabricated neighbors, p-values, and wrong exponents FAIL
+    try std.testing.expect(!rule10IsGrounded(0.57, 2, null, false, &auth));
+    try std.testing.expect(!rule10IsGrounded(0.5262, 4, null, false, &auth));
+    try std.testing.expect(!rule10IsGrounded(0.5260, 4, null, false, &auth));
+    try std.testing.expect(!rule10IsGrounded(0.049, 3, null, false, &auth));
+    try std.testing.expect(!rule10IsGrounded(0.001, 3, null, false, &auth));
+    try std.testing.expect(!rule10IsGrounded(1e7, 0, 7, true, &auth));
+    try std.testing.expect(!rule10IsGrounded(9.7e9, 1, 9, false, &auth));
 }

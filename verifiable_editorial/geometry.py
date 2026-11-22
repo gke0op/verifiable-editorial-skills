@@ -13,11 +13,213 @@ from __future__ import annotations
 
 import math
 import re
+import subprocess
 from collections import Counter
 from pathlib import Path
 import fitz  # PyMuPDF
 
 from .contrast import render_background_only
+
+_TALL_GLYPHS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789bdfhiklt")
+_DESC_GLYPHS = frozenset("gjpqy")
+_ATTR_CACHE: dict[str, re.Pattern[str]] = {}
+
+
+def _xml_attr(tag: str, key: str) -> str | None:
+    pat = _ATTR_CACHE.get(key)
+    if pat is None:
+        pat = re.compile(rf'(?:^|\s){key}="([^"]*)"')
+        _ATTR_CACHE[key] = pat
+    m = pat.search(tag)
+    return m.group(1) if m else None
+
+
+def _extract_page_trace_xml(page: fitz.Page, pdf_path: Path | None = None, page_num: int = 1) -> str:
+    """Capture MuPDF display-list trace XML in-memory via PyMuPDF C++ binding (zero subprocesses)."""
+    try:
+        from pymupdf import mupdf  # type: ignore
+
+        buf = mupdf.FzBuffer(4096)
+        out = mupdf.FzOutput(buf)
+        dev = mupdf.fz_new_trace_device(out)
+        dl = page.get_displaylist()
+        mupdf.fz_run_display_list(
+            dl.this,
+            dev,
+            mupdf.FzMatrix(),
+            mupdf.FzRect(mupdf.FzRect.Fixed_INFINITE),
+            mupdf.FzCookie(),
+        )
+        mupdf.fz_close_device(dev)
+        out.fz_close_output()
+        return buf.fz_string_from_buffer()
+    except Exception:
+        if pdf_path is not None:
+            res = subprocess.run(
+                ["mutool", "draw", "-F", "trace", str(pdf_path), str(page_num)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if res.returncode == 0:
+                return res.stdout
+        return ""
+
+
+def _count_trace_clipped_alnum(trace_xml: str, page_w: float, page_h: float, tol: float = 1.0) -> list[dict]:
+    """Audit every alphanumeric glyph's 4-corner ink core against the active `<clip_path>`/`<clip_text>` stack.
+
+    Catches partial horizontal/vertical slicing (e.g. top half of letters cut off) that MuPDF's `stext`
+    `TEXT_CLIP` stream misses because glyph origins remain inside the clip rectangle.
+    """
+    if not trace_xml:
+        return []
+
+    stack: list[tuple[float, float, float, float]] = [(0.0, 0.0, page_w, page_h)]
+    in_clip_path = False
+    in_clip_text = False
+    clip_tf = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+    clip_trm = [10.0, 0.0, 0.0, 10.0]
+    cp_x0, cp_y0, cp_x1, cp_y1, cp_has = 1e18, 1e18, -1e18, -1e18, False
+
+    in_text = False
+    txt_tf = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+    trm = [10.0, 0.0, 0.0, 10.0]
+
+    sliced_chars: list[str] = []
+    sbx0, sby0, sbx1, sby1 = 1e18, 1e18, -1e18, -1e18
+
+    for m in re.finditer(r"<([^>]+)>", trace_xml):
+        tag = m.group(1)
+        self_closing = tag.endswith("/")
+
+        if tag.startswith("clip_path"):
+            in_clip_path = not self_closing
+            tv = _xml_attr(tag, "transform")
+            clip_tf = [float(v) for v in tv.split()] if tv else [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            cp_x0, cp_y0, cp_x1, cp_y1, cp_has = 1e18, 1e18, -1e18, -1e18, False
+            if self_closing:
+                stack.append(stack[-1])
+        elif tag == "/clip_path":
+            in_clip_path = False
+            px0, py0, px1, py1 = stack[-1]
+            stack.append((max(px0, cp_x0), max(py0, cp_y0), min(px1, cp_x1), min(py1, cp_y1)) if cp_has else stack[-1])
+        elif tag.startswith("clip_text"):
+            in_clip_text = not self_closing
+            tv = _xml_attr(tag, "transform")
+            clip_tf = [float(v) for v in tv.split()] if tv else [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            clip_trm = [10.0, 0.0, 0.0, 10.0]
+            cp_x0, cp_y0, cp_x1, cp_y1, cp_has = 1e18, 1e18, -1e18, -1e18, False
+            if self_closing:
+                stack.append(stack[-1])
+        elif tag == "/clip_text":
+            in_clip_text = False
+            px0, py0, px1, py1 = stack[-1]
+            stack.append((max(px0, cp_x0), max(py0, cp_y0), min(px1, cp_x1), min(py1, cp_y1)) if cp_has else stack[-1])
+        elif tag.startswith(("clip_stroke_path", "clip_image_mask")):
+            stack.append(stack[-1])
+        elif tag.startswith("pop_clip"):
+            if len(stack) > 1:
+                stack.pop()
+        elif in_clip_path:
+            if tag.startswith(("moveto ", "lineto ")):
+                xv, yv = _xml_attr(tag, "x"), _xml_attr(tag, "y")
+                if xv is not None and yv is not None:
+                    x, y = float(xv), float(yv)
+                    tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4]
+                    ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5]
+                    cp_x0, cp_y0 = min(cp_x0, tx), min(cp_y0, ty)
+                    cp_x1, cp_y1 = max(cp_x1, tx), max(cp_y1, ty)
+                    cp_has = True
+            elif tag.startswith("curveto "):
+                for ki in ("1", "2", "3"):
+                    xv, yv = _xml_attr(tag, "x" + ki), _xml_attr(tag, "y" + ki)
+                    if xv is not None and yv is not None:
+                        x, y = float(xv), float(yv)
+                        tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4]
+                        ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5]
+                        cp_x0, cp_y0 = min(cp_x0, tx), min(cp_y0, ty)
+                        cp_x1, cp_y1 = max(cp_x1, tx), max(cp_y1, ty)
+                        cp_has = True
+        elif in_clip_text:
+            if tag.startswith("span "):
+                trv = _xml_attr(tag, "trm")
+                clip_trm = [float(v) for v in trv.split()] if trv else [10.0, 0.0, 0.0, 10.0]
+            elif tag.startswith("g "):
+                xv, yv = _xml_attr(tag, "x"), _xml_attr(tag, "y")
+                if xv is not None and yv is not None:
+                    x, y = float(xv), float(yv)
+                    av = _xml_attr(tag, "adv")
+                    adv = float(av) if av is not None else 0.5
+                    ox = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4]
+                    oy = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5]
+                    dx = clip_tf[0] * (adv * clip_trm[0]) + clip_tf[2] * (adv * clip_trm[1])
+                    dy = clip_tf[1] * (adv * clip_trm[0]) + clip_tf[3] * (adv * clip_trm[1])
+                    ax = clip_tf[0] * clip_trm[2] + clip_tf[2] * clip_trm[3]
+                    ay = clip_tf[1] * clip_trm[2] + clip_tf[3] * clip_trm[3]
+                    for u in (0.0, 1.0):
+                        for v in (-0.25, 0.85):
+                            px, py = ox + u * dx + v * ax, oy + u * dy + v * ay
+                            cp_x0, cp_y0 = min(cp_x0, px), min(cp_y0, py)
+                            cp_x1, cp_y1 = max(cp_x1, px), max(cp_y1, py)
+                            cp_has = True
+        elif tag.startswith(("fill_text", "stroke_text")):
+            in_text = not self_closing
+            tv = _xml_attr(tag, "transform")
+            txt_tf = [float(v) for v in tv.split()] if tv else [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            trm = [10.0, 0.0, 0.0, 10.0]
+        elif tag in ("/fill_text", "/stroke_text"):
+            in_text = False
+        elif in_text and tag.startswith("span "):
+            trv = _xml_attr(tag, "trm")
+            trm = [float(v) for v in trv.split()] if trv else [10.0, 0.0, 0.0, 10.0]
+        elif in_text and len(stack) > 1 and tag.startswith("g "):
+            uval = _xml_attr(tag, "unicode")
+            if not uval or len(uval) != 1 or not uval.isalnum():
+                continue
+            xv, yv = _xml_attr(tag, "x"), _xml_attr(tag, "y")
+            if xv is None or yv is None:
+                continue
+            x, y = float(xv), float(yv)
+            av = _xml_attr(tag, "adv")
+            adv = float(av) if av is not None else 0.5
+            ox = txt_tf[0] * x + txt_tf[2] * y + txt_tf[4]
+            oy = txt_tf[1] * x + txt_tf[3] * y + txt_tf[5]
+            dx = txt_tf[0] * (adv * trm[0]) + txt_tf[2] * (adv * trm[1])
+            dy = txt_tf[1] * (adv * trm[0]) + txt_tf[3] * (adv * trm[1])
+            ax = txt_tf[0] * trm[2] + txt_tf[2] * trm[3]
+            ay = txt_tf[1] * trm[2] + txt_tf[3] * trm[3]
+            v0 = -0.14 if uval in _DESC_GLYPHS else 0.05
+            v1 = 0.62 if uval in _TALL_GLYPHS else 0.48
+            pts = (
+                (ox + 0.15 * dx + v0 * ax, oy + 0.15 * dy + v0 * ay),
+                (ox + 0.85 * dx + v0 * ax, oy + 0.85 * dy + v0 * ay),
+                (ox + 0.15 * dx + v1 * ax, oy + 0.15 * dy + v1 * ay),
+                (ox + 0.85 * dx + v1 * ax, oy + 0.85 * dy + v1 * ay),
+            )
+            gx0 = min(p[0] for p in pts)
+            gx1 = max(p[0] for p in pts)
+            gy0 = min(p[1] for p in pts)
+            gy1 = max(p[1] for p in pts)
+            mx = 0.5 * (gx0 + gx1)
+            my = 0.5 * (gy0 + gy1)
+            if 0.0 <= mx <= page_w and 0.0 <= my <= page_h:
+                cx0, cy0, cx1, cy1 = stack[-1]
+                if gx0 < cx0 - tol or gx1 > cx1 + tol or gy0 < cy0 - tol or gy1 > cy1 + tol:
+                    sliced_chars.append(uval)
+                    sbx0, sby0 = min(sbx0, gx0), min(sby0, gy0)
+                    sbx1, sby1 = max(sbx1, gx1), max(sby1, gy1)
+
+    if not sliced_chars:
+        return []
+    return [
+        {
+            "unclipped_text": "".join(sliced_chars[:50]),
+            "visible_chars": 0,
+            "total_chars": len(sliced_chars),
+            "bbox": [round(sbx0, 1), round(sby0, 1), round(sbx1, 1), round(sby1, 1)],
+        }
+    ]
 
 
 def _alnum(s: str) -> str:
@@ -115,40 +317,43 @@ def _detect_collisions(spans: list[dict]) -> list[dict]:
     return collisions
 
 
-def _detect_clipping(page: fitz.Page) -> list[dict]:
-    """Compare unclipped vs PDF-clip-path-clipped text to catch characters sliced by overflow:hidden or SVG viewBox."""
+def _detect_clipping(page: fitz.Page, pdf_path: Path | None = None, page_num: int = 1) -> list[dict]:
+    """Compare unclipped vs PDF-clip-path-clipped text AND audit per-glyph ink cores against active clip stack."""
     vis_spans = _extract_spans(page, clipped=True)
     raw_spans = _extract_spans(page, clipped=False)
 
     vis_chars = Counter(_alnum("".join(s["text"] for s in vis_spans)))
     raw_chars = Counter(_alnum("".join(s["text"] for s in raw_spans)))
     missing = raw_chars - vis_chars
-    if not missing:
-        return []
 
-    # Pinpoint exact raw spans whose visible intersection lost characters
     clipped_items: list[dict] = []
-    for rs in raw_spans:
-        r_al = _alnum(rs["text"])
-        if not r_al:
-            continue
-        rx0, ry0, rx1, ry1 = rs["bbox"]
-        # Collect visible spans overlapping this raw span
-        matched_vis = []
-        for vs in vis_spans:
-            vx0, vy0, vx1, vy1 = vs["bbox"]
-            if min(rx1, vx1) - max(rx0, vx0) > 0.5 and min(ry1, vy1) - max(ry0, vy0) > 0.5:
-                matched_vis.append(vs["text"])
-        v_al = _alnum("".join(matched_vis))
-        if len(v_al) < len(r_al):
-            clipped_items.append(
-                {
-                    "unclipped_text": rs["text"][:50],
-                    "visible_chars": len(v_al),
-                    "total_chars": len(r_al),
-                    "bbox": [round(v, 1) for v in rs["bbox"]],
-                }
-            )
+    if missing:
+        # Pinpoint exact raw spans whose visible intersection lost characters
+        for rs in raw_spans:
+            r_al = _alnum(rs["text"])
+            if not r_al:
+                continue
+            rx0, ry0, rx1, ry1 = rs["bbox"]
+            matched_vis = []
+            for vs in vis_spans:
+                vx0, vy0, vx1, vy1 = vs["bbox"]
+                if min(rx1, vx1) - max(rx0, vx0) > 0.5 and min(ry1, vy1) - max(ry0, vy0) > 0.5:
+                    matched_vis.append(vs["text"])
+            v_al = _alnum("".join(matched_vis))
+            if len(v_al) < len(r_al):
+                clipped_items.append(
+                    {
+                        "unclipped_text": rs["text"][:50],
+                        "visible_chars": len(v_al),
+                        "total_chars": len(r_al),
+                        "bbox": [round(v, 1) for v in rs["bbox"]],
+                    }
+                )
+
+    if not clipped_items:
+        trace_xml = _extract_page_trace_xml(page, pdf_path=pdf_path, page_num=page_num)
+        clipped_items.extend(_count_trace_clipped_alnum(trace_xml, page.rect.width, page.rect.height))
+
     return clipped_items
 
 
@@ -277,7 +482,7 @@ def audit_geometry(
     for idx, page in enumerate(doc, start=1):
         vis_spans = _extract_spans(page, clipped=True)
         collisions = _detect_collisions(vis_spans)
-        clipped = _detect_clipping(page)
+        clipped = _detect_clipping(page, pdf_path=pdf_path, page_num=idx)
         overflow = _detect_trim_overflow(vis_spans, page.rect)
         orphans = _detect_headline_orphans(vis_spans) if check_orphans else []
         bg = render_background_only(pdf_bytes, idx - 1, dpi=72)

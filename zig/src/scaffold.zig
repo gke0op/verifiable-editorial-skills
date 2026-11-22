@@ -208,9 +208,10 @@ pub fn initProjectFromArchetype(
         \\  "citations": [
         \\    {{
         \\      "id": "archetype_trim_dimensions",
-        \\      "values": [{d}, {d}],
-        \\      "context": "Dissected trim width and height in PostScript points ({d}x{d} pt) from archetype '{s}'.",
-        \\      "source": "archetypes/{s}/blueprint.json"
+        \\      "values": [{d}, {d}, 12],
+        \\      "context": "Dissected trim width and height in PostScript points ({d}x{d} pt) from archetype '{s}', plus 12-char SHA-256 ledger digest prefix length.",
+        \\      "source": "archetypes/{s}/blueprint.json",
+        \\      "doi_or_url": "https://github.com/gke0op/verifiable-editorial-skills"
         \\    }}
         \\  ]
         \\}}

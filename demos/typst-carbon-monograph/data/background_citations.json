@@ -18,8 +18,8 @@
     },
     {
       "id": "derived_acceleration_ratio",
-      "values": [2.99, 3.0, 6.75, 16.77],
-      "context": "2020-25 vs 1960s growth ratio (2.6272 / 0.8773 = 2.99x) and Gt conversions (6,751.24 Mt = 6.75 Gt; 16,770.03 Mt = 16.77 Gt)",
+      "values": [2.99, 3.0, 6.75, 16.77, 1000000],
+      "context": "2020-25 vs 1960s growth ratio (2.6272 / 0.8773 = 2.99x), Gt conversions (6,751.24 Mt = 6.75 Gt; 16,770.03 Mt = 16.77 Gt), and SI 10^6 scaling factor (Mt -> tonnes, USD millions -> USD) in the Kaya identity equations.",
       "source": "Derived directly from verified NOAA GML and World Bank WDI summary_metrics.json.",
       "doi_or_url": "https://doi.org/10.15138/9N0H-ZH07"
     }
