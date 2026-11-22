@@ -307,8 +307,17 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                 if (parseFloatSlice(qv, &q) == 8) {
                     const qx0 = @min(@min(q[0], q[2]), @min(q[4], q[6]));
                     const qx1 = @max(@max(q[0], q[2]), @max(q[4], q[6]));
-                    const qy0 = @min(@min(q[1], q[3]), @min(q[5], q[7]));
-                    const qy1 = @max(@max(q[1], q[3]), @max(q[5], q[7]));
+                    var qy0 = @min(@min(q[1], q[3]), @min(q[5], q[7]));
+                    var qy1 = @max(@max(q[1], q[3]), @max(q[5], q[7]));
+                    // mutool 1.23 quads use font-wide ascender/descender (NewCMMath: ~6.6x size tall);
+                    // clamp horizontal glyphs to an em box around the baseline, like PyMuPDF TEXT_ACCURATE_BBOXES.
+                    if (@abs(line_dir_y) < 0.05) {
+                        if (extractAttr(tag, "y")) |yv| {
+                            const base = std.fmt.parseFloat(f64, yv) catch qy1;
+                            qy0 = @max(qy0, base - cur_size * 1.0);
+                            qy1 = @min(qy1, base + cur_size * 0.3);
+                        }
+                    }
                     const qcy = (qy0 + qy1) * 0.5;
                     // Split into a new span if MuPDF merged spatially distant glyphs (e.g. math fractions / table cols)
                     if (has_glyph and ((qx0 - prev_cx1) > cur_size * 1.8 or (prev_cx1 - qx1) > cur_size * 1.8 or @abs(qcy - prev_cy) > cur_size * 0.45)) {
