@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
-Phase 5: McKinsey 2023 Flagship 10-Slide Deck Compiler (WeasyPrint + Pure Vector Inline SVG).
+Phase 5: Consulting Flagship 10-Slide Deck Compiler (WeasyPrint + Pure Vector Inline SVG).
 
-Implements authentic 2023 McKinsey flagship art direction observed across
-Quantum Technology Monitor 2023, Economic Potential of Generative AI 2023,
-Global Economics Intelligence Aug 2023, and State of Organizations 2023:
+Implements institutional management-consulting flagship art direction:
   - Polarity cadence: Deep Midnight Navy (#051C2C) Cover & Executive Summary,
     Split Photographic/Geometric Chapter Divider, Pure #FFFFFF Data Exhibit Slides
   - Typography: High-contrast Editorial Serif Display (Charter / Georgia Bold)
     paired with clean geometric sans (Inter / Helvetica Neue)
-  - 4-Tier McKinsey Blue Ramp (#051C2C -> #06319C -> #2251FF -> #00A9F4 -> #9AE6FF)
+  - 4-Tier Cobalt Blue Ramp (#051C2C -> #06319C -> #2251FF -> #00A9F4 -> #9AE6FF)
   - 100% Pure Vector Inline SVG Exhibits:
       * 42-strand Parametric Hyperbolic Wireframe Wave on Cover
       * Cumulative Keeling Curve + Giant 56pt #2251FF Serif KPI + Annual Ramp
@@ -39,10 +37,10 @@ DATA_DIR = BASE_DIR / "data"
 SUMMARY_PATH = DATA_DIR / "summary_metrics.json"
 VERIFY_SCRIPT = BASE_DIR / "scripts" / "verify_integrity.py"
 ASSETS_DIR = BASE_DIR / "report" / "assets"
-OUT_HTML = BASE_DIR / "report" / "MCKINSEY_2023_FLAGSHIP_DECK.html"
-OUT_PDF = BASE_DIR / "report" / "MCKINSEY_2023_FLAGSHIP_DECK.pdf"
+OUT_HTML = BASE_DIR / "report" / "CONSULTING_FLAGSHIP_DECK.html"
+OUT_PDF = BASE_DIR / "report" / "CONSULTING_FLAGSHIP_DECK.pdf"
 
-# McKinsey 2023 Flagship Tokens
+# Consulting Flagship Palette Tokens
 NAVY = "#051C2C"
 ROYAL = "#06319C"
 ELECTRIC = "#2251FF"
@@ -106,7 +104,7 @@ def find_inter_font_faces() -> str:
 
 
 # ----------------------------------------------------------------------
-# SVG GENERATOR 0: Signature 2023 McKinsey 42-Strand Parametric Wave
+# SVG GENERATOR 0: Signature 42-Strand Parametric Wave
 # ----------------------------------------------------------------------
 def svg_parametric_wave() -> str:
     """Hyperbolic string-art Bezier wireframe wave shifted cleanly right of the typography zone."""
@@ -247,7 +245,7 @@ def svg_decadal_bars(summary: dict) -> str:
 
 
 # ----------------------------------------------------------------------
-# SVG GENERATOR 2: Slide 5 — Signature McKinsey Mass-Balance Waterfall Bridge
+# SVG GENERATOR 2: Slide 5 — Signature Mass-Balance Waterfall Bridge
 # ----------------------------------------------------------------------
 def svg_waterfall_bridge(summary: dict) -> str:
     m = summary["metrics"]
@@ -344,7 +342,7 @@ def svg_waterfall_bridge(summary: dict) -> str:
         prev_right_x = bx + bar_w
         prev_end_y = sy(running)
 
-    # Top McKinsey Square-Bracket Span Callouts: Emerging-3 (+11.78 Gt) & OECD-5 (-2.25 Gt)
+    # Top Square-Bracket Span Callouts: Emerging-3 (+11.78 Gt) & OECD-5 (-2.25 Gt)
     em_x1 = x0 + 1.15 * slot
     em_x2 = x0 + 3.85 * slot
     em_y = 28
@@ -449,7 +447,7 @@ def svg_small_multiple(econ: dict, y_max: float, is_emerging: bool) -> str:
 
 
 # ----------------------------------------------------------------------
-# SVG GENERATOR 4: Slide 7 — McKinsey Donut Ring + 100% Stacked Shift
+# SVG GENERATOR 4: Slide 7 — Donut Ring + 100% Stacked Shift
 # ----------------------------------------------------------------------
 def svg_donut_2024(summary: dict) -> str:
     econ = {e["iso3"]: e for e in summary["economies"]}
@@ -620,9 +618,9 @@ def svg_waffle_grid(pct: int, fill_color: str) -> str:
 
 
 # ----------------------------------------------------------------------
-# SVG GENERATOR 6: Slide 9 — 8x24 McKinsey 5-Tier Chromatic Momentum Matrix
+# SVG GENERATOR 6: Slide 9 — 8x24 5-Tier Chromatic Momentum Matrix
 # ----------------------------------------------------------------------
-def svg_momentum_matrix_mckinsey(summary: dict) -> str:
+def svg_momentum_matrix_flagship(summary: dict) -> str:
     yoy_years = summary["yoy_years"]  # 2001..2024
     economies = sorted(summary["economies"], key=lambda e: e["co2_change_pct"], reverse=True)
 
@@ -1515,7 +1513,7 @@ table.ledger tbody tr.total-row td {{
 .sha-h {{ color: #BAE6FD; }}
 
 /* =========================================================
-   UNIVERSAL MCKINSEY 2023 FOOTER + ICE-CYAN SECTION PILL
+   UNIVERSAL FLAGSHIP FOOTER + ICE-CYAN SECTION PILL
    ========================================================= */
 .slide-footer {{
   position: absolute;
@@ -1801,7 +1799,7 @@ table.ledger tbody tr.total-row td {{
       <span><i class="lg-box" style="background:{ELECTRIC};"></i>≥ +5.5% surge</span>
     </div>
   </div>
-  <div>{svg_momentum_matrix_mckinsey(summary)}</div>
+  <div>{svg_momentum_matrix_flagship(summary)}</div>
   <div class="s9-takeaways">
     <div class="s9-t"><strong>Shock asymmetry (2009 &amp; 2020):</strong> OECD economies dropped -7% to -11% during 2020 lockdowns, whereas China still expanded +1.3% in 2020 and +7% during the 2009 financial crisis.</div>
     <div class="s9-t"><strong>Structural transition below the line:</strong> UK, Germany, France, Japan, and USA logged predominantly deep-navy and cyan contraction cells across 2013–2024 — not recession artifacts.</div>
@@ -1867,7 +1865,7 @@ def main() -> int:
     html_str = build_html(summary)
     OUT_HTML.write_text(html_str, encoding="utf-8")
     weasyprint.HTML(string=html_str, base_url=str(BASE_DIR)).write_pdf(str(OUT_PDF))
-    print(f"[OK] Compiled 10-slide McKinsey 2023 Flagship Deck: {OUT_PDF}")
+    print(f"[OK] Compiled 10-slide Consulting Flagship Deck: {OUT_PDF}")
     return 0
 
 

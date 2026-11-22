@@ -21,9 +21,9 @@ echo "=== Phase 4: Independent Verification Veto Gate (AST Rule 3 + Raw Re-Parse
 python3 scripts/verify_integrity.py
 
 echo "=== Phase 5a: WeasyPrint + Pure Vector Inline SVG 10-Slide Compilation ==="
-python3 report/compile_mckinsey_flagship.py
+python3 report/compile_consulting_flagship.py
 
 echo "=== Phase 5b: PyMuPDF Visual Bounding-Box QA Audit & 180-DPI Previews ==="
-python3 scripts/audit_pdf.py report/MCKINSEY_2023_FLAGSHIP_DECK.pdf --pages 10 --min-fill 72 --previews previews --prefix flagship_slide
+python3 scripts/audit_pdf.py report/CONSULTING_FLAGSHIP_DECK.pdf --pages 10 --min-fill 72 --previews previews --prefix flagship_slide
 
-echo "[OK] McKinsey 2023 Flagship 10-slide verifiable deck pipeline succeeded."
+echo "[OK] Consulting Flagship 10-slide verifiable deck pipeline succeeded."

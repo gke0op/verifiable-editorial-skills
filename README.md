@@ -70,11 +70,11 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 ---
 
 ### 07 · *Consulting Flagship Deck* (16:9 Vector SVG) & *Dual-Theme Keynote* (Dark / Light)
-[Flagship PDF](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf) · [Dark Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf) · [Light Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf) · [Letter Report](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)
+[Flagship PDF](demos/consulting-flagship/report/CONSULTING_FLAGSHIP_DECK.pdf) · [Dark Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf) · [Light Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf) · [Letter Report](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)
 
 | Midnight Hero + Parametric Wave | Mass-Balance Waterfall Bridge |
 | :---: | :---: |
-| ![Flagship 1](demos/mckinsey-2023-flagship/previews/flagship_slide_01.png) | ![Flagship 5](demos/mckinsey-2023-flagship/previews/flagship_slide_05.png) |
+| ![Flagship 1](demos/consulting-flagship/previews/flagship_slide_01.png) | ![Flagship 5](demos/consulting-flagship/previews/flagship_slide_05.png) |
 | **Dark Obsidian — Biosphere & 2024 Surge** | **Marimekko & Rank Inversion (Swiss Ivory)** |
 | ![Keynote Dark 3](demos/carbon-keynote-9slide/previews/dark_slide_03.png) | ![Keynote Light 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) |
 
@@ -122,7 +122,7 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 | `exomundus-astrophysics` | `612×792` · light (`4p`) | `#f8f8f0` / `#0858a8` | `EXOMUNDUS_NASA_TELEMETRY_UA1.pdf` |
 | `typst-monograph` | `612×792` · light (`4p`) | `#f8f8f0` / `#005898` | `TYPST_CARBON_MONOGRAPH_UA1.pdf` |
 | `dark-obsidian-keynote` | `960×540` · dark (`9p`) | `#080818` / `#38b8f8` | `CARBON_KEYNOTE_16x9_DARK.pdf` |
-| `mckinsey-2023-deck` | `960×540` · light (`10p`) | `#f8f8f8` / `#2050f8` | `MCKINSEY_2023_FLAGSHIP_DECK.pdf` |
+| `consulting-flagship-deck` | `960×540` · light (`10p`) | `#f8f8f8` / `#2050f8` | `CONSULTING_FLAGSHIP_DECK.pdf` |
 | `botanica-crossover` | `612×792` · light (`10p`) | `#f8f8f0` / `#005858` | `BOTANICA_VERIDICA_MONOGRAPH.pdf` |
 | `felis-photo-magazine` | `612×792` · light (`8p`) | `#f8f8f0` / `#304868` | `FELIS_MUNDI_MAGAZINE.pdf` |
 

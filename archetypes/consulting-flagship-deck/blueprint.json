@@ -1,0 +1,43 @@
+{
+  "schema_version": "vedit.blueprint.v1",
+  "slug": "consulting-flagship-deck",
+  "source_pdf": "CONSULTING_FLAGSHIP_DECK.pdf",
+  "source_sha256": "0f365555f249b8038dbc7a141e2eda73c5d46490b0cf3943febaa24e1a1b73e7",
+  "page_count": 10,
+  "format_class": "widescreen_16x9",
+  "polarity": "light",
+  "trim_pt": [960.0, 540.0],
+  "margins_pt": { "top": 30.1, "bottom": 28.0, "left": 44.0, "right": 28.0 },
+  "palette_60_30_10": {
+    "canvas_bg": "#f8f8f8",
+    "surface_tint": "#eeece8",
+    "primary_ink": "#001828",
+    "muted_ink": "#44505c",
+    "accent_primary": "#2050f8",
+    "accent_secondary": "#082038",
+    "wcag_ink_cr": 17.03,
+    "wcag_accent_cr": 5.55
+  },
+  "typography": {
+    "display": { "source": "Charter-Bold", "sil_ofl": "Cormorant Garamond", "size_pt": 34.0 },
+    "body":    { "source": "Helvetica-Neue", "sil_ofl": "Inter", "size_pt": 8.8 },
+    "ui_sans": { "source": "Helvetica-Neue", "sil_ofl": "Inter", "size_pt": 9.0 },
+    "mono":    { "source": "Andale-Mono", "sil_ofl": "IBM Plex Mono", "size_pt": 8.1 }
+  },
+  "cadence_summary": {
+    "avg_vertical_fill_pct": 95.9,
+    "avg_photo_coverage_pct": 17.3
+  },
+  "pages": [
+    { "page": 1, "archetype": "cover_hero", "columns": 1, "fill_pct": 100.0, "photo_pct": 100.0, "spans": 10, "images": 1, "strokes": 42, "max_font_pt": 40.0 },
+    { "page": 2, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 65, "images": 0, "strokes": 0, "max_font_pt": 32.0 },
+    { "page": 3, "archetype": "split_photo_editorial", "columns": 1, "fill_pct": 93.9, "photo_pct": 73.3, "spans": 15, "images": 1, "strokes": 0, "max_font_pt": 120.0 },
+    { "page": 4, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 99.9, "photo_pct": 0.0, "spans": 83, "images": 0, "strokes": 14, "max_font_pt": 52.0 },
+    { "page": 5, "archetype": "asymmetric_monograph", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 34, "images": 0, "strokes": 12, "max_font_pt": 33.8 },
+    { "page": 6, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 94.8, "photo_pct": 0.0, "spans": 90, "images": 0, "strokes": 33, "max_font_pt": 19.5 },
+    { "page": 7, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 55, "images": 0, "strokes": 16, "max_font_pt": 25.9 },
+    { "page": 8, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 92.5, "photo_pct": 0.0, "spans": 100, "images": 0, "strokes": 0, "max_font_pt": 19.5 },
+    { "page": 9, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 269, "images": 0, "strokes": 3, "max_font_pt": 19.5 },
+    { "page": 10, "archetype": "colophon_references", "columns": 3, "fill_pct": 78.2, "photo_pct": 0.0, "spans": 164, "images": 0, "strokes": 118, "max_font_pt": 19.5 }
+  ]
+}

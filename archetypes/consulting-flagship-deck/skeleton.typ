@@ -1,6 +1,6 @@
 // Auto-dissected Typst 0.15.1 PDF/UA-1 Archetype Skeleton
-// Source Sample: MCKINSEY_2023_FLAGSHIP_DECK.pdf (SHA-256: 01635afe79b59c78)
-// Archetype Slug: mckinsey-2023-deck (widescreen_16x9, light polarity)
+// Source Sample: CONSULTING_FLAGSHIP_DECK.pdf (SHA-256: 0f365555f249b803)
+// Archetype Slug: consulting-flagship-deck (widescreen_16x9, light polarity)
 
 #let data = json("../data/summary_metrics.json")
 #let ledger = json("../data/provenance_ledger.json")
@@ -22,7 +22,7 @@
   width: 960.0pt,
   height: 540.0pt,
   fill: c-bg,
-  margin: (top: 29.7pt, bottom: 28.0pt, left: 44.0pt, right: 28.0pt),
+  margin: (top: 30.1pt, bottom: 28.0pt, left: 44.0pt, right: 28.0pt),
   footer: context {
     let pg = counter(page).get().first()
     let tot = counter(page).final().first()
@@ -37,7 +37,7 @@
   },
 )
 
-#set text(font: "Inter", size: 8.7pt, fill: c-ink, lang: "en", region: "US")
+#set text(font: "Inter", size: 8.8pt, fill: c-ink, lang: "en", region: "US")
 #set par(leading: 0.6em, spacing: 0.8em, justify: false)
 // === PAGE 1: COVER HERO (Dissected Archetype: cover_hero) ===
 #line(length: 100%, stroke: 2.2pt + c-acc1)
@@ -84,7 +84,7 @@
     [
       #text(font: "Inter", size: 6.8pt, weight: "bold", fill: c-acc2, tracking: 0.12em)[DESIGN DNA PROVENANCE]
       #v(4pt)
-      Cloned from dissected archetype `mckinsey-2023-deck` (960×540 pt, light polarity, verified WCAG contrast).
+      Cloned from dissected archetype `consulting-flagship-deck` (960×540 pt, light polarity, verified WCAG contrast).
     ],
   ),
 )

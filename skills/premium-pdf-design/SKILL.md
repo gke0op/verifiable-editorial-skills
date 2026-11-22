@@ -136,7 +136,7 @@ For keynote-grade decks modeled on flagship 2023 institutional publications (*Qu
 2. **High-Contrast Editorial Serif + Geometric Sans Pairing:**
    - **Display Serif (`Charter` / `Georgia` / `Baskerville` Bold):** Cover titles, section numerals, slide action titles, giant `54 pt` `#2251FF` KPI callouts, and center donut totals.
    - **Data Sans (`Inter` / `Helvetica Neue`):** Chart annotations, subtitles, ledger cells, footnotes, and implications copy.
-3. **The 4-Tier McKinsey Blue Chromatic Ramp (Zero Rainbow Clutter):**
+3. **The 4-Tier Cobalt Blue Chromatic Ramp (Zero Rainbow Clutter):**
    - `#051C2C` Midnight Navy (anchor totals, baselines, deep contractions) → `#06319C` Deep Royal → `#2251FF` Electric Blue (focal deltas, giant KPIs, expansion surges) → `#00A9F4` Vivid Cyan → `#9AE6FF` Ice Cyan (secondary shares & section pills).
 4. **Signature Vector SVG Exhibit Archetypes:**
    - **Mass-Balance Waterfall / Bridge Chart:** Anchor bars (`#051C2C`), floating additions (`#2251FF`) and reductions (`#00A9F4`), dashed step connectors, top square-bracket span callouts, and floating serif net delta.

@@ -27,7 +27,7 @@ from verifiable_editorial.prose import audit_prose
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BOTANICA = REPO_ROOT / "demos" / "botanica-veridica"
 FELIS = REPO_ROOT / "demos" / "felis-mundi-magazine"
-MCKINSEY = REPO_ROOT / "demos" / "mckinsey-2023-flagship"
+CONSULTING_FLAGSHIP = REPO_ROOT / "demos" / "consulting-flagship"
 CARBON = REPO_ROOT / "demos" / "global-carbon-telemetry"
 TYPST_DEMO = REPO_ROOT / "demos" / "typst-carbon-monograph"
 
@@ -269,8 +269,8 @@ def test_sabotage_prepress_rejects_missing_bleed_unembedded_font_and_untagged_ua
     assert any("PDF/UA structure" in f for f in res["failures"])
 
 
-def test_mckinsey_flagship_passes_geometry() -> None:
-    pdf = MCKINSEY / "report" / "MCKINSEY_2023_FLAGSHIP_DECK.pdf"
+def test_consulting_flagship_passes_geometry() -> None:
+    pdf = CONSULTING_FLAGSHIP / "report" / "CONSULTING_FLAGSHIP_DECK.pdf"
     geo = audit_geometry(pdf)
     assert geo["passed"] is True, geo
 

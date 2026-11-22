@@ -166,7 +166,7 @@
   top + left,
   dx: 290pt,
   dy: 198pt,
-  print-card("../demos/mckinsey-2023-flagship/previews/flagship_slide_01.png", 160pt, angle: -2.2deg, rim: c-cyan.transparentize(40%)),
+  print-card("../demos/consulting-flagship/previews/flagship_slide_01.png", 160pt, angle: -2.2deg, rim: c-cyan.transparentize(40%)),
 )
 
 // ============================================================================
