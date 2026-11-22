@@ -70,6 +70,21 @@ Keep slide headlines to **one single crisp assertive line** (avoid 1–2 word wi
 
 ---
 
+## 3B. Six Full-Bleed Photo Magazine Archetypes (`612 × 792 pt`, `>= 50%` Photography)
+
+For photography-first editorial magazines (*Kinfolk* × *Cereal* × *Condé Nast Traveler* × *National Geographic*), never repeat the same bleed geometry on two consecutive pages. Every page must touch `>= 2` trim edges and pass an exact clip-aware visible photo coverage gate of **`>= 50%`** (typically `60%–100%`):
+
+| Archetype | Structure & Bleed Edges | Visible Photo % |
+| :--- | :--- | :--- |
+| **M1. Full-Bleed Iconic Cover** | `BLRT` bleed (`3:4` hero) + wide-tracked centered `Didot` masthead (`62 pt`) in quiet upper sky + bottom-left coverline + bottom-right hairline miniature TOC | `~99%` |
+| **M2. Top Bleed Feature + 2-Col Essay** | `LRT` top full-bleed (`484 pt`) with rotated marginal credit + warm `#FAF8F5` lower editorial bed (`308 pt`) with 3-line drop cap, 2-col reportage, italic pull quote, oversized serif folio | `~61%` |
+| **M3. Asymmetric 65/35 Right Vertical Bleed** | `BRT` right bleed (`396×792 pt`) + narrow left `#FAF8F5` anchor column (`216 pt`, `display: block` for clean drop cap) with stacked display title, italic deck, tight `34–38` char measure, bottom caption | `~65%` |
+| **M4. Full-Bleed Photo Essay Plate** | `BLRT` full-bleed vertical plate + display serif headline set directly into matte shadow negative space (zero box) + lower-edge translucent dark editorial band | `~99%` |
+| **M5. Panorama + Inset Diptych** | `LRT` panoramic top (`364 pt`) + `4 pt` white print gutter + bottom-left essay (`268 pt`) + `BR` full-bleed inset (`340×424 pt`) | `~76%` |
+| **M6. Inverted Calm Top / Contact-Sheet Triptych / Closing Dusk Colophon** | Alternate top-header + `BLR` bottom bleed (`~68%`), `LRT` 3-photo asymmetric triptych with `4 pt` white gutters + 3-col numbered micro-caption strip (`~77%`), and `BLRT` closing plate with SHA-256 colophon ledger in the shadowed lower 38% (`~99%`) | `68%–99%` |
+
+---
+
 ## 4. Typographic Hierarchy Scale (`Inter` with `Helvetica` Fallback)
 
 | Token | Size / Leading | Weight | Light Mode | Dark Mode | Role |

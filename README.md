@@ -1,16 +1,24 @@
 # verifiable-editorial-skills
 
-Three composable **Agent Skills** for generating institutional-grade **16:9 executive PDF slide decks** and **Letter editorial reports** backed by **zero-mock, cryptographically verified open data**.
+Three composable **Agent Skills** for generating institutional-grade **16:9 executive PDF slide decks**, **Letter editorial reports**, and **full-bleed print photo magazines** backed by **zero-mock, cryptographically verified open data & cohesive AI editorial photography**.
 
-Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible Python pipelines (`ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`).
+Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible Python pipelines (`WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`).
 
 ---
 
-## Live Demo Outputs (100% Real Public Data — Zero Mocks)
+## Live Demo Outputs
 
-All showcase decks and reports are compiled from live **NOAA Global Monitoring Laboratory** (`1958–2026`, 824 monthly observations) and **World Bank WDI** (`2000–2025`, 8 major economies) datasets—sealed with SHA-256 hashes, validated against physical & exact accounting identities, registered in an atomic provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF.
+All quantitative decks and reports are compiled from live **NOAA Global Monitoring Laboratory** (`1958–2026`, 824 monthly observations) and **World Bank WDI** (`2000–2025`, 8 major economies) datasets—sealed with SHA-256 hashes, validated against physical & exact accounting identities, registered in an atomic provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF. The editorial magazine demo adds **cohesive Nano Banana stock photography generation** verified with an exact clip-aware dual-key raster photo-coverage audit gate (`>= 50%` full-bleed photography on every page).
 
-### Demo 1 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
+### Demo 1 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
+
+Modeled on print teardowns of *Kinfolk*, *Cereal*, *Condé Nast Traveler*, and *National Geographic*: 11 cohesive **Nano Banana** photographs generated under one locked Leica M11 / 50mm f/1.4 / Kodak Portra 400 **Master Photographic Film Identity Core**, set on warm archival `#FAF8F5` paper with `Didot` / `Charter` / `Inter`, rotated marginal credits, flush drop caps, and SHA-256 plate ledger colophon ([`FELIS_MUNDI_MAGAZINE.pdf`](demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf)). Every single page is mechanically audited by exact clip-aware raster pixel-diff at **`61.1%`–`99.9%` visible full-bleed photography** (`80.6%` average):
+
+| Full-Bleed Cover (`99.3%` Photo) | Kyoto 65/35 Split (`64.7%` Photo) | Chefchaouen Essay Plate (`99.6%` Photo) | Rome · Tokyo · Lima Triptych (`76.8%` Photo) |
+| :---: | :---: | :---: | :---: |
+| ![Felis Mundi Cover](demos/felis-mundi-magazine/previews/mag_page_01.png) | ![Felis Mundi Kyoto](demos/felis-mundi-magazine/previews/mag_page_03.png) | ![Felis Mundi Chefchaouen](demos/felis-mundi-magazine/previews/mag_page_04.png) | ![Felis Mundi Triptych](demos/felis-mundi-magazine/previews/mag_page_07.png) |
+
+### Demo 2 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
 
 Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum Technology Monitor*, *The Economic Potential of Generative AI*, *Global Economics Intelligence*, *The State of Organizations*): dark-midnight `#051C2C` hero & executive summary with a 42-strand parametric Bezier wave, split chapter divider, editorial serif (`Charter`/`Georgia`) + `Inter` pairing, 4-tier blue chromatic ramp, and 100% pure-vector inline SVG exhibits ([`MCKINSEY_2023_FLAGSHIP_DECK.pdf`](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf)):
 
@@ -20,7 +28,7 @@ Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum T
 | **8-Economy Small Multiples + `»` Implications Sidebar** | **10×10 Waffle Unit-Matrix + Per-Capita Shift** |
 | ![Flagship Slide 6](demos/mckinsey-2023-flagship/previews/flagship_slide_06.png) | ![Flagship Slide 8](demos/mckinsey-2023-flagship/previews/flagship_slide_08.png) |
 
-### Demo 2 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
+### Demo 3 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
 
 Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf)) and a Light Swiss-Ivory boardroom deck ([`CARBON_KEYNOTE_16x9_LIGHT.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf)) from a single `--theme dark|light` compiler across 7 distinct 300-DPI exhibits (165 verified provenance tuples):
 
@@ -30,7 +38,7 @@ Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK
 | **Marimekko Pop × Per-Capita & Rank Inversion (Light)** | **24-Year Annual YoY Momentum Matrix Heatmap (Dark)** |
 | ![Keynote Light Slide 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) | ![Keynote Dark Slide 7](demos/carbon-keynote-9slide/previews/dark_slide_07.png) |
 
-### Demo 3 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
+### Demo 4 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
 
 Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)) and 6-slide Dark Executive summary deck ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf)):
 
@@ -88,6 +96,7 @@ pip install -r requirements.txt
 # (Falls back cleanly to Helvetica if omitted)
 export INTER_FONT_DIR=/path/to/inter/ttf
 
+bash demos/felis-mundi-magazine/run_pipeline.sh
 bash demos/mckinsey-2023-flagship/run_pipeline.sh
 bash demos/carbon-keynote-9slide/run_pipeline.sh
 bash demos/global-carbon-telemetry/run_pipeline.sh

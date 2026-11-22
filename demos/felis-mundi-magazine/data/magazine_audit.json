@@ -1,0 +1,136 @@
+{
+  "pdf": "FELIS_MUNDI_MAGAZINE.pdf",
+  "measurement_method": "exact_raster_dual_key_pixel_diff_72dpi",
+  "page_count": 8,
+  "min_visible_photo_coverage_pct": 61.11,
+  "avg_visible_photo_coverage_pct": 80.58,
+  "all_pages_ge_50pct": true,
+  "passed": true,
+  "failures": [],
+  "pages": [
+    {
+      "page": 1,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 99.26,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 12,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 2,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 61.11,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 19,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 3,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 64.71,
+      "bleed_edges": [
+        "B",
+        "R",
+        "T"
+      ],
+      "text_blocks": 25,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 4,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 99.58,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 8,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 5,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 2,
+      "visible_photo_coverage_pct": 75.57,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 19,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 6,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 67.68,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R"
+      ],
+      "text_blocks": 15,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 7,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 3,
+      "visible_photo_coverage_pct": 76.77,
+      "bleed_edges": [
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 12,
+      "text_overflow": false,
+      "pass": true
+    },
+    {
+      "page": 8,
+      "width_pt": 612.0,
+      "height_pt": 792.0,
+      "image_count": 1,
+      "visible_photo_coverage_pct": 99.94,
+      "bleed_edges": [
+        "B",
+        "L",
+        "R",
+        "T"
+      ],
+      "text_blocks": 23,
+      "text_overflow": false,
+      "pass": true
+    }
+  ]
+}
