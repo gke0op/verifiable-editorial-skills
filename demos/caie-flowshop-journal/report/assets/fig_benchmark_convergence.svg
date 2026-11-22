@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="519pt" height="186pt" viewBox="0 0 519 186">
+<rect width="519" height="186" fill="#FFFFFF" />
+<text x="34" y="13" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" letter-spacing="0.6" fill="#0F2942">(a) MEAN GAP TO ANALYTICAL LB (%) BY BENCHMARK FAMILY</text>
+<line x1="34.0" y1="148.0" x2="274.0" y2="148.0" stroke="#25303B" stroke-width="0.75" />
+<text x="30.0" y="150.0" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">0%</text>
+<line x1="34.0" y1="123.2" x2="274.0" y2="123.2" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="30.0" y="125.2" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">5%</text>
+<line x1="34.0" y1="98.4" x2="274.0" y2="98.4" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="30.0" y="100.4" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">10%</text>
+<line x1="34.0" y1="73.6" x2="274.0" y2="73.6" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="30.0" y="75.6" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">15%</text>
+<line x1="34.0" y1="48.8" x2="274.0" y2="48.8" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="30.0" y="50.8" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">20%</text>
+<line x1="34.0" y1="24.0" x2="274.0" y2="24.0" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="30.0" y="26.0" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">25%</text>
+<rect x="39.5" y="90.3" width="8.4" height="57.7" fill="#94A3B8" rx="0.8" />
+<rect x="49.0" y="109.3" width="8.4" height="38.7" fill="#0B5CAD" rx="0.8" />
+<rect x="58.5" y="114.5" width="8.4" height="33.5" fill="#146646" rx="0.8" />
+<rect x="68.0" y="116.7" width="8.4" height="31.3" fill="#A83E0A" rx="0.8" />
+<text x="72.2" y="114.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.3" font-weight="700" fill="#A83E0A">6.3</text>
+<text x="58.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#334155">Carlier</text>
+<rect x="87.5" y="70.0" width="8.4" height="78.0" fill="#94A3B8" rx="0.8" />
+<rect x="97.0" y="107.1" width="8.4" height="40.9" fill="#0B5CAD" rx="0.8" />
+<rect x="106.5" y="108.1" width="8.4" height="39.9" fill="#146646" rx="0.8" />
+<rect x="116.0" y="121.6" width="8.4" height="26.4" fill="#A83E0A" rx="0.8" />
+<text x="120.2" y="119.1" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.3" font-weight="700" fill="#A83E0A">5.3</text>
+<text x="106.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#334155">Heller</text>
+<rect x="135.5" y="61.9" width="8.4" height="86.1" fill="#94A3B8" rx="0.8" />
+<rect x="145.0" y="90.2" width="8.4" height="57.8" fill="#0B5CAD" rx="0.8" />
+<rect x="154.5" y="100.7" width="8.4" height="47.3" fill="#146646" rx="0.8" />
+<rect x="164.0" y="112.6" width="8.4" height="35.4" fill="#A83E0A" rx="0.8" />
+<text x="168.2" y="110.1" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.3" font-weight="700" fill="#A83E0A">7.1</text>
+<text x="154.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#334155">Reeves 20</text>
+<rect x="183.5" y="38.8" width="8.4" height="109.2" fill="#94A3B8" rx="0.8" />
+<rect x="193.0" y="83.1" width="8.4" height="64.9" fill="#0B5CAD" rx="0.8" />
+<rect x="202.5" y="94.6" width="8.4" height="53.4" fill="#146646" rx="0.8" />
+<rect x="212.0" y="110.6" width="8.4" height="37.4" fill="#A83E0A" rx="0.8" />
+<text x="216.2" y="108.1" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.3" font-weight="700" fill="#A83E0A">7.5</text>
+<text x="202.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#334155">Reeves 30</text>
+<rect x="231.5" y="62.4" width="8.4" height="85.6" fill="#94A3B8" rx="0.8" />
+<rect x="241.0" y="108.9" width="8.4" height="39.1" fill="#0B5CAD" rx="0.8" />
+<rect x="250.5" y="115.8" width="8.4" height="32.2" fill="#146646" rx="0.8" />
+<rect x="260.0" y="127.4" width="8.4" height="20.6" fill="#A83E0A" rx="0.8" />
+<text x="264.2" y="124.9" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.3" font-weight="700" fill="#A83E0A">4.1</text>
+<text x="250.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#334155">Reeves 50-75</text>
+<rect x="44.0" y="167" width="6.5" height="6.5" fill="#94A3B8" rx="1" />
+<text x="53.0" y="172.5" font-family="Inter, sans-serif" font-size="5.8" font-weight="600" fill="#1E293B">CDS</text>
+<rect x="100.0" y="167" width="6.5" height="6.5" fill="#0B5CAD" rx="1" />
+<text x="109.0" y="172.5" font-family="Inter, sans-serif" font-size="5.8" font-weight="600" fill="#1E293B">NEH</text>
+<rect x="156.0" y="167" width="6.5" height="6.5" fill="#146646" rx="1" />
+<text x="165.0" y="172.5" font-family="Inter, sans-serif" font-size="5.8" font-weight="600" fill="#1E293B">NEH+LS</text>
+<rect x="212.0" y="167" width="6.5" height="6.5" fill="#A83E0A" rx="1" />
+<text x="221.0" y="172.5" font-family="Inter, sans-serif" font-size="5.8" font-weight="600" fill="#1E293B">IG (d=4)</text>
+<text x="312" y="13" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" letter-spacing="0.6" fill="#0F2942">(b) IG ANYTIME CONVERGENCE (HARD REEVES)</text>
+<line x1="312.0" y1="148.0" x2="510.0" y2="148.0" stroke="#25303B" stroke-width="0.75" />
+<text x="308.0" y="150.0" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">0%</text>
+<line x1="312.0" y1="120.4" x2="510.0" y2="120.4" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="308.0" y="122.4" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">4%</text>
+<line x1="312.0" y1="92.9" x2="510.0" y2="92.9" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="308.0" y="94.9" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">8%</text>
+<line x1="312.0" y1="65.3" x2="510.0" y2="65.3" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="308.0" y="67.3" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">12%</text>
+<line x1="312.0" y1="37.8" x2="510.0" y2="37.8" stroke="#DFE5EC" stroke-width="0.45" />
+<text x="308.0" y="39.8" text-anchor="end" font-family="Inter, sans-serif" font-size="5.8" fill="#475569">16%</text>
+<line x1="312.0" y1="148.0" x2="312.0" y2="151.0" stroke="#475569" stroke-width="0.6" />
+<text x="312.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#475569">0</text>
+<line x1="361.5" y1="148.0" x2="361.5" y2="151.0" stroke="#475569" stroke-width="0.6" />
+<text x="361.5" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#475569">100</text>
+<line x1="411.0" y1="148.0" x2="411.0" y2="151.0" stroke="#475569" stroke-width="0.6" />
+<text x="411.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#475569">200</text>
+<line x1="460.5" y1="148.0" x2="460.5" y2="151.0" stroke="#475569" stroke-width="0.6" />
+<text x="460.5" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#475569">300</text>
+<line x1="510.0" y1="148.0" x2="510.0" y2="151.0" stroke="#475569" stroke-width="0.6" />
+<text x="510.0" y="159.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.7" fill="#475569">400</text>
+<polyline points="312.0,100.9 317.0,111.7 324.4,115.3 336.8,116.5 361.5,118.9 386.3,119.8 411.0,120.0 460.5,120.0 510.0,120.1" fill="none" stroke="#0F2942" stroke-width="1.45" />
+<circle cx="510.0" cy="120.1" r="2.2" fill="#0F2942" />
+<polyline points="312.0,42.8 317.0,57.3 324.4,62.6 336.8,65.5 361.5,66.6 386.3,68.0 411.0,68.2 460.5,68.9 510.0,69.9" fill="none" stroke="#0B5CAD" stroke-width="1.45" />
+<circle cx="510.0" cy="69.9" r="2.2" fill="#0B5CAD" />
+<polyline points="312.0,90.8 317.0,94.8 324.4,98.0 336.8,100.3 361.5,102.6 386.3,103.8 411.0,104.9 460.5,106.3 510.0,107.0" fill="none" stroke="#146646" stroke-width="1.45" />
+<circle cx="510.0" cy="107.0" r="2.2" fill="#146646" />
+<polyline points="312.0,63.9 317.0,77.7 324.4,81.6 336.8,84.3 361.5,86.6 386.3,88.7 411.0,89.2 460.5,90.7 510.0,91.6" fill="none" stroke="#A83E0A" stroke-width="1.45" />
+<circle cx="510.0" cy="91.6" r="2.2" fill="#A83E0A" />
+<line x1="304.0" y1="170" x2="312.0" y2="170" stroke="#0F2942" stroke-width="1.8" />
+<text x="314.5" y="172.5" font-family="Inter, sans-serif" font-size="5.3" font-weight="600" fill="#1E293B">reC19 (30x10)</text>
+<line x1="358.5" y1="170" x2="366.5" y2="170" stroke="#0B5CAD" stroke-width="1.8" />
+<text x="369.0" y="172.5" font-family="Inter, sans-serif" font-size="5.3" font-weight="600" fill="#1E293B">reC25 (30x15)</text>
+<line x1="413.0" y1="170" x2="421.0" y2="170" stroke="#146646" stroke-width="1.8" />
+<text x="423.5" y="172.5" font-family="Inter, sans-serif" font-size="5.3" font-weight="600" fill="#1E293B">reC37 (75x20)</text>
+<line x1="467.5" y1="170" x2="475.5" y2="170" stroke="#A83E0A" stroke-width="1.8" />
+<text x="478.0" y="172.5" font-family="Inter, sans-serif" font-size="5.3" font-weight="600" fill="#1E293B">reC41 (75x20)</text>
+</svg>

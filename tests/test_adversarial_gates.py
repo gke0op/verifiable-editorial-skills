@@ -523,3 +523,40 @@ def test_exomundus_zero_python_monograph_passes_zig_latch_and_all_five_gates() -
     assert "[vedit:prepress]      PASS" in aud.stdout
     if shutil.which("verapdf"):
         assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout
+
+
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_caie_flowshop_journal_passes_zig_latch_and_all_five_gates() -> None:
+    """Zero-Python Elsevier CAIE two-column OR-Library paper MUST pass Zig SHA-256 latch, 5-gate court, veraPDF & A4 init loop."""
+    caie = REPO_ROOT / "demos" / "caie-flowshop-journal"
+    pdf = caie / "report" / "CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf"
+
+    lt = subprocess.run([str(ZIG_VEDIT), "latch", str(caie)], capture_output=True, text=True)
+    assert lt.returncode == 0, lt.stdout + lt.stderr
+    assert "manifest=1/1 SHA-256 verified" in lt.stdout
+
+    aud = subprocess.run(
+        [
+            str(ZIG_VEDIT),
+            "audit-all",
+            str(pdf),
+            "--ledger",
+            str(caie / "data" / "provenance_ledger.json"),
+            "--summary",
+            str(caie / "data" / "summary_metrics.json"),
+            "--citations",
+            str(caie / "data" / "background_citations.json"),
+            "--manifest",
+            str(caie / "data" / "manifest.sha256"),
+            "--require-ua",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert aud.returncode == 0, aud.stdout + aud.stderr
+    assert "[vedit:rule10_prose] PASS" in aud.stdout
+    assert "[vedit:wcag_contrast] PASS" in aud.stdout
+    assert "[vedit:geometry]      PASS" in aud.stdout
+    assert "[vedit:prepress]      PASS" in aud.stdout
+    if shutil.which("verapdf"):
+        assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout

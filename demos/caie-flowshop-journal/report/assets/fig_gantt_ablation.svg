@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="519pt" height="178pt" viewBox="0 0 519 178">
+<rect width="519" height="178" fill="#FFFFFF" />
+<text x="30" y="13" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" letter-spacing="0.6" fill="#0F2942">(a) AUDITED SCHEDULE GANTT: car1 (11×5, makespan = 7038)</text>
+<rect x="30.0" y="26.0" width="282.0" height="20.4" fill="#F4F6F9" />
+<text x="25.0" y="38.2" text-anchor="end" font-family="Inter, sans-serif" font-size="6.0" font-weight="700" fill="#1E293B">M1</text>
+<rect x="30.0" y="27.0" width="1.2" height="18.4" fill="#2D6A4F" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="30.6" y="27.0" width="15.0" height="18.4" fill="#0F2942" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="38.1" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J1</text>
+<rect x="45.6" y="27.0" width="21.2" height="18.4" fill="#335C67" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="56.2" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J5</text>
+<rect x="66.7" y="27.0" width="10.3" height="18.4" fill="#9A4307" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="77.0" y="27.0" width="1.2" height="18.4" fill="#146646" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="77.5" y="27.0" width="21.3" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="88.2" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J11</text>
+<rect x="98.8" y="27.0" width="18.4" height="18.4" fill="#A83E0A" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="108.1" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J4</text>
+<rect x="117.3" y="27.0" width="21.3" height="18.4" fill="#1E6091" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="127.9" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J7</text>
+<rect x="138.6" y="27.0" width="31.9" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="154.5" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J6</text>
+<rect x="170.5" y="27.0" width="25.3" height="18.4" fill="#0B5CAD" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="183.1" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J2</text>
+<rect x="195.8" y="27.0" width="35.9" height="18.4" fill="#1D4E89" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="213.8" y="38.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J10</text>
+<rect x="30.0" y="50.4" width="282.0" height="20.4" fill="#F4F6F9" />
+<text x="25.0" y="62.6" text-anchor="end" font-family="Inter, sans-serif" font-size="6.0" font-weight="700" fill="#1E293B">M2</text>
+<rect x="30.6" y="51.4" width="5.0" height="18.4" fill="#2D6A4F" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="45.6" y="51.4" width="1.2" height="18.4" fill="#0F2942" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="66.7" y="51.4" width="4.0" height="18.4" fill="#335C67" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="77.0" y="51.4" width="21.1" height="18.4" fill="#9A4307" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="87.6" y="62.4" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J9</text>
+<rect x="98.2" y="51.4" width="35.1" height="18.4" fill="#146646" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="115.7" y="62.4" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J3</text>
+<rect x="133.3" y="51.4" width="12.1" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="145.4" y="51.4" width="21.7" height="18.4" fill="#A83E0A" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="156.2" y="62.4" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J4</text>
+<rect x="167.1" y="51.4" width="9.2" height="18.4" fill="#1E6091" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="176.3" y="51.4" width="9.8" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="195.8" y="51.4" width="18.1" height="18.4" fill="#0B5CAD" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="204.9" y="62.4" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J2</text>
+<rect x="231.7" y="51.4" width="35.9" height="18.4" fill="#1D4E89" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="249.7" y="62.4" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J10</text>
+<rect x="30.0" y="74.8" width="282.0" height="20.4" fill="#F4F6F9" />
+<text x="25.0" y="87.0" text-anchor="end" font-family="Inter, sans-serif" font-size="6.0" font-weight="700" fill="#1E293B">M3</text>
+<rect x="35.5" y="75.8" width="8.6" height="18.4" fill="#2D6A4F" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="46.1" y="75.8" width="5.7" height="18.4" fill="#0F2942" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="70.8" y="75.8" width="31.6" height="18.4" fill="#335C67" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="86.6" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J5</text>
+<rect x="102.4" y="75.8" width="30.2" height="18.4" fill="#9A4307" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="117.5" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J9</text>
+<rect x="133.3" y="75.8" width="5.0" height="18.4" fill="#146646" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="145.4" y="75.8" width="20.1" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="155.4" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J11</text>
+<rect x="167.1" y="75.8" width="21.0" height="18.4" fill="#A83E0A" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="177.6" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J4</text>
+<rect x="188.0" y="75.8" width="21.8" height="18.4" fill="#1E6091" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="198.9" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J7</text>
+<rect x="209.8" y="75.8" width="25.3" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="222.4" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J6</text>
+<rect x="235.1" y="75.8" width="30.4" height="18.4" fill="#0B5CAD" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="250.3" y="86.8" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J2</text>
+<rect x="267.6" y="75.8" width="8.6" height="18.4" fill="#1D4E89" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="30.0" y="99.2" width="282.0" height="20.4" fill="#F4F6F9" />
+<text x="25.0" y="111.4" text-anchor="end" font-family="Inter, sans-serif" font-size="6.0" font-weight="700" fill="#1E293B">M4</text>
+<rect x="44.1" y="100.2" width="21.8" height="18.4" fill="#2D6A4F" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="55.0" y="111.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J8</text>
+<rect x="65.9" y="100.2" width="9.8" height="18.4" fill="#0F2942" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="102.4" y="100.2" width="5.0" height="18.4" fill="#335C67" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="132.6" y="100.2" width="8.4" height="18.4" fill="#9A4307" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="141.0" y="100.2" width="21.4" height="18.4" fill="#146646" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="151.7" y="111.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J3</text>
+<rect x="165.4" y="100.2" width="30.7" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="180.8" y="111.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J11</text>
+<rect x="196.1" y="100.2" width="4.8" height="18.4" fill="#A83E0A" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="209.8" y="100.2" width="35.9" height="18.4" fill="#1E6091" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="227.7" y="111.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J7</text>
+<rect x="245.7" y="100.2" width="15.0" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="253.2" y="111.2" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J6</text>
+<rect x="265.5" y="100.2" width="11.1" height="18.4" fill="#0B5CAD" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="276.6" y="100.2" width="10.3" height="18.4" fill="#1D4E89" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="30.0" y="123.6" width="282.0" height="20.4" fill="#F4F6F9" />
+<text x="25.0" y="135.8" text-anchor="end" font-family="Inter, sans-serif" font-size="6.0" font-weight="700" fill="#1E293B">M5</text>
+<rect x="65.9" y="124.6" width="31.5" height="18.4" fill="#2D6A4F" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="81.6" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J8</text>
+<rect x="97.3" y="124.6" width="16.5" height="18.4" fill="#0F2942" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="105.6" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J1</text>
+<rect x="113.8" y="124.6" width="40.0" height="18.4" fill="#335C67" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="133.8" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J5</text>
+<rect x="153.9" y="124.6" width="18.6" height="18.4" fill="#9A4307" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="163.1" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J9</text>
+<rect x="172.4" y="124.6" width="30.7" height="18.4" fill="#146646" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="187.7" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J3</text>
+<rect x="203.1" y="124.6" width="39.6" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="222.8" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J11</text>
+<rect x="242.6" y="124.6" width="20.0" height="18.4" fill="#A83E0A" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="252.6" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J4</text>
+<rect x="262.6" y="124.6" width="18.1" height="18.4" fill="#1E6091" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="271.7" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J7</text>
+<rect x="280.7" y="124.6" width="4.9" height="18.4" fill="#475569" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<rect x="285.7" y="124.6" width="15.9" height="18.4" fill="#0B5CAD" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<text x="293.6" y="135.6" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" fill="#FFFFFF">J2</text>
+<rect x="301.6" y="124.6" width="10.4" height="18.4" fill="#1D4E89" stroke="#FFFFFF" stroke-width="0.55" rx="1.0" />
+<line x1="30.0" y1="146.0" x2="312.0" y2="146.0" stroke="#25303B" stroke-width="0.7" />
+<line x1="312.0" y1="24.0" x2="312.0" y2="146.0" stroke="#A83E0A" stroke-width="0.9" stroke-dasharray="2.5,1.5" />
+<line x1="30.0" y1="146.0" x2="30.0" y2="149.0" stroke="#475569" stroke-width="0.6" />
+<text x="30.0" y="157.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.6" font-weight="400" fill="#475569">0</text>
+<line x1="110.1" y1="146.0" x2="110.1" y2="149.0" stroke="#475569" stroke-width="0.6" />
+<text x="110.1" y="157.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.6" font-weight="400" fill="#475569">2000</text>
+<line x1="190.3" y1="146.0" x2="190.3" y2="149.0" stroke="#475569" stroke-width="0.6" />
+<text x="190.3" y="157.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.6" font-weight="400" fill="#475569">4000</text>
+<line x1="270.4" y1="146.0" x2="270.4" y2="149.0" stroke="#475569" stroke-width="0.6" />
+<text x="270.4" y="157.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.6" font-weight="400" fill="#475569">6000</text>
+<line x1="312.0" y1="146.0" x2="312.0" y2="149.0" stroke="#A83E0A" stroke-width="0.6" />
+<text x="312.0" y="157.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.6" font-weight="700" fill="#A83E0A">7038</text>
+<text x="344" y="13" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" letter-spacing="0.6" fill="#0F2942">(b) DESTRUCTION SIZE d ABLATION</text>
+<text x="344.0" y="32.0" font-family="Inter, sans-serif" font-size="6.1" font-weight="600" fill="#1E293B">d = 2 (narrow)</text>
+<text x="510.0" y="32.0" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.1" font-weight="700" fill="#475569">6.71%</text>
+<rect x="344.0" y="35.5" width="166.0" height="9" fill="#E8EDF3" rx="1.5" />
+<rect x="344.0" y="35.5" width="132.8" height="9" fill="#475569" rx="1.5" />
+<text x="344.0" y="60.0" font-family="Inter, sans-serif" font-size="6.1" font-weight="600" fill="#1E293B">d = 4 (canonical)</text>
+<text x="510.0" y="60.0" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.1" font-weight="700" fill="#A83E0A">6.51%</text>
+<rect x="344.0" y="63.5" width="166.0" height="9" fill="#E8EDF3" rx="1.5" />
+<rect x="344.0" y="63.5" width="128.8" height="9" fill="#A83E0A" rx="1.5" />
+<text x="344.0" y="88.0" font-family="Inter, sans-serif" font-size="6.1" font-weight="600" fill="#1E293B">d = 6 (wide)</text>
+<text x="510.0" y="88.0" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.1" font-weight="700" fill="#0B5CAD">6.46%</text>
+<rect x="344.0" y="91.5" width="166.0" height="9" fill="#E8EDF3" rx="1.5" />
+<rect x="344.0" y="91.5" width="127.9" height="9" fill="#0B5CAD" rx="1.5" />
+<rect x="344.0" y="118" width="166.0" height="46" fill="#F3F5F8" stroke="#CBD5E1" stroke-width="0.6" rx="2" />
+<text x="352.0" y="130" font-family="Inter, sans-serif" font-size="5.8" font-weight="700" letter-spacing="0.7" fill="#0F2942">31-INSTANCE DOMINANCE SCORECARD</text>
+<text x="352.0" y="143" font-family="Inter, sans-serif" font-size="6.1" fill="#1E293B">Strict wins vs. NEH: <tspan font-weight="700" fill="#146646">28 / 31</tspan>  (ties: 3)</text>
+<text x="352.0" y="155" font-family="Inter, sans-serif" font-size="6.1" fill="#1E293B">Matched analytical LB: <tspan font-weight="700" fill="#0B5CAD">1 / 31</tspan> (zero violations)</text>
+</svg>

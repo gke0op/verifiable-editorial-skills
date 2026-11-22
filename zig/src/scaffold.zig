@@ -93,6 +93,30 @@ pub fn initProjectFromArchetype(
     const skel_path = try std.fmt.allocPrint(alloc, "{s}/{s}/skeleton.typ", .{ archetypes_dir, archetype_slug });
     const skel_src = std.Io.Dir.cwd().readFileAlloc(io, skel_path, alloc, .unlimited) catch return error.ArchetypeNotFound;
 
+    var trim_w_int: i64 = 612;
+    var trim_h_int: i64 = 792;
+    const bp_path = try std.fmt.allocPrint(alloc, "{s}/{s}/blueprint.json", .{ archetypes_dir, archetype_slug });
+    if (std.Io.Dir.cwd().readFileAlloc(io, bp_path, alloc, .unlimited)) |bp_raw| {
+        if (std.json.parseFromSliceLeaky(std.json.Value, alloc, bp_raw, .{})) |bp_val| {
+            if (bp_val == .object) {
+                if (bp_val.object.get("trim_pt")) |tp| {
+                    if (tp == .array and tp.array.items.len >= 2) {
+                        trim_w_int = switch (tp.array.items[0]) {
+                            .float => |f| @intFromFloat(@round(f)),
+                            .integer => |i| i,
+                            else => trim_w_int,
+                        };
+                        trim_h_int = switch (tp.array.items[1]) {
+                            .float => |f| @intFromFloat(@round(f)),
+                            .integer => |i| i,
+                            else => trim_h_int,
+                        };
+                    }
+                }
+            }
+        } else |_| {}
+    } else |_| {}
+
     const raw_dir = try std.fmt.allocPrint(alloc, "{s}/data/raw", .{target_dir});
     const rep_dir = try std.fmt.allocPrint(alloc, "{s}/report", .{target_dir});
     try std.Io.Dir.cwd().createDirPath(io, raw_dir);
@@ -177,6 +201,26 @@ pub fn initProjectFromArchetype(
         .data = ledger_json,
     });
 
+    const citations_json = try std.fmt.allocPrint(alloc,
+        \\{{
+        \\  "publication": "{s}",
+        \\  "purpose": "Structural page-trim metadata cloned from archetype blueprint.json for Rule 10 provenance grounding.",
+        \\  "citations": [
+        \\    {{
+        \\      "id": "archetype_trim_dimensions",
+        \\      "values": [{d}, {d}],
+        \\      "context": "Dissected trim width and height in PostScript points ({d}x{d} pt) from archetype '{s}'.",
+        \\      "source": "archetypes/{s}/blueprint.json"
+        \\    }}
+        \\  ]
+        \\}}
+        \\
+    , .{ title, trim_w_int, trim_h_int, trim_w_int, trim_h_int, archetype_slug, archetype_slug });
+    try std.Io.Dir.cwd().writeFile(io, .{
+        .sub_path = try std.fmt.allocPrint(alloc, "{s}/data/background_citations.json", .{target_dir}),
+        .data = citations_json,
+    });
+
     // 3. Copy archetype Typst skeleton -> report/main.typ + zero-Python build.sh
     try std.Io.Dir.cwd().writeFile(io, .{
         .sub_path = try std.fmt.allocPrint(alloc, "{s}/main.typ", .{rep_dir}),
@@ -195,6 +239,7 @@ pub fn initProjectFromArchetype(
         \\"$VEDIT_BIN" audit-all "$DIR/report/OUTPUT_UA1.pdf" \
         \\  --ledger "$DIR/data/provenance_ledger.json" \
         \\  --summary "$DIR/data/summary_metrics.json" \
+        \\  --citations "$DIR/data/background_citations.json" \
         \\  --manifest "$DIR/data/manifest.sha256" \
         \\  --require-ua
         \\

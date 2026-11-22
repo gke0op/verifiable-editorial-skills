@@ -3,7 +3,7 @@
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **20 adversarial sabotage tests** on Ubuntu Linux CI.
+Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **21 adversarial sabotage tests** on Ubuntu Linux CI.
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -20,7 +20,16 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 02 · *BOTANICA VERIDICA* — Scientific Monograph × Magazine · `PDF/UA-1 + 3mm Bleed + Living Web`
+### 02 · *Computers & Industrial Engineering* (`Elsevier cas-dc`) — 31 OR-Library PFSP Benchmarks · `100% Zig 0.17 + Typst`
+[PDF](demos/caie-flowshop-journal/report/CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf) · [Source](demos/caie-flowshop-journal/) · J. E. Beasley OR-Library (`flowshop1.txt`) · Pure-Zig Taillard IG solver (`310` runs + `465` ablation) · Zero Python · `774/774` Rule 10 · `1,412` spans (`5.71:1` worst) · **`veraPDF 106/106`**
+
+| CAIE Masthead, Abstract & Highlights | Family Gaps, Math `(1)–(8)` & Algorithm 1 | Full 31-Instance Booktabs Table | Audited `car1` Gantt, Ablation & IEEE BibTeX |
+| :---: | :---: | :---: | :---: |
+| ![CAIE 1](demos/caie-flowshop-journal/previews/caie_page_01.png) | ![CAIE 2](demos/caie-flowshop-journal/previews/caie_page_02.png) | ![CAIE 3](demos/caie-flowshop-journal/previews/caie_page_03.png) | ![CAIE 4](demos/caie-flowshop-journal/previews/caie_page_04.png) |
+
+---
+
+### 03 · *BOTANICA VERIDICA* — Scientific Monograph × Magazine · `PDF/UA-1 + 3mm Bleed + Living Web`
 [PDF/UA-1](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf) · [Prepress](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf) · [Living Web HTML](demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html) · [Source](demos/botanica-veridica/) · Live GBIF / iNaturalist / OpenTree · `113,962` records · `55.9%–99.4%` plate coverage · `0` WCAG / geometry hits
 
 | Spread 2–3 · OpenTree Cladogram & GBIF Map | Spread 4–5 · *Ginkgo* SVG Anatomy & *Welwitschia* |
@@ -31,7 +40,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 03 · *Global Carbon Telemetry* — `415 ms` Typst Monograph · `veraPDF 106/106`
+### 04 · *Global Carbon Telemetry* — `415 ms` Typst Monograph · `veraPDF 106/106`
 [PDF](demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf) · [Source](demos/typst-carbon-monograph/) · Live NOAA (`1958–2026`) + World Bank WDI · Pure-vector SVG (`∞ DPI`) · `304/304` Rule 10 · `5.29:1` worst CR
 
 | Swiss Ivory Cover & Keeling Curve | Bloc Bifurcation & Tufte Ledger | Kaya / OLS Math & 5-Gate Court | SHA-256 Seal, Ledger & BibTeX |
@@ -40,7 +49,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 04 · *FELIS MUNDI* — Full-Bleed Print Magazine · `61.1%–99.9%` Audited Photo Coverage
+### 05 · *FELIS MUNDI* — Full-Bleed Print Magazine · `61.1%–99.9%` Audited Photo Coverage
 [PDF](demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf) · [Source](demos/felis-mundi-magazine/) · 11 locked Leica/Portra plates · `80.6%` avg visible photography verified by dual-key pixel diff
 
 | Cover (`99.3%`) | Kyoto 65/35 (`64.7%`) | Chefchaouen (`99.6%`) | Triptych (`76.8%`) |
@@ -49,7 +58,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-### 05 · *Consulting Flagship Deck* (16:9 Vector SVG) & *Dual-Theme Keynote* (Dark / Light)
+### 06 · *Consulting Flagship Deck* (16:9 Vector SVG) & *Dual-Theme Keynote* (Dark / Light)
 [Flagship PDF](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf) · [Dark Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf) · [Light Keynote](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf) · [Letter Report](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)
 
 | Midnight Hero + Parametric Wave | Mass-Balance Waterfall Bridge |
@@ -97,6 +106,7 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
 | Slug | Trim / Polarity | Palette (`bg` / `accent`) | Source |
 | :--- | :--- | :--- | :--- |
+| `elsevier-caie-journal` | `595×842` · A4 light (`4p`) | `#f8f8f8` / `#082840` | `CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf` |
 | `exomundus-astrophysics` | `612×792` · light (`4p`) | `#f8f8f0` / `#0858a8` | `EXOMUNDUS_NASA_TELEMETRY_UA1.pdf` |
 | `typst-monograph` | `612×792` · light (`4p`) | `#f8f8f0` / `#005898` | `TYPST_CARBON_MONOGRAPH_UA1.pdf` |
 | `dark-obsidian-keynote` | `960×540` · dark (`9p`) | `#080818` / `#38b8f8` | `CARBON_KEYNOTE_16x9_DARK.pdf` |
@@ -119,7 +129,7 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
 (cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
 
-# Optional: Python CLI + 20-test adversarial sabotage & parity suite
+# Optional: Python CLI + 21-test adversarial sabotage & parity suite
 pip install -e ".[dev]" && pytest
 ```
 
@@ -127,11 +137,11 @@ pip install -e ".[dev]" && pytest
 
 ```
 zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 5-gate court
-archetypes/              Dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
+archetypes/              7 dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
 skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
-demos/                   7 live open-data publications (NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
+demos/                   8 live open-data publications (OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
 verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   20-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
+tests/                   21-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
 ```
 
 ### The 10 Anti-Cheat Rules
@@ -149,4 +159,4 @@ tests/                   20-test adversarial sabotage, p2zig parity & zero-Pytho
 ---
 
 ## License
-MIT ([LICENSE](LICENSE)). Open demo datasets retain upstream attributions (NASA Exoplanet Archive, NOAA GML, World Bank WDI, GBIF, iNaturalist, Open Tree of Life).
+MIT ([LICENSE](LICENSE)). Open demo datasets retain upstream attributions (J. E. Beasley OR-Library, NASA Exoplanet Archive, NOAA GML, World Bank WDI, GBIF, iNaturalist, Open Tree of Life).
