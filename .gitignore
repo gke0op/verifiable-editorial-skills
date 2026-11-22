@@ -1,7 +1,10 @@
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
 .DS_Store
 *.tmp
 .venv/
 venv/
 report/*.html
+!demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html

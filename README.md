@@ -1,8 +1,10 @@
 # verifiable-editorial-skills
 
-Three composable **Agent Skills** for generating institutional-grade **16:9 executive PDF slide decks**, **Letter editorial reports**, and **full-bleed print photo magazines** backed by **zero-mock, cryptographically verified open data & cohesive AI editorial photography**.
+[![Verifiable Editorial CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
-Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible Python pipelines (`WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`).
+Three composable **Agent Skills** + the installable **`verifiable-editorial` (`vedit`)** verification CLI for generating institutional-grade **16:9 executive PDF slide decks**, **Letter editorial reports**, **full-bleed print photo magazines**, and **dual-target scientific monographs (PDF/UA-1 + Interactive Living Web Essays)** backed by **zero-mock, cryptographically verified open data**.
+
+Designed for AI coding agents (**Antigravity**, **Claude Code**, **Codex**, **Cursor**) and reproducible Python pipelines (`WeasyPrint`, `ReportLab`, `Matplotlib`, `Pydantic`, `PyMuPDF`), verified on Linux CI by an **8-vector adversarial sabotage `pytest` suite**.
 
 ---
 
@@ -12,13 +14,13 @@ All quantitative decks, scientific monographs, and reports are compiled from liv
 
 ### Demo 1 — 10-Page Scientific Report × Learning Magazine Crossover: *BOTANICA VERIDICA* ([`demos/botanica-veridica/`](demos/botanica-veridica/))
 
-Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*, *National Geographic*, and *Scientific American*: fuses **live biodiversity telemetry** (`113,962` GBIF occurrences, `11,050` museum herbarium sheets, `112,408` iNaturalist records, `720` live range-map coordinates, live flowering phenology curves, and a live OpenTree Newick phylogenetic cladogram) with **8 zero-text Nano Banana botanical plates overlaid with pure-vector SVG 90° anatomy leader lines & circular zoom medallions**. Compiles **both** an interactive **PDF/UA-1** tagged edition with 10 bookmarks & 75 clickable links ([`BOTANICA_VERIDICA_MONOGRAPH.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf)) and a **print-shop prepress** PDF with 3mm bleed & crop/registration marks ([`BOTANICA_VERIDICA_PREPRESS.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf)). Audited at **`0` WCAG 2.1 contrast violations across 675 text spans (`min 4.98:1`)** and **`55.9%`–`99.4%` visible plate coverage**:
+Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*, *National Geographic*, and *Scientific American*: fuses **live biodiversity telemetry** (`113,962` GBIF occurrences, `11,050` museum herbarium sheets, `112,408` iNaturalist records, `720` live range-map coordinates, live flowering phenology curves, and a live OpenTree Newick phylogenetic cladogram) with **8 zero-text Nano Banana botanical plates overlaid with pure-vector SVG 90° anatomy leader lines & circular zoom medallions**. Compiles from **one verified source** into **three targets**: an interactive **PDF/UA-1** tagged monograph ([`BOTANICA_VERIDICA_MONOGRAPH.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf)), a **print-shop prepress** PDF with 3mm bleed & crop marks ([`BOTANICA_VERIDICA_PREPRESS.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf)), and a **zero-CDN Interactive Living Web Edition** ([`BOTANICA_VERIDICA_LIVING.html`](demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html)) where clicking any number opens its live SHA-256 provenance receipt. Passes all 4 `vedit` gates (`0` WCAG violations across 675 spans, `0` geometric collisions/clips/orphans, `55.9%`–`99.4%` plate coverage, `224/224` Rule 10 prose numbers grounded):
 
 | Facing Spread 2–3 · OpenTree Phylogeny & Live GBIF World Map | Facing Spread 4–5 · *Ginkgo* SVG Anatomy & *Welwitschia* Field Split |
 | :---: | :---: |
 | ![Botanica Spread 2-3](demos/botanica-veridica/previews/spread_02_03.png) | ![Botanica Spread 4-5](demos/botanica-veridica/previews/spread_04_05.png) |
-| **Facing Spread 6–7 · *Sequoia* Zoom Medallion & *Victoria* Truss** | **Facing Spread 8–9 · *Dionaea* Snap-Trap & *Adansonia* Baobab** |
-| ![Botanica Spread 6-7](demos/botanica-veridica/previews/spread_06_07.png) | ![Botanica Spread 8-9](demos/botanica-veridica/previews/spread_08_09.png) |
+| **Facing Spread 6–7 · *Sequoia* Zoom Medallion & *Victoria* Truss** | **Dual-Target Interactive Living Web Edition (X-Ray SHA-256 Provenance)** |
+| ![Botanica Spread 6-7](demos/botanica-veridica/previews/spread_06_07.png) | ![Botanica Living Web](demos/botanica-veridica/previews/living_web_preview.png) |
 
 ### Demo 2 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
 
@@ -68,32 +70,52 @@ Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/glob
 
 ---
 
-## The 9 Anti-Cheat Rules Enforced in Code
+## The 10 Anti-Cheat Rules Enforced in Code
 
 1. **Zero-Handwritten-Data Air-Gap:** No manual numeric dictionaries, CSVs, or JSONs—every value is parsed by code from immutable files in `data/raw/`.
 2. **Reality & Invariant Compiler:** Pydantic v2 enforces domain physics bounds and exact accounting identities (e.g., `CO2_total * 1e6 / population == CO2_per_capita` within machine tolerance).
 3. **Anti-Circular Verification (AST Linter):** `verify_integrity.py` parses verifier code with Python `ast` and rejects assertions comparing domain values against hardcoded numeric literals.
 4. **Atomic Provenance Ledger:** Every scalar in `data/summary_metrics.json` maps 1:1 to a record in `data/provenance_ledger.json` citing source document, locator, exact extracted quote, and live file SHA-256.
 5. **Negative Capability & The Sacred `[N/A]`:** Genuinely unreported upstream fields (such as 2025 CO2 emissions, WDI renewables gaps, or `NOT_EVALUATED` IUCN categories) remain explicit `null` / `[N/A]` rather than fabricated extrapolations.
-6. **Substance Precedence (Compilation Latch):** PDF compilers refuse to execute unless `verify_integrity.py` exits `0`.
+6. **Substance Precedence (Compilation Latch):** PDF and Living Web compilers refuse to execute unless `verify_integrity.py` exits `0`.
 7. **Category & Unit Incommensurability Guard:** Distinct metrics, scopes, or test standards are never silently blended.
 8. **Primary Regulatory & Statutory Proof:** Legal or tariff claims require official statutory identifiers and explicit scope.
 9. **Scientific Taxonomy & Registry Verification:** Every biological binomial, authority, Family, Order, phylogenetic node, and IUCN code is reconciled verbatim from live authoritative registries (**GBIF Backbone**, **Open Tree of Life**, **iNaturalist**).
+10. **Post-Render Prose-to-Ledger Grounding (`vedit prose`):** Extracts every quantitative number directly from the final compiled PDF bytes and verifies 100% grounding against `provenance_ledger.json`, `summary_metrics.json`, or explicit DOI-backed entries in `background_citations.json`.
 
 ---
 
-## Install the Skills
-
-Copy the three skill folders into your agent's skills directory:
+## Install the Skills & `vedit` Verification CLI
 
 ```bash
 git clone https://github.com/gke0op/verifiable-editorial-skills.git
+cd verifiable-editorial-skills
 
-# Antigravity
-cp -r verifiable-editorial-skills/skills/* ~/.gemini/config/skills/
+# Install the `vedit` verification CLI + adversarial pytest suite
+pip install -e ".[dev]"
+pytest
 
-# Claude Code (or adapt to ~/.codex/skills / .cursor/skills)
-cp -r verifiable-editorial-skills/skills/* ~/.claude/skills/
+# Install the 3 Agent Skills (Antigravity / Claude Code / Codex / Cursor)
+cp -r skills/* ~/.gemini/config/skills/   # Antigravity
+cp -r skills/* ~/.claude/skills/          # Claude Code
+```
+
+### Run the Unified `vedit` Audit Court on Any PDF
+
+```bash
+# Run WCAG 2.1 contrast + geometric collision/clipping/orphan + photo coverage + Rule 10 prose grounding
+vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
+  --ledger demos/botanica-veridica/data/provenance_ledger.json \
+  --summary demos/botanica-veridica/data/summary_metrics.json \
+  --citations demos/botanica-veridica/data/background_citations.json \
+  --manifest demos/botanica-veridica/data/manifest.sha256 \
+  --plate-pages "1,4-9"
+
+# Individual gates & facing-spread contact sheet renderer:
+vedit contrast path/to/deck.pdf
+vedit geometry path/to/deck.pdf
+vedit coverage path/to/magazine.pdf --min-pct 50
+vedit spreads path/to/magazine.pdf --out-dir /tmp/spreads
 ```
 
 ---

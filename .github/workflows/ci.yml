@@ -1,0 +1,51 @@
+name: Verifiable Editorial CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify-court-and-demos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package + test dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ".[dev]"
+
+      - name: Run Adversarial Sabotage & Demo Regression Suite (pytest)
+        run: pytest
+
+      - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos
+        run: |
+          python3 demos/botanica-veridica/scripts/verify_integrity.py
+          python3 demos/global-carbon-telemetry/scripts/verify_integrity.py
+          python3 demos/carbon-keynote-9slide/scripts/verify_integrity.py
+
+      - name: Run unified `vedit audit-all` CLI on BOTANICA VERIDICA
+        run: |
+          vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
+            --ledger demos/botanica-veridica/data/provenance_ledger.json \
+            --summary demos/botanica-veridica/data/summary_metrics.json \
+            --citations demos/botanica-veridica/data/background_citations.json \
+            --manifest demos/botanica-veridica/data/manifest.sha256 \
+            --plate-pages "1,4-9"
+
+      - name: Verify Living Web Edition compiles cleanly under Rule 6 latch
+        run: |
+          python3 demos/botanica-veridica/report/compile_living_web.py
+          test -s demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html
+
+      - name: Privacy & host-path hygiene scan
+        run: |
+          ! grep -rnE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" README.md skills/ verifiable_editorial/ tests/ demos/ --exclude="*.pdf" --exclude="*.png" --exclude="*.jpg"

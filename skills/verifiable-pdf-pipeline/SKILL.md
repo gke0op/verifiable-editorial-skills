@@ -2,20 +2,21 @@
 name: verifiable-pdf-pipeline
 description: >-
   Turnkey open-data verification pipeline for publication-grade PDF presentations, institutional reports, and
-  scientific monographs. Enforces 9 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
+  scientific monographs. Enforces 10 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
   Pydantic domain bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling,
-  compilation latching, scientific taxonomy verification, and background-sampled WCAG contrast auditing.
+  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding, geometric
+  collision/clipping linting, and background-sampled WCAG contrast auditing via the `vedit` CLI.
 ---
 
 # Verifiable Factual PDF & Data Presentation Pipeline
 
-This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes data presentations, institutional whitepapers, scientific natural-history monographs, and executive dossiers. It enforces an absolute **Zero-Mock Data Invariant** backed by automated verification gates.
+This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes data presentations, institutional whitepapers, scientific natural-history monographs, and dual-target interactive web essays. It enforces an absolute **Zero-Mock Data Invariant** backed by automated verification gates (`verifiable-editorial` / `vedit` CLI) and an adversarial sabotage `pytest` suite.
 
-Every published number must be streamed from genuine upstream sources into immutable raw files, validated against physical and accounting invariants, registered in an atomic provenance ledger, independently re-parsed from raw inputs without circular assertions, and visually audited post-render.
+Every published number must be streamed from genuine upstream sources into immutable raw files, validated against physical and accounting invariants, registered in an atomic provenance ledger, independently re-parsed from raw inputs without circular assertions, grounded post-render inside final PDF prose (Rule 10), and audited for geometric collisions, clip-path slicing, and background-sampled WCAG 2.1 contrast.
 
 ---
 
-## The 9 Inviolable Anti-Cheat Rules
+## The 10 Inviolable Anti-Cheat Rules
 
 These rules apply unconditionally across domains—macroeconomics, climate telemetry, botany/biodiversity, energy grids, logistics, finance, semiconductors, or healthcare:
 
@@ -61,6 +62,12 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 │         node, and IUCN code must be reconciled verbatim from live      │
 │         authoritative registries (GBIF Backbone, Open Tree of Life,    │
 │         iNaturalist) — unlinked statuses stay explicit [N/A].          │
+├────────────────────────────────────────────────────────────────────────┤
+│ Rule 10: Post-Render Prose-to-Ledger Grounding (`vedit prose`)         │
+│         Every quantitative number extracted from the FINAL compiled    │
+│         PDF bytes must trace back to `provenance_ledger.json`,         │
+│         `summary_metrics.json`, or an explicit DOI-backed entry in     │
+│         `data/background_citations.json` — closing narrative drift.    │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -171,6 +178,7 @@ Copy and adapt the tested, production-hardened scripts in `templates/`:
 - **`templates/audit_pdf.py`**: Post-render PyMuPDF (`fitz`) layout auditor measuring combined text blocks, embedded images, and non-background vector drawings across both **Letter portrait (`612×792 pt`)** and **16:9 widescreen (`960×540 pt`)** layouts, plus automatic PNG preview export.
 - **`templates/audit_contrast.py`**: Background-sampled **WCAG 2.1 contrast auditor** that strips `BT...ET` text streams in an in-memory PDF clone, renders a text-free background raster at 72 DPI, and samples actual pixels behind every text span's bounding box (accurately auditing dark modes, gradients, and photo overlays).
 - **`templates/render_spreads.py`**: Facing-spread contact-sheet assembler that stitches interior facing pages (`[2|3]`, `[4|5]`, …) onto an archival desk mat with a realistic central spine-gutter shadow for true spread-level visual QA.
+- **Unified Installable CLI (`pip install -e .` → `vedit`):** Exposes all automated verification gates directly from the terminal (`vedit contrast`, `vedit geometry` for text collisions / PDF clip-path slicing / trim overflow / orphan headlines / overlay texture energy, `vedit coverage`, `vedit prose` for Rule 10, `vedit spreads`, and `vedit audit-all`), hardened by an 8-vector adversarial sabotage `pytest` suite (`tests/test_adversarial_gates.py`).
 
 ## Compilation Latch Pattern (Rule 6)
 

@@ -1,0 +1,41 @@
+{
+  "publication": "BOTANICA VERIDICA — Architecture of Extreme Plants",
+  "purpose": "Rule 10 scholarly background citations for established biological, biophysical, and historical constants cited in narrative prose outside live GBIF/iNaturalist/OpenTree API payloads.",
+  "citations": [
+    {
+      "id": "koch_2004_sequoia_height",
+      "values": [100, 115, 130],
+      "context": "Sequoia sempervirens canopy height (~100+ m) and cohesion-tension hydraulic lift limit (~115-130 m)",
+      "source": "Koch, G. W., Sillett, S. C., Jennings, G. M. & Davis, S. D. (2004). The limits to tree height. Nature, 428, 851-854.",
+      "doi_or_url": "https://doi.org/10.1038/nature02417"
+    },
+    {
+      "id": "forterre_2005_dionaea_snap",
+      "values": [100, 3],
+      "context": "Dionaea muscipula snap-buckling shell inversion (~100 ms) and ~3 cm trap diameter",
+      "source": "Forterre, Y., Skotheim, J. M., Dumais, J. & Mahadevan, L. (2005). How the Venus flytrap snaps. Nature, 433, 421-425.",
+      "doi_or_url": "https://doi.org/10.1038/nature03185"
+    },
+    {
+      "id": "bohm_2016_dionaea_counting",
+      "values": [20, 30],
+      "context": "Dionaea muscipula two-touch <20 s action potential window and 20-30 cm floral scape height separating pollinators from traps",
+      "source": "Bohm, J. et al. (2016). The Venus Flytrap Dionaea muscipula Counts Prey-Induced Action Potentials to Induce Sodium Uptake. Current Biology, 26(3), 286-295.",
+      "doi_or_url": "https://doi.org/10.1016/j.cub.2015.11.057"
+    },
+    {
+      "id": "box_2022_victoria_biomechanics",
+      "values": [2.5, 1851],
+      "context": "Victoria amazonica ~2.5 m giant floating pad diameter and radial girder inspiration for Joseph Paxton's 1851 Crystal Palace",
+      "source": "Box, F., Erlich, A., Guan, J. H. & Thorogood, C. (2022). Gigantic floating leaves occupy a large surface area at an economical material cost. Science Advances, 8(6), eabg3790.",
+      "doi_or_url": "https://doi.org/10.1126/sciadv.abg3790"
+    },
+    {
+      "id": "kew_morphology_scales",
+      "values": [1.7, 3.5, 8, 10, 17],
+      "context": "Comparative schematic scale benchmarks (human 1.7 m reference, Ginkgo ~8 cm leaf, Adansonia ~10 m trunk diameter, log10(100/0.03) = 3.5 orders of magnitude, 17th-century Ginkgo transcription by Kaempfer)",
+      "source": "Royal Botanic Gardens, Kew — Plants of the World Online (POWO) & Crane, P. (2013). Ginkgo: The Tree That Time Forgot. Yale University Press.",
+      "doi_or_url": "https://powo.science.kew.org/"
+    }
+  ]
+}

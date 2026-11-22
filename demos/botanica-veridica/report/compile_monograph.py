@@ -949,7 +949,7 @@ a {{
     </div>
 
     <div style="position:absolute; bottom:16pt; left:26pt; right:18pt; display:flex; justify-content:space-between; align-items:baseline; border-top:0.5pt solid #D5CEBE; padding-top:5pt;">
-      <span class="kicker" style="color:#4E5650;">OTT {welw['opentree_ott_id']}</span>
+      <span class="kicker" style="color:#4E5650; letter-spacing:0.06em;">OTT {welw['opentree_ott_id']}</span>
       <span class="folio-num">05</span>
     </div>
   </div>
@@ -1128,7 +1128,7 @@ a {{
     <div class="plate-tag-pill">Plate 08 · African Savanna · Golden-Hour Field Plate</div>
     <div style="position:absolute; bottom:14pt; left:24pt; right:24pt; display:flex; justify-content:space-between; color:#F4F2EA;">
       <span class="kicker" style="font-size:6.1pt; color:#F4F2EA;">Adansonia digitata L. · Malvaceae · Pachycaul Stem-Succulent Architecture</span>
-      <span class="kicker" style="font-size:6.1pt; color:#E8C77B;">Plate: Nano Banana Studio · OTT {adan['opentree_ott_id']}</span>
+      <span class="kicker" style="font-size:6.1pt; color:#E8C77B; letter-spacing:0.06em;">Plate: Nano Banana Studio · OTT {adan['opentree_ott_id']}</span>
     </div>
   </div>
 </article>
