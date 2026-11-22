@@ -1,0 +1,37 @@
+{
+  "schema_version": "vedit.blueprint.v1",
+  "slug": "exomundus-astrophysics",
+  "source_pdf": "EXOMUNDUS_NASA_TELEMETRY_UA1.pdf",
+  "source_sha256": "6908a67700ec8524bc3e186d826ffe352bba30efb4d71ada88980a53b0235eed",
+  "page_count": 4,
+  "format_class": "letter_portrait",
+  "polarity": "light",
+  "trim_pt": [612.0, 792.0],
+  "margins_pt": { "top": 28.0, "bottom": 28.0, "left": 54.0, "right": 51.7 },
+  "palette_60_30_10": {
+    "canvas_bg": "#f8f8f0",
+    "surface_tint": "#eeece0",
+    "primary_ink": "#202830",
+    "muted_ink": "#44505c",
+    "accent_primary": "#0858a8",
+    "accent_secondary": "#082038",
+    "wcag_ink_cr": 13.98,
+    "wcag_accent_cr": 6.62
+  },
+  "typography": {
+    "display": { "source": "CormorantGaramond-Light", "sil_ofl": "Cormorant Garamond", "size_pt": 28.0 },
+    "body":    { "source": "SourceSerif4Roman-Regula", "sil_ofl": "Source Serif 4", "size_pt": 8.6 },
+    "ui_sans": { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 7.2 },
+    "mono":    { "source": "IBMPlexMono-Regular", "sil_ofl": "IBM Plex Mono", "size_pt": 6.8 }
+  },
+  "cadence_summary": {
+    "avg_vertical_fill_pct": 99.7,
+    "avg_photo_coverage_pct": 0.0
+  },
+  "pages": [
+    { "page": 1, "archetype": "cover_hero", "columns": 3, "fill_pct": 99.0, "photo_pct": 0.0, "spans": 141, "images": 0, "strokes": 13, "max_font_pt": 28.0 },
+    { "page": 2, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 179, "images": 0, "strokes": 29, "max_font_pt": 18.0 },
+    { "page": 3, "archetype": "data_exhibit_ledger", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 209, "images": 0, "strokes": 17, "max_font_pt": 18.0 },
+    { "page": 4, "archetype": "colophon_references", "columns": 3, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 157, "images": 0, "strokes": 19, "max_font_pt": 18.0 }
+  ]
+}

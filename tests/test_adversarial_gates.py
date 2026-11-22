@@ -431,3 +431,40 @@ def test_zig_harness_inject_init_and_zero_python_closed_loop(tmp_path: Path) -> 
     assert "[vedit:prepress]      PASS" in bld.stdout
     if shutil.which("verapdf"):
         assert "verapdf_pass=106, verapdf_fail=0" in bld.stdout
+
+
+@pytest.mark.skipif(not ZIG_VEDIT.exists() or not shutil.which("mutool"), reason="Zig vedit binary or mutool unavailable")
+def test_exomundus_zero_python_monograph_passes_zig_latch_and_all_five_gates() -> None:
+    """Zero-Python NASA Exoplanet monograph MUST pass Zig SHA-256 latch and all 5 Zig court gates + veraPDF."""
+    exo = REPO_ROOT / "demos" / "exomundus-nasa-telemetry"
+    pdf = exo / "report" / "EXOMUNDUS_NASA_TELEMETRY_UA1.pdf"
+
+    lt = subprocess.run([str(ZIG_VEDIT), "latch", str(exo)], capture_output=True, text=True)
+    assert lt.returncode == 0, lt.stdout + lt.stderr
+    assert "manifest=5/5 SHA-256 verified" in lt.stdout
+
+    aud = subprocess.run(
+        [
+            str(ZIG_VEDIT),
+            "audit-all",
+            str(pdf),
+            "--ledger",
+            str(exo / "data" / "provenance_ledger.json"),
+            "--summary",
+            str(exo / "data" / "summary_metrics.json"),
+            "--citations",
+            str(exo / "data" / "background_citations.json"),
+            "--manifest",
+            str(exo / "data" / "manifest.sha256"),
+            "--require-ua",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert aud.returncode == 0, aud.stdout + aud.stderr
+    assert "[vedit:rule10_prose] PASS" in aud.stdout
+    assert "[vedit:wcag_contrast] PASS" in aud.stdout
+    assert "[vedit:geometry]      PASS" in aud.stdout
+    assert "[vedit:prepress]      PASS" in aud.stdout
+    if shutil.which("verapdf"):
+        assert "verapdf_pass=106, verapdf_fail=0" in aud.stdout

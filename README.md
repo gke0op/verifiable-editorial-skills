@@ -28,15 +28,23 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./my-new-report/build.sh
 # Runs: `vedit latch` (pure-Zig SHA-256 + Rule 4) -> `typst compile --pdf-standard ua-1` -> `vedit audit-all --require-ua` (veraPDF 106/106)
 ```
 
-Five pre-dissected reference archetypes are shipped in [`archetypes/`](archetypes/registry.json) (`typst-monograph`, `dark-obsidian-keynote`, `mckinsey-2023-deck`, `botanica-crossover`, `felis-photo-magazine`), each with a machine-readable `blueprint.json`, compilable `skeleton.typ`, and ~250-token `AGENT_CARD.md`.
+Six pre-dissected reference archetypes are shipped in [`archetypes/`](archetypes/registry.json) (`exomundus-astrophysics`, `typst-monograph`, `dark-obsidian-keynote`, `mckinsey-2023-deck`, `botanica-crossover`, `felis-photo-magazine`), each with a machine-readable `blueprint.json`, compilable `skeleton.typ`, and ~250-token `AGENT_CARD.md`.
 
 ---
 
 ## Live Demo Outputs
 
-All quantitative decks, scientific monographs, and reports are compiled from live zero-auth open APIs—**GBIF v1**, **iNaturalist v1**, **Open Tree of Life v3**, **NOAA Global Monitoring Laboratory** (`1958–2026`), and **World Bank WDI** (`2000–2025`)—sealed with SHA-256 hashes, validated against physical, taxonomic, and accounting invariants, registered in a 1:1 provenance ledger, verified via a Python AST anti-circular veto gate, and audited with PyMuPDF (including background-sampled WCAG 2.1 contrast and clip-aware photo coverage checks).
+All quantitative decks, scientific monographs, and reports are compiled from live zero-auth open APIs—**NASA Exoplanet Archive TAP (`1992–2026`, `6,473` worlds)**, **GBIF v1**, **iNaturalist v1**, **Open Tree of Life v3**, **NOAA Global Monitoring Laboratory** (`1958–2026`), and **World Bank WDI** (`2000–2025`)—sealed with SHA-256 hashes, validated against physical, astrophysical, taxonomic, and accounting invariants, registered in a 1:1 provenance ledger, verified via anti-circular veto gates, and audited for WCAG 2.1 contrast, geometry, Rule 10 prose grounding, and ISO 14289-1 (`PDF/UA-1`) compliance.
 
-### Demo 1 — Rust-Native Typst `PDF/UA-1` Scientific Monograph (`veraPDF 106/106` Certified) ([`demos/typst-carbon-monograph/`](demos/typst-carbon-monograph/))
+### Demo 1 — 100% Zero-Python Zig 0.17.0 + Typst `PDF/UA-1` Monograph: *EXOMUNDUS — 6,473 Confirmed Exoplanets* ([`demos/exomundus-nasa-telemetry/`](demos/exomundus-nasa-telemetry/))
+
+End-to-end bare-metal scientific publishing with **zero Python from raw API to ISO certification**: [`scripts/pipeline.zig`](demos/exomundus-nasa-telemetry/scripts/pipeline.zig) ingests 5 immutable **NASA Exoplanet Archive (`ps default_flag=1`)** JSON tables, enforces astrophysical invariants, seals SHA-256 hashes, registers `37` atomic Rule 4 tuples, and renders two pure-vector SVG exhibits (`∞ DPI`: Annual Discovery Cadence + Live Fulton Radius Valley across `3,670` close-in worlds, and a Log–Log Mass–Radius scatter of all `1,595` dual-observable worlds + Rule 5 completeness bars keeping `3,265` unmeasured masses honestly `[N/A]`). Compiled in **Typst 0.15.1** (`--pdf-standard ua-1`) and certified by the **Sovereign Zig `vedit` harness** live on Ubuntu Linux CI (`630` WCAG spans at worst `4.93:1`, `0` geometric defects, `299/299` Rule 10 prose numbers grounded, `0` unembedded fonts, and **`veraPDF` `106/106` ISO 14289-1 PASS**) ([`EXOMUNDUS_NASA_TELEMETRY_UA1.pdf`](demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf)):
+
+| Cover, KPIs & Live Fulton Radius Valley | Log–Log Mass–Radius & Benchmark `[N/A]` Ledger | Optical Scaling Laws & Method Census | SHA-256 Seal, Live Ledger & BibTeX |
+| :---: | :---: | :---: | :---: |
+| ![Exomundus Page 1](demos/exomundus-nasa-telemetry/previews/exo_page_01.png) | ![Exomundus Page 2](demos/exomundus-nasa-telemetry/previews/exo_page_02.png) | ![Exomundus Page 3](demos/exomundus-nasa-telemetry/previews/exo_page_03.png) | ![Exomundus Page 4](demos/exomundus-nasa-telemetry/previews/exo_page_04.png) |
+
+### Demo 2 — Rust-Native Typst `PDF/UA-1` Scientific Monograph (`veraPDF 106/106` Certified) ([`demos/typst-carbon-monograph/`](demos/typst-carbon-monograph/))
 
 Compiles in **`~415 ms`** directly from immutable JSON (`#let data = json(...)`, `provenance_ledger.json`) using **Typst 0.15.1** (`--pdf-standard ua-1`), **8 SHA-256-verified cross-platform SIL-OFL fonts** (`vedit fetch-fonts`: *Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*), optical Kaya/OLS display math with screen-reader `alt` text, native IEEE BibTeX, and pure-vector SVG exhibits (`∞ DPI`). Compiled and audited **live on Ubuntu Linux CI** — passing all 5 gates (`520` WCAG spans at worst `5.29:1`, `0` geometric defects, `297/297` Rule 10 prose numbers grounded, `0` unembedded fonts, `119.4%` simulated CMYK TAC, and **`veraPDF` ISO 14289-1 `compliant=True` (`106` passed rules, `0` failed)**) ([`TYPST_CARBON_MONOGRAPH_UA1.pdf`](demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf)):
 
@@ -44,7 +52,7 @@ Compiles in **`~415 ms`** directly from immutable JSON (`#let data = json(...)`,
 | :---: | :---: | :---: | :---: |
 | ![Typst Page 1](demos/typst-carbon-monograph/previews/typst_page_01.png) | ![Typst Page 2](demos/typst-carbon-monograph/previews/typst_page_02.png) | ![Typst Page 3](demos/typst-carbon-monograph/previews/typst_page_03.png) | ![Typst Page 4](demos/typst-carbon-monograph/previews/typst_page_04.png) |
 
-### Demo 2 — 10-Page Scientific Report × Learning Magazine Crossover: *BOTANICA VERIDICA* ([`demos/botanica-veridica/`](demos/botanica-veridica/))
+### Demo 3 — 10-Page Scientific Report × Learning Magazine Crossover: *BOTANICA VERIDICA* ([`demos/botanica-veridica/`](demos/botanica-veridica/))
 
 Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*, *National Geographic*, and *Scientific American*: fuses **live biodiversity telemetry** (`113,962` GBIF occurrences, `11,050` museum herbarium sheets, `112,408` iNaturalist records, `720` live range-map coordinates, live flowering phenology curves, and a live OpenTree Newick phylogenetic cladogram) with **8 zero-text Nano Banana botanical plates overlaid with pure-vector SVG 90° anatomy leader lines & circular zoom medallions**. Compiles from **one verified source** into **three targets**: an interactive **PDF/UA-1** tagged monograph ([`BOTANICA_VERIDICA_MONOGRAPH.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf)), a **print-shop prepress** PDF with 3mm bleed & crop marks ([`BOTANICA_VERIDICA_PREPRESS.pdf`](demos/botanica-veridica/report/BOTANICA_VERIDICA_PREPRESS.pdf)), and a **zero-CDN Interactive Living Web Edition** ([`BOTANICA_VERIDICA_LIVING.html`](demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html)) where clicking any number opens its live SHA-256 provenance receipt. Passes all 4 `vedit` gates (`0` WCAG violations across 675 spans, `0` geometric collisions/clips/orphans, `55.9%`–`99.4%` plate coverage, `224/224` Rule 10 prose numbers grounded):
 
@@ -54,7 +62,7 @@ Modeled on *Kew / Curtis’s Botanical Magazine*, DK/Kew *The Science of Plants*
 | **Facing Spread 6–7 · *Sequoia* Zoom Medallion & *Victoria* Truss** | **Dual-Target Interactive Living Web Edition (X-Ray SHA-256 Provenance)** |
 | ![Botanica Spread 6-7](demos/botanica-veridica/previews/spread_06_07.png) | ![Botanica Living Web](demos/botanica-veridica/previews/living_web_preview.png) |
 
-### Demo 3 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
+### Demo 4 — 8-Page Full-Bleed Print Magazine: *FELIS MUNDI — Cats Around the World* ([`demos/felis-mundi-magazine/`](demos/felis-mundi-magazine/))
 
 Modeled on print teardowns of *Kinfolk*, *Cereal*, *Condé Nast Traveler*, and *National Geographic*: 11 cohesive **Nano Banana** photographs generated under one locked Leica M11 / 50mm f/1.4 / Kodak Portra 400 **Master Photographic Film Identity Core**, set on warm archival `#FAF8F5` paper with `Didot` / `Charter` / `Inter`, rotated marginal credits, flush drop caps, and SHA-256 plate ledger colophon ([`FELIS_MUNDI_MAGAZINE.pdf`](demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf)). Every single page is mechanically audited by exact clip-aware raster pixel-diff at **`61.1%`–`99.9%` visible full-bleed photography** (`80.6%` average):
 
@@ -62,7 +70,7 @@ Modeled on print teardowns of *Kinfolk*, *Cereal*, *Condé Nast Traveler*, and *
 | :---: | :---: | :---: | :---: |
 | ![Felis Mundi Cover](demos/felis-mundi-magazine/previews/mag_page_01.png) | ![Felis Mundi Kyoto](demos/felis-mundi-magazine/previews/mag_page_03.png) | ![Felis Mundi Chefchaouen](demos/felis-mundi-magazine/previews/mag_page_04.png) | ![Felis Mundi Triptych](demos/felis-mundi-magazine/previews/mag_page_07.png) |
 
-### Demo 4 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
+### Demo 5 — 10-Slide 2023 Consulting Flagship Deck (WeasyPrint + Pure Vector SVG) ([`demos/mckinsey-2023-flagship/`](demos/mckinsey-2023-flagship/))
 
 Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum Technology Monitor*, *The Economic Potential of Generative AI*, *Global Economics Intelligence*, *The State of Organizations*): dark-midnight `#051C2C` hero & executive summary with a 42-strand parametric Bezier wave, split chapter divider, editorial serif (`Charter`/`Georgia`) + `Inter` pairing, 4-tier blue chromatic ramp, and 100% pure-vector inline SVG exhibits ([`MCKINSEY_2023_FLAGSHIP_DECK.pdf`](demos/mckinsey-2023-flagship/report/MCKINSEY_2023_FLAGSHIP_DECK.pdf)):
 
@@ -72,7 +80,7 @@ Engineered from visual teardowns of flagship 2023 consulting reports (*Quantum T
 | **8-Economy Small Multiples + `»` Implications Sidebar** | **10×10 Waffle Unit-Matrix + Per-Capita Shift** |
 | ![Flagship Slide 6](demos/mckinsey-2023-flagship/previews/flagship_slide_06.png) | ![Flagship Slide 8](demos/mckinsey-2023-flagship/previews/flagship_slide_08.png) |
 
-### Demo 5 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
+### Demo 6 — 9-Slide Dual-Theme Visual Keynote (ReportLab + 300-DPI Matplotlib) ([`demos/carbon-keynote-9slide/`](demos/carbon-keynote-9slide/))
 
 Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_DARK.pdf)) and a Light Swiss-Ivory boardroom deck ([`CARBON_KEYNOTE_16x9_LIGHT.pdf`](demos/carbon-keynote-9slide/report/CARBON_KEYNOTE_16x9_LIGHT.pdf)) from a single `--theme dark|light` compiler across 7 distinct 300-DPI exhibits (165 verified provenance tuples):
 
@@ -82,7 +90,7 @@ Generates **both** a Dark Executive Obsidian keynote ([`CARBON_KEYNOTE_16x9_DARK
 | **Marimekko Pop × Per-Capita & Rank Inversion (Light)** | **24-Year Annual YoY Momentum Matrix Heatmap (Dark)** |
 | ![Keynote Light Slide 5](demos/carbon-keynote-9slide/previews/light_slide_05.png) | ![Keynote Dark Slide 7](demos/carbon-keynote-9slide/previews/dark_slide_07.png) |
 
-### Demo 6 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
+### Demo 7 — Institutional Letter Report & 6-Slide Executive Briefing ([`demos/global-carbon-telemetry/`](demos/global-carbon-telemetry/))
 
 Paired Swiss-Ivory Letter report ([`INSTITUTIONAL_REPORT_LETTER.pdf`](demos/global-carbon-telemetry/report/INSTITUTIONAL_REPORT_LETTER.pdf)) and 6-slide Dark Executive summary deck ([`EXECUTIVE_DECK_16x9.pdf`](demos/global-carbon-telemetry/report/EXECUTIVE_DECK_16x9.pdf)):
 

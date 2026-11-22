@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "title": "EXOMUNDUS: Census of Confirmed Exoplanets, 1992–2026",
+    "source": "NASA Exoplanet Archive (Caltech IPAC) TAP API — ps (default_flag=1)",
+    "min_year": 1992,
+    "max_year": 2026,
+    "raw_file_hashes": {
+      "nasa_benchmarks.json": "6ea64d3f4eb5a1b1443da5ccf949db61537576c16012215cecf017591eb79283",
+      "nasa_census_by_year_method.json": "925e70951561d6c99a7a74e44f58bb1af358f7a8164c1b83b8a168e708616ea4",
+      "nasa_completeness.json": "8acf327393b6c2eb8e4a1de5d35db0f1960a99f3d24c494a48d30b8c334d3606",
+      "nasa_mass_radius.json": "698f86c9fb2a4995532d26c13c75af40b28612b7a846a0c02cb1ee5b4de33379",
+      "nasa_radius_valley.json": "f3cec1c523ef2891e885fa76c44a50a57fa8dcfa8a40b9cb15ca2c447f027014"
+    }
+  },
+  "metrics": {
+    "total_confirmed_planets": 6473,
+    "planets_with_radius": 4841,
+    "planets_with_mass": 3208,
+    "planets_with_both_mr": 1595,
+    "planets_with_eqt": 1784,
+    "missing_radius_count": 1632,
+    "missing_mass_count": 3265,
+    "missing_mass_pct": 50.40,
+    "radius_completeness_pct": 74.80,
+    "mass_completeness_pct": 49.60,
+    "both_mr_completeness_pct": 24.60,
+    "eqt_completeness_pct": 27.60,
+    "transit_count": 4800,
+    "transit_share_pct": 74.20,
+    "rv_count": 1204,
+    "rv_share_pct": 18.60,
+    "microlensing_count": 296,
+    "microlensing_share_pct": 4.60,
+    "imaging_count": 99,
+    "imaging_share_pct": 1.50,
+    "other_methods_count": 74,
+    "other_methods_share_pct": 1.10,
+    "peak_discovery_year": 2016,
+    "peak_discovery_count": 1504,
+    "valley_sample_count": 3670,
+    "super_earth_peak_re": 1.51,
+    "super_earth_zone_count": 902,
+    "valley_trough_re": 1.71,
+    "valley_zone_count": 567,
+    "sub_neptune_peak_re": 2.47,
+    "sub_neptune_zone_count": 1648,
+    "benchmark_count": 8,
+    "rho_55_cnc_e_gcm3": 6.68,
+    "rho_lhs_1140_b_gcm3": 5.96,
+    "rho_k2_18_b_gcm3": 3.69,
+    "rho_hd_209458_b_gcm3": 0.34,
+    "rho_trappist_1_e_gcm3": 4.90
+  },
+  "methods": [
+    { "name": "Transit", "count": 4800, "share_pct": 74.2, "note": "Kepler, K2, TESS photometric dips" },
+    { "name": "Radial Velocity", "count": 1204, "share_pct": 18.6, "note": "HARPS, HIRES, ESPRESSO Doppler wobble" },
+    { "name": "Microlensing", "count": 296, "share_pct": 4.6, "note": "OGLE, MOA gravitational lensing" },
+    { "name": "Direct Imaging", "count": 99, "share_pct": 1.5, "note": "VLT/SPHERE, Gemini, JWST coronagraphy" },
+    { "name": "Other Methods", "count": 74, "share_pct": 1.1, "note": "TTV, Astrometry, Pulsar & Eclipse Timing" }
+  ],
+  "benchmarks": [
+    { "name": "Proxima Cen b", "method": "Radial Velocity", "year": 2016, "dist_pc": 1.301, "period_d": 11.185, "radius_re": null, "mass_me": 1.055, "rho_gcm3": null, "eqt_k": 218.000, "st_teff_k": 2900.000 },
+    { "name": "55 Cnc e", "method": "Radial Velocity", "year": 2004, "dist_pc": 12.586, "period_d": 0.737, "radius_re": 1.875, "mass_me": 7.990, "rho_gcm3": 6.680, "eqt_k": null, "st_teff_k": 5172.000 },
+    { "name": "LHS 1140 b", "method": "Transit", "year": 2017, "dist_pc": 14.986, "period_d": 24.737, "radius_re": 1.730, "mass_me": 5.600, "rho_gcm3": 5.960, "eqt_k": 226.000, "st_teff_k": 3096.000 },
+    { "name": "51 Peg b", "method": "Radial Velocity", "year": 1995, "dist_pc": 15.461, "period_d": 4.231, "radius_re": null, "mass_me": 193.875, "rho_gcm3": null, "eqt_k": null, "st_teff_k": 5761.000 },
+    { "name": "TOI-700 d", "method": "Transit", "year": 2020, "dist_pc": 31.127, "period_d": 37.423, "radius_re": 1.145, "mass_me": null, "rho_gcm3": null, "eqt_k": null, "st_teff_k": null },
+    { "name": "K2-18 b", "method": "Transit", "year": 2015, "dist_pc": 38.027, "period_d": 32.940, "radius_re": 2.370, "mass_me": 8.920, "rho_gcm3": 3.690, "eqt_k": 284.000, "st_teff_k": 3457.000 },
+    { "name": "HD 209458 b", "method": "Radial Velocity", "year": 1999, "dist_pc": 48.302, "period_d": 3.525, "radius_re": 15.581, "mass_me": 232.016, "rho_gcm3": 0.340, "eqt_k": null, "st_teff_k": 6091.000 },
+    { "name": "TRAPPIST-1 e", "method": "Transit", "year": 2017, "dist_pc": null, "period_d": 6.101, "radius_re": 0.920, "mass_me": 0.692, "rho_gcm3": 4.900, "eqt_k": null, "st_teff_k": 2566.000 }
+  ]
+}

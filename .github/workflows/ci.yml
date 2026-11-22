@@ -62,6 +62,10 @@ jobs:
         run: |
           bash demos/typst-carbon-monograph/run_pipeline.sh
 
+      - name: Build & Certify EXOMUNDUS (100% Zero-Python Zig 0.17 + NASA TAP + Typst PDF/UA-1) LIVE on Linux
+        run: |
+          bash demos/exomundus-nasa-telemetry/run_pipeline.sh
+
       - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch & Archetype Dissector LIVE on Ubuntu Linux
         run: |
           ./zig/zig-out/bin/vedit latch demos/global-carbon-telemetry
@@ -73,7 +77,7 @@ jobs:
             --require-ua
           ./zig/zig-out/bin/vedit archetypes
 
-      - name: Run Full 18-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
+      - name: Run Full 19-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
         run: pytest
 
       - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos
