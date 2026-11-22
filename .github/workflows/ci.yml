@@ -48,4 +48,4 @@ jobs:
 
       - name: Privacy & host-path hygiene scan
         run: |
-          ! grep -rnE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" README.md skills/ verifiable_editorial/ tests/ demos/ --exclude="*.pdf" --exclude="*.png" --exclude="*.jpg"
+          ! git grep -InE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" -- README.md skills/ verifiable_editorial/ tests/ demos/
