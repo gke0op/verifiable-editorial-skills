@@ -15,17 +15,18 @@ This skill pairs with `verifiable-pdf-pipeline` (data integrity) and `editorial-
 
 ## 1. Core Invariant: Substance Precedes Aesthetics
 
-Every presentation or report built with this skill must obey the **10 Anti-Cheat Hard Rules** defined in `verifiable-pdf-pipeline/SKILL.md`:
+Every presentation or report built with this skill must obey the **11 Anti-Cheat Hard Rules** defined in `verifiable-pdf-pipeline/SKILL.md`:
 1. **Zero-Handwritten-Data Air-Gap** — parse all numbers from immutable raw files in `data/raw/`.
-2. **Reality & Invariant Compiler** — enforce Pydantic domain bounds and accounting identities.
-3. **Anti-Circular Verification** — independent raw-file re-computation + Python AST check banning hardcoded literal assertions.
+2. **Reality & Invariant Compiler** — enforce Pydantic/Zig domain bounds and accounting identities.
+3. **Anti-Circular Verification** — independent raw-file re-computation + AST check banning hardcoded literal assertions.
 4. **Atomic Provenance Ledger** — every published scalar mapped 1:1 in `data/provenance_ledger.json`.
 5. **Negative Capability & The Sacred "N/A"** — genuine upstream nulls render explicitly as `[N/A]` rather than fabricated proxies.
-6. **Compilation Latch** — PDF compilers invoke `verify_integrity.py` and abort on non-zero exit.
+6. **Compilation Latch** — PDF compilers invoke `vedit latch` / `verify_integrity.py` and abort on non-zero exit.
 7. **Category & Unit Guard** — never blend incommensurable scopes or test methods.
 8. **Statutory Proof** — official gazette IDs required for any regulatory/tariff claim.
 9. **Scientific Taxonomy & Registry Verification** — reconcile binomials, authorities, phylogeny, and IUCN status verbatim against live GBIF/OpenTree/iNaturalist registries.
-10. **Post-Render Prose Grounding (`vedit prose`)** — every rendered numeral in the final PDF traces back to `provenance_ledger.json`, `summary_metrics.json`, or a DOI-backed entry in `background_citations.json`.
+10. **Post-Render Prose Grounding (`vedit prose`)** — every rendered numeral and scientific exponent in the final PDF traces back to `provenance_ledger.json`, `summary_metrics.json`, or a DOI-backed entry in `background_citations.json` at half-ULP `f64` precision.
+11. **Clickable Resource Links & Live Anti-Hallucination (`vedit links`)** — every external resource/URL/DOI has a real clickable PDF `/URI` annotation verified live before finalization (DOI Handle Registry, open-science APIs, and HTTP `GET` Soft-404 / bot-challenge rejection).
 
 ---
 
@@ -164,8 +165,10 @@ For keynote-grade decks modeled on flagship 2023 institutional publications (*Qu
    - **Cross-Platform Bundled SIL-OFL Typography (`vedit fetch-fonts`):** Pass `--font-path ~/.cache/verifiable-editorial/fonts` to pin 8 SHA-256 verified open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) across macOS and Ubuntu Linux CI with `0` unembedded fonts. Enable `number-type: "lining"` on *Cormorant Garamond* titles, KPIs, and folios so numerals align crisply.
    - **Certified ISO 14289-1 (`PDF/UA-1`) Math & Vector Exhibits:** Compile with `typst compile --pdf-standard ua-1`, attach descriptive screen-reader `alt` text to every `image(...)` **and** every inline/block equation (`#math.equation(alt: "...", $ ... $)`), embed pure-vector SVG exhibits (`∞ DPI`), and certify via `vedit prepress --min-dpi 300 --require-ua` (live `veraPDF` `106/106` passed rules, `0` failures).
 6. **PDF Sample Injection & Design DNA Cloning (Sovereign Zig 0.17.0 Harness):**
-   - To adopt the visual identity of *any* external reference PDF (consulting report, botanical book, magazine, slide deck), run `vedit-zig inject <sample.pdf> --name <slug>` (from `zig/zig-out/bin/vedit`). The harness dissects trim dimensions, live margins, 60-30-10 pixel-measured WCAG palette, font hierarchy mapped to bundled SIL-OFL substitutes, and page-by-page column/photo/archetype cadence into `archetypes/<slug>/{blueprint.json, skeleton.typ, AGENT_CARD.md}`.
+   - To adopt the visual identity of *any* external reference PDF (consulting report, botanical book, magazine, slide deck, or mobile primer), run `vedit-zig inject <sample.pdf> --name <slug>` (from `zig/zig-out/bin/vedit`). The harness dissects trim dimensions (including `mobile_portrait_9x16`), live margins, 60-30-10 pixel-measured WCAG palette, font hierarchy mapped to bundled SIL-OFL substitutes, and page-by-page column/photo/archetype cadence into `archetypes/<slug>/{blueprint.json, skeleton.typ, AGENT_CARD.md}`.
    - Scaffold an immediately buildable, SHA-256-sealed, `PDF/UA-1`-certified publication cloned from that archetype via `vedit-zig init ./target --archetype <slug>` (zero Python required).
+7. **Mobile-Native Subject-Understanding Mode (`360 × 640 pt`, `9:16` WhatsApp PDF/UA-1, `demos/cosmos-mobile-primer/` & `archetypes/mobile-primer/`):**
+   - Built natively for instant zero-hiccup phone reading over WhatsApp, iOS Quick Look, and Android Drive: `360 × 640 pt` portrait cards, `10.6–11.5 pt` ragged-right single-column `Inter` (`~42 ch` measure, zero pinch-zoom), top `3 pt` swipe progress bar, max 3 table columns, `312 pt`-wide `∞ DPI` pure-vector SVGs (`< 1 MB` total file size), OLED Cosmic Dark (`#0B101B` canvas, `#131D31` cards, `>= 6.5:1` WCAG AA+) or Warm-Paper Daylight polarity, pedagogical *Mental Model → Visual Map → Concept Cards + Misconception Traps → Active Recall → SHA-256 Seal* arc, and thumb-friendly `>= 22 pt` tall clickable Rule 11 source pills verified live before finalization.
 
 ---
 

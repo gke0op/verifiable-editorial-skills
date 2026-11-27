@@ -156,6 +156,8 @@ pub fn dissectPdf(
         "widescreen_16x9"
     else if (aspect >= 1.15)
         "landscape_spread"
+    else if (trim_w <= 430.0 and aspect <= 0.68)
+        "mobile_portrait_9x16"
     else if (@abs(trim_w - 595.0) <= 6.0 and @abs(trim_h - 842.0) <= 6.0)
         "a4_portrait"
     else

@@ -1031,6 +1031,7 @@ def test_published_flagship_demos_pass_rule11_clickable_link_integrity_offline()
     for pdf in [
         BOTANICA / "report" / "BOTANICA_VERIDICA_MONOGRAPH.pdf",
         REPO_ROOT / "demos/caie-flowshop-journal/report/CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf",
+        REPO_ROOT / "demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf",
         REPO_ROOT / "demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf",
         REPO_ROOT / "demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf",
         TYPST_DEMO / "report" / "TYPST_CARBON_MONOGRAPH_UA1.pdf",
@@ -1040,3 +1041,38 @@ def test_published_flagship_demos_pass_rule11_clickable_link_integrity_offline()
         if ZIG_VEDIT.exists() and shutil.which("mutool"):
             z = subprocess.run([str(ZIG_VEDIT), "links", str(pdf), "--offline"], capture_output=True, text=True)
             assert z.returncode == 0, f"Zig Rule 11 offline failed on {pdf.name}:\n{z.stdout}\n{z.stderr}"
+
+
+def test_cosmos_mobile_primer_passes_whatsapp_budget_mobile_trim_and_6_gate_parity() -> None:
+    """Mobile-native 9:16 subject-understanding primer MUST fit WhatsApp size budget (<1 MB), 360x640pt trim, and pass all gates."""
+    import fitz
+
+    demo = REPO_ROOT / "demos/cosmos-mobile-primer"
+    pdf = demo / "report/COSMOS_MOBILE_PRIMER_UA1.pdf"
+    assert pdf.exists() and pdf.stat().st_size < 1_000_000, f"WhatsApp PDF size budget exceeded: {pdf.stat().st_size}"
+
+    doc = fitz.open(pdf)
+    assert len(doc) == 12, f"Expected 12 mobile cards, got {len(doc)}"
+    for pg in doc:
+        assert abs(pg.rect.width - 360.0) <= 1.0 and abs(pg.rect.height - 640.0) <= 1.0
+
+    # Verify archetype metadata records native mobile_portrait_9x16
+    bp = json.loads((REPO_ROOT / "archetypes/mobile-primer/blueprint.json").read_text(encoding="utf-8"))
+    assert bp["format_class"] == "mobile_portrait_9x16"
+
+    assert audit_contrast(pdf)["passed"] is True
+    assert audit_geometry(pdf)["passed"] is True
+    assert audit_prose(
+        pdf,
+        ledger_path=demo / "data/provenance_ledger.json",
+        summary_path=demo / "data/summary_metrics.json",
+        citations_path=demo / "data/background_citations.json",
+        manifest_path=demo / "data/manifest.sha256",
+    )["passed"] is True
+    assert audit_links(
+        pdf,
+        citations_path=demo / "data/background_citations.json",
+        ledger_path=demo / "data/provenance_ledger.json",
+        live=False,
+    )["passed"] is True
+    assert audit_prepress(pdf, min_dpi=300.0, require_ua=True, run_verapdf=bool(shutil.which("verapdf")))["passed"] is True

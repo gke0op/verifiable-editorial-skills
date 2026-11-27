@@ -1,0 +1,20 @@
+{
+  "citations": [
+    { "source": "CODATA 2018 Fundamental Constants (Tiesinga et al. 2021, Rev. Mod. Phys.)", "values": [299792458, 299792.458, 6.67430e-11, 2018, 2021], "unit": "SI", "doi_or_url": "https://doi.org/10.1103/RevModPhys.93.025010" },
+    { "source": "IAU 2015 Resolution B3 Nominal Constants (Prsa et al. 2016, AJ)", "values": [149597870700, 2015, 2016], "unit": "m", "doi_or_url": "https://doi.org/10.3847/0004-6256/152/2/41" },
+    { "source": "Comet 67P Rosetta Gravity & Density (Patzold et al. 2016, Nature 530, 63)", "values": [0.533, 2016], "unit": "g/cm^3", "doi_or_url": "https://doi.org/10.1038/nature16535" },
+    { "source": "NASA JPL Small-Body Database API (67P/Churyumov-Gerasimenko)", "values": [3.4, 0.533], "unit": "km", "doi_or_url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=67P&phys-par=1" },
+    { "source": "NASA NSSDC Earth Fact Sheet", "values": [6371.0, 5.9722, 5513], "unit": "km", "doi_or_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html" },
+    { "source": "NASA NSSDC Jupiter Fact Sheet", "values": [69911, 1898.13, 1326], "unit": "km", "doi_or_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupiterfact.html" },
+    { "source": "NASA NSSDC Sun Fact Sheet", "values": [695700, 1988400, 1408], "unit": "km", "doi_or_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html" },
+    { "source": "Sirius B HST Visual Binary Mass (Bond et al. 2017, ApJ 840, 70)", "values": [1.018, 2017], "unit": "M_sun", "doi_or_url": "https://doi.org/10.3847/1538-4357/aa6af8" },
+    { "source": "Sirius B Gravitational Redshift (Joyce et al. 2018, MNRAS 481, 2361)", "values": [80.65, 1.017, 2018], "unit": "km/s", "doi_or_url": "https://doi.org/10.1093/mnras/sty2404" },
+    { "source": "PSR J0740+6620 NICER Mass & Radius (Riley et al. 2021, ApJL 918, L27)", "values": [12.39, 2.072, 6620, 2021], "unit": "km", "doi_or_url": "https://doi.org/10.3847/2041-8213/ac0a81" },
+    { "source": "Cygnus X-1 VLBA 21.2 Msun Black Hole (Miller-Jones et al. 2021, Science)", "values": [21.2, 2.22, 2021], "unit": "M_sun", "doi_or_url": "https://doi.org/10.1126/science.abb3363" },
+    { "source": "Sgr A* VLTI GRAVITY Mass (GRAVITY Collaboration 2022, A&A 657, L12)", "values": [4.30e6, 2022], "unit": "M_sun", "doi_or_url": "https://doi.org/10.1051/0004-6361/202142465" },
+    { "source": "Sgr A* EHT Shadow Ring 51.8 uas (EHT Collaboration 2022, ApJL 930, L12)", "values": [51.8, 2022], "unit": "uas", "doi_or_url": "https://doi.org/10.3847/2041-8213/ac6674" },
+    { "source": "M87* EHT Shadow & 6.5e9 Msun Mass (EHT Collaboration 2019, ApJL 875, L1)", "values": [6.5e9, 42, 2019], "unit": "M_sun", "doi_or_url": "https://doi.org/10.3847/2041-8213/ab0ec7" },
+    { "source": "NASA JPL DE440 Planetary Ephemeris / Pluto 39.5 AU (Park et al. 2021, AJ)", "values": [39.5, 2021], "unit": "AU", "doi_or_url": "https://doi.org/10.3847/1538-3881/abd414" },
+    { "source": "Verifiable Editorial Skills 6-Gate Court Repository", "values": [6], "unit": "gates", "doi_or_url": "https://github.com/gke0op/verifiable-editorial-skills" }
+  ]
+}

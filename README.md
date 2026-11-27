@@ -5,13 +5,22 @@
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **29 adversarial sabotage tests** on Ubuntu Linux CI.
+Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **30 adversarial sabotage tests** on Ubuntu Linux CI.
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
 ---
 
 ## Gallery
+
+### 00 · *Cosmos in Your Pocket* (`mobile-primer` · `360×640 pt` WhatsApp `9:16` PDF/UA-1) — Comets to Supermassive Black Holes · `100% Zig 0.17 + Typst`
+[PDF (`262 KB`)](demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf) · [Source](demos/cosmos-mobile-primer/) · Live NASA JPL SBDB, NSSDC Fact Sheets, arXiv & Crossref (`9` raw SHA-256 files, `27.1` mass decades, `18.1` density decades) · Zero pinch-zoom mobile cards · `191/191` Rule 10 · `16/16` live clickable Rule 11 pills · `6.56:1` worst CR · **`veraPDF 106/106`**
+
+| Card 1 · WhatsApp OLED Cover | Card 3 · Mass–Radius Phase Map | Card 9 · Compactness Ladder | Card 10 · Tidal & Air Paradoxes |
+| :---: | :---: | :---: | :---: |
+| ![Cosmos 1](demos/cosmos-mobile-primer/previews/mobile_card_01.png) | ![Cosmos 3](demos/cosmos-mobile-primer/previews/mobile_card_03.png) | ![Cosmos 9](demos/cosmos-mobile-primer/previews/mobile_card_09.png) | ![Cosmos 10](demos/cosmos-mobile-primer/previews/mobile_card_10.png) |
+
+---
 
 ### 01 · *Physical Review Letters* (`APS REVTeX 4.2`) — SU(2) Yang–Mills Chaos & RMT · `100% Zig 0.17 + Typst`
 [PDF](demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf) · [Source](demos/prl-yang-mills-chaos/) · Pure-Zig 4th-order Yoshida symplectic + `C4v A1` Householder–QL (`D=900`, `1e-15` trace error) · Genuine stepped `widetext` brackets · Zero Python · `548/548` Rule 10 · `1,019` spans (`6.46:1` worst) · **`veraPDF 106/106`**
@@ -122,6 +131,7 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
 | Slug | Trim / Polarity | Palette (`bg` / `accent`) | Source |
 | :--- | :--- | :--- | :--- |
+| `mobile-primer` | `360×640` · 9:16 OLED dark (`12p`) | `#081018` / `#78d0f8` | `COSMOS_MOBILE_PRIMER_UA1.pdf` |
 | `aps-prl-letter` | `612×792` · PRL light (`3p`) | `#f8f8f8` / `#b81818` | `PRL_YANG_MILLS_CHAOS_UA1.pdf` |
 | `elsevier-caie-journal` | `595×842` · A4 light (`4p`) | `#f8f8f8` / `#082840` | `CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf` |
 | `exomundus-astrophysics` | `612×792` · light (`4p`) | `#f8f8f0` / `#0858a8` | `EXOMUNDUS_NASA_TELEMETRY_UA1.pdf` |
@@ -149,7 +159,7 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
 (cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
 
-# Optional: Python CLI + 29-test adversarial sabotage & parity suite
+# Optional: Python CLI + 30-test adversarial sabotage & parity suite
 pip install -e ".[dev]" && pytest
 ```
 
@@ -157,11 +167,11 @@ pip install -e ".[dev]" && pytest
 
 ```
 zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 6-gate court
-archetypes/              8 dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
+archetypes/              9 dissected PDF Design DNAs (incl. `mobile-primer`, `aps-prl-letter`, `elsevier-caie-journal`)
 skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
-demos/                   9 live open-data & physics publications (PRL, CAIE/OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
+demos/                   10 live open-data & physics publications (Mobile Cosmos Primer, PRL, CAIE, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
 verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   29-test adversarial sabotage, live link anti-hallucination, p2zig parity & zero-Python closed-loop suite
+tests/                   30-test adversarial sabotage, mobile 9:16, live link anti-hallucination, p2zig parity & zero-Python closed-loop suite
 ```
 
 ### The 11 Anti-Cheat Rules

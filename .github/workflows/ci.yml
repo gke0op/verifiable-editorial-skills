@@ -74,6 +74,10 @@ jobs:
         run: |
           bash demos/prl-yang-mills-chaos/run_pipeline.sh
 
+      - name: Build & Certify Cosmos Mobile Field Primer (9:16 WhatsApp PDF/UA-1, 100% Zero-Python Zig 0.17 + 6-Gate Court) LIVE on Linux
+        run: |
+          bash demos/cosmos-mobile-primer/run_pipeline.sh
+
       - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch, Coverage & Archetype Dissector LIVE on Ubuntu Linux
         run: |
           ./zig/zig-out/bin/vedit latch demos/global-carbon-telemetry

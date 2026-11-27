@@ -106,6 +106,31 @@ Demonstrated in `demos/typst-carbon-monograph/` (sub-second `~415 ms` compilatio
 
 ---
 
+## 3E. Mobile-Native Subject-Understanding Primer (`360 × 640 pt`, `9:16` WhatsApp PDF/UA-1)
+
+Designed natively for phone screens so a single `< 1 MB` PDF opens instantaneously inside WhatsApp, iOS Quick Look, Android Drive, or any mobile PDF viewer with **zero pinch-zoom, zero horizontal panning, and thumb-sized live-verified source pills** (demonstrated in `demos/cosmos-mobile-primer/` and registered as `archetypes/mobile-primer/`):
+
+- **Phone Canvas & Safe Area (`360 × 640 pt`, `24 pt` L/R, `24 pt` top, `28 pt` bottom):**
+  - Live content width = **`312 pt`** (`~40–46 ch` single-column measure — NEVER two-column body prose!).
+  - Top `3 pt` full-width reading progress bar (`page / total`) + subtle bottom micro-folio (`CARD 04 / 12`).
+  - Target vertical fill: **`82%–95%`** per card; never let a single card spill onto a stray extra page.
+- **Thumb-Scale Typography & Polarity Modes:**
+  - **Body prose:** `10.6–11.5 pt` (`Inter`, leading `1.45×`, ragged-right `justify: false`, `hyphenate: false`), which maps to crisp `~16–18 CSS px` on a 6.1" phone display. Never drop body text below `10 pt`.
+  - **Card headline:** `18–20 pt` bold (`Source Serif 4` lining figures), balanced across at most 2 lines (never a 1-word hanging wrap).
+  - **Tables:** Max **3 columns** (never wide desktop tables); right-aligned `IBM Plex Mono` figures.
+  - **OLED Dark Mode (`#0B101B` canvas, `#131D31` card, `#DCE5F2` body, `#7DD3FC`/`#FCD34D`/`#FCA5A5`/`#6EE7B7` accents — all `>= 6.5:1` WCAG AA+)** OR **Daylight Warm Paper (`#F7F5F0` canvas, `#FFFFFF` card, `#181A1F` ink)**.
+- **Pedagogical Card Cadence (Built for Genuine Understanding):**
+  1. **Poster Cover (Card 1):** WhatsApp chat-thumbnail hero — title + deck + `312 pt` pure-vector conceptual diagram + 3-tile KPI strip + swipe prompt.
+  2. **The One Mental Model (Card 2):** Intuition-first unifying principle + accessible `#math.equation(alt: ...)` + color-coded conceptual floors/regimes.
+  3. **Grand Visual Map (Card 3):** Full-width `312 pt` pure-vector (`∞ DPI`) phase space / conceptual map + 3-bullet "How to Read This Map" guide.
+  4. **One-Concept-Per-Card Deep Dives (Cards 4–10):** `Kicker -> Balanced Headline -> 2–3 KPI Tiles -> Intuition Paragraph -> Data/Mechanism Insight Box -> Common Misconception Callout -> Bottom Tappable Source Pills`.
+  5. **Complete Field Ledger + Active Recall (Card 11):** Compact 3-column summary table + 3 rapid-fire intuition Q&A checks grounded in exact ledger metrics.
+  6. **Cryptographic Seal & Source Library (Card 12):** Live SHA-256 raw manifest hashes + 6-Gate certification + tappable primary DOI/repository pills.
+- **Mobile Touch Ergonomics (Rule 11 Extension):** Every card's primary sources sit inside thumb-friendly pill boxes (`>= 22 pt` tall hitbox with explicit `↗` affordance) verified live via `vedit links`.
+- **WhatsApp Delivery Budget:** Pure-vector SVGs (`∞ DPI`) + subset SIL-OFL fonts keep total file size **`< 1 MB` (`~260 KB`)**, strictly certified `PDF/UA-1` (`veraPDF 106/106`) and passing all 6 VES gates.
+
+---
+
 ## 4. Typographic Hierarchy Scale (`Inter` with `Helvetica` Fallback)
 
 | Token | Size / Leading | Weight | Light Mode | Dark Mode | Role |
