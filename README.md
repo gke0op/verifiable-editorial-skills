@@ -14,11 +14,11 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 ## Gallery
 
 ### 00 · *Cosmos in Your Pocket* (`mobile-primer` · `360×640 pt` WhatsApp `9:16` PDF/UA-1) — Comets to Supermassive Black Holes · `100% Zig 0.17 + Typst`
-[PDF (`613 KB`)](demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf) · [Source](demos/cosmos-mobile-primer/) · Zero-box OLED void + `┌ ... ┘` corner brackets + matte OLED bold grey + `4` pure-Zig vector SVGs & `8` seamless `326 DPI` Nano Banana cosmic plates (every card illustrated) · Live NASA JPL SBDB, NSSDC Fact Sheets, arXiv & Crossref (`9` raw SHA-256 files, `27.1` mass decades, `18.1` density decades) · `196/196` Rule 10 · `16/16` live clickable Rule 11 links · `7.90:1` worst CR (`AAA`) · **`veraPDF 106/106`**
+[PDF (`611 KB`)](demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf) · [Source](demos/cosmos-mobile-primer/) · Zero-box OLED void + `┌ ... ┘` corner brackets + dynamic non-repeating per-card layouts + matte OLED bold grey + `4` pure-Zig vector SVGs & `8` seamless `326 DPI` Nano Banana cosmic plates · Live NASA JPL SBDB, NSSDC Fact Sheets, arXiv & Crossref (`9` raw SHA-256 files, `27.1` mass decades, `18.1` density decades) · `196/196` Rule 10 · `16/16` live clickable Rule 11 links · `7.90:1` worst CR (`AAA`) · **`veraPDF 106/106`**
 
-| Card 1 · WhatsApp OLED Cover | Card 3 · Mass–Radius Phase Map | Card 8 · `PSR J0740+6620` Plate | Card 11 · Field Ledger & Black Hole |
+| Card 1 · WhatsApp OLED Cover | Card 5 · Aligned KPI-Over-Horizons | Card 8 · Cold-Open Pulsar Plate | Card 11 · Field Ledger & Black Hole |
 | :---: | :---: | :---: | :---: |
-| ![Cosmos 1](demos/cosmos-mobile-primer/previews/mobile_card_01.png) | ![Cosmos 3](demos/cosmos-mobile-primer/previews/mobile_card_03.png) | ![Cosmos 8](demos/cosmos-mobile-primer/previews/mobile_card_08.png) | ![Cosmos 11](demos/cosmos-mobile-primer/previews/mobile_card_11.png) |
+| ![Cosmos 1](demos/cosmos-mobile-primer/previews/mobile_card_01.png) | ![Cosmos 5](demos/cosmos-mobile-primer/previews/mobile_card_05.png) | ![Cosmos 8](demos/cosmos-mobile-primer/previews/mobile_card_08.png) | ![Cosmos 11](demos/cosmos-mobile-primer/previews/mobile_card_11.png) |
 
 ---
 

@@ -1,6 +1,6 @@
 # Archetype Harness Card: `mobile-primer`
 
-- **Dissected From:** `COSMOS_MOBILE_PRIMER_UA1.pdf` (`SHA-256: 645eb09bf66e1229`)
+- **Dissected From:** `COSMOS_MOBILE_PRIMER_UA1.pdf` (`SHA-256: 9a032663b6923c07`)
 - **Format:** `mobile_portrait_9x16` (`360.0 × 640.0 pt`), **dark** polarity, `12` pages
 - **Margins (T/B/L/R):** `28.0 / 33.0 / 28.0 / 28.0 pt`
 - **Measured Density:** avg vertical fill `99.6%` · avg photography coverage `9.8%`
@@ -19,11 +19,11 @@
 - **Page 1:** `cover_hero` (1-col, fill `100%`, photo `0%`, max font `26.0 pt`, spans `27`, strokes `27`)
 - **Page 2:** `data_exhibit_ledger` (2-col, fill `100%`, photo `10%`, max font `19.5 pt`, spans `59`, strokes `10`)
 - **Page 3:** `data_exhibit_ledger` (2-col, fill `95%`, photo `0%`, max font `19.5 pt`, spans `78`, strokes `28`)
-- **Page 4:** `narrative_spread` (1-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `39`, strokes `11`)
-- **Page 5:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `48`, strokes `11`)
-- **Page 6:** `narrative_spread` (1-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `36`, strokes `11`)
-- **Page 7:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `47`, strokes `12`)
-- **Page 8:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `47`, strokes `10`)
+- **Page 4:** `asymmetric_monograph` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `38`, strokes `11`)
+- **Page 5:** `asymmetric_monograph` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `44`, strokes `11`)
+- **Page 6:** `asymmetric_monograph` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `35`, strokes `11`)
+- **Page 7:** `asymmetric_monograph` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `43`, strokes `12`)
+- **Page 8:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `46`, strokes `10`)
 - **Page 9:** `data_exhibit_ledger` (2-col, fill `100%`, photo `0%`, max font `19.5 pt`, spans `60`, strokes `37`)
 - **Page 10:** `data_exhibit_ledger` (2-col, fill `100%`, photo `0%`, max font `19.5 pt`, spans `88`, strokes `28`)
 - **Page 11:** `data_exhibit_ledger` (2-col, fill `100%`, photo `17%`, max font `19.5 pt`, spans `59`, strokes `14`)

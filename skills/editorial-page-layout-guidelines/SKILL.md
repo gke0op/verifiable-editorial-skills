@@ -132,12 +132,22 @@ Designed natively for phone screens so a single `< 1 MB` (`~234–613 KB`) PDF o
   - **Card headline:** `19–20 pt` semibold (`Source Serif 4` lining figures), balanced across at most 2 lines (never a 1-word hanging wrap).
   - **Tables:** Max **3 columns** (`0.35 pt` row hairlines, zero vertical rules); right-aligned `IBM Plex Mono` figures.
   - **Restrained Observatory Palette (Zero Neon Rainbow):** Continuous `#07090F` OLED void, `#E2E7EF` titles, `#D6DCE6` body, `#B6C0CE` matte bold, `#9AA8BC` muted metadata (`>= 7.5:1` WCAG AAA!), `#2B384E` whisper-thin reticles, and muted editorial accents (`#E8C078` warm gold, `#8CC8F0` ice blue, `#E58A8A` rose, `#7AD1B8` sage).
-- **Pedagogical Card Cadence (Built for Genuine Understanding):**
-  1. **Poster Cover (Card 1):** WhatsApp thumbnail hero — title + deck + box-free `304 pt` vector reticle + naked 3-stat strip + subtle swipe cue.
-  2. **The One Mental Model (Card 2):** Intuition-first unifying principle + `#math.equation(alt: ...)` inside subtle gold `┌ ... ┘` corners + numbered hairline-separated floors + seamless `76 pt` visual plate.
+- **Dynamic, Non-Repeating Card Choreography (Creative Freedom — NO Cookie-Cutter Order):**
+  - **NEVER force every card into the exact same top-to-bottom section sequence.** Treat each card's elements as **interchangeable modular atoms** — `[H]` Header (`Kicker + Headline`), `[P]` Visual Plate or Pure-Vector SVG, `[K]` Naked KPI Strip, `[T]` Narrative Prose, and `[N]` Open `┌ ... ┘` Corner-Bracket Note — floating freely above the anchored `[F]` 2-Line Source/Folio Bar.
+  - **Rule of Non-Repetition:** No two adjacent cards should share the exact same vertical block sequence. Act as an editorial art director and mix-and-match compositions to match the emotional and physical rhythm of each topic:
+    - **Cold-Open Visual (`P -> H -> T -> K -> N`):** Open silently with the photograph/plate emerging right out of the top void *above* the kicker and headline for dramatic reveals.
+    - **Hero-Under-Headline (`H -> P -> K -> T -> N`):** Drop the visual immediately beneath the title to anchor an unfamiliar subject before unpacking numbers.
+    - **Aligned KPI-Over-Visual (`H -> K -> P -> T -> N`):** Pair a 2- or 3-column metric strip directly above a comparative image so left/right stats align straight over their corresponding subjects.
+    - **Corner-Note Hook Lead (`H -> N -> T -> K -> P`):** Open with the sharpest paradox or tension inside `┌ ... ┘` brackets, unpack the mechanism and numbers, and close on a bottom-anchored horizon plate.
+    - **Metric Shock / Mid-Card Centerpiece (`H -> K -> T -> P -> N`):** Lead straight with jaw-dropping numbers, place the plate mid-card to break prose flow, and close on a `┌ ... ┘` verification receipt.
+    - **Chart-First Inversion (`H -> P(SVG) -> K -> T`):** Open immediately with a pure-vector plot when the curve itself carries the "aha!" twist.
+  - **Fixed Invariants vs. Creative Canvas:** Only the continuous void/paper canvas, zero filled boxes, `28 pt` margins, matte OLED bold ink (`#B6C0CE`), `1.5 pt` top progress bar, and 2-line bottom bar stay locked across the deck — everything inside the live canvas is dynamically interchangeable per card.
+- **Pedagogical Arc (Understanding First, Layout Free):**
+  1. **Poster Cover (Card 1):** WhatsApp thumbnail hero — title + deck + box-free vector exhibit + naked stat strip + subtle swipe cue.
+  2. **The Unifying Mental Model (Card 2):** Intuition-first governing law + accessible `#math.equation(alt: ...)` inside subtle `┌ ... ┘` corners + numbered floors + seamless visual anchor.
   3. **Grand Visual Map (Card 3):** Full-width `304 pt` open-axis pure-vector map + `┌ ... ┘` reading guide.
-  4. **One-Concept-Per-Card Deep Dives (Cards 4–10):** `Kicker -> Balanced Headline -> Naked Stat Strip -> Intuition Prose -> Open ┌ ... ┘ Insight Note -> Fixed-Slot Seamless 326-DPI Panoramic Plate OR Pure-Vector Plot -> 2-Line Source & Folio Bar`.
-  5. **Complete Field Ledger + Active Recall (Card 11):** Compact 3-column Tufte table + `┌ ... ┘` rapid intuition Q&A + seamless panoramic climax plate.
+  4. **Dynamic Concept Deep Dives (Cards 4–10):** Mix-and-match `[H]`, `[P]`, `[K]`, `[T]`, `[N]` dynamically across every card — zero adjacent repeats — blending code-generated pure-vector exhibits and seamless `326 DPI` panoramic plates.
+  5. **Complete Field Ledger + Active Recall (Card 11):** Compact 3-column Tufte table + `┌ ... ┘` rapid intuition Q&A + panoramic climax plate.
   6. **Cryptographic Seal & Source Library (Card 12):** Live SHA-256 raw manifest inside `┌ ... ┘` corners + 6-Gate seal + visual attribution + serene deep-field closing plate + 2-line source bar.
 - **Box-Free 2-Line Mobile Touch Bar (Rule 11 Extension):** Place `SOURCES` inline on the same row as the bare underlined `IBM Plex Mono` links (`NASA JPL SBDB ↗`, transparent `y: 4.5pt` touch padding) directly above the quiet folio line — keeping the entire footer strictly **2 lines** while every link is verified live via `vedit links`.
 - **WhatsApp Delivery Budget:** Pure-vector SVGs (`∞ DPI`) + feathered panoramic plates (`~15–77 KB` each, `>= 300 DPI`) + subset SIL-OFL fonts keep total file size **`< 1 MB` (`~234–613 KB`)**, strictly certified `PDF/UA-1` (`veraPDF 106/106`) and passing all 6 VES gates.

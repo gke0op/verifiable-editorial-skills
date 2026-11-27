@@ -210,10 +210,15 @@
   ]
 }
 
-// Seamless box-free fixed-slot panoramic plate (304 x h pt @ 326 DPI, edge-feathered into #07090F void)
+// Seamless box-free panoramic plates (304 x h pt @ 326 DPI, edge-feathered into #07090F void)
+// Use flow-plate() for top/mid-card editorial placement and void-plate-h() for bottom-anchored plates.
+#let flow-plate(path, h: 118pt, alt-text) = {
+  image(path, width: 304pt, height: h, fit: "cover", alt: alt-text)
+}
+
 #let void-plate-h(path, h, alt-text) = {
   v(1fr)
-  image(path, width: 304pt, height: h, fit: "cover", alt: alt-text)
+  flow-plate(path, h: h, alt-text)
 }
 
 #let void-plate(path, alt-text) = void-plate-h(path, 118pt, alt-text)
@@ -349,13 +354,14 @@ Plot every body's mass against its radius in log scale, and all of astrophysics 
 ], accent: acc-ice, line-col: reticle)
 
 // ============================================================================
-// CARD 4 — COMET 67P
+// CARD 4 — COMET 67P  [Layout: Hero-Under-Headline  H -> P -> K -> T -> N -> F]
 // ============================================================================
 #pagebreak()
 #kicker("03 · Rubble & Ice  ·  Stop 1 of 9", accent: ink-muted)
 #card-title([Comet 67P: You Could#linebreak()Jump Into Deep Space])
 
-ESA's Rosetta orbiter weighed Comet 67P/Churyumov–Gerasimenko from subtle radio shifts in its flight path. Its surface gravity is *#comma-int(d.c67_to_earth_g_inv) times weaker* than Earth's.
+#flow-plate("plates/plate_04_67p.jpg", "Panoramic deep-space visual of the dark bi-lobed rubble nucleus of Comet 67P with faint sunlit sublimation gas wisps floating in space void.")
+#v(6pt)
 
 #stat-strip-3(
   stat-col("Escape", fmt(d.c67_v_esc_ms, digits: 2) + " m/s", "Human jump", accent: acc-ice),
@@ -364,14 +370,12 @@ ESA's Rosetta orbiter weighed Comet 67P/Churyumov–Gerasimenko from subtle radi
 )
 #v(8pt)
 
-*Why It Isn't Round:* Gravity can only pull matter into a sphere once it overpowers the tensile strength of rock and ice. At *#fmt(d.c67_diam_km, digits: 1) km* wide, 67P's compactness is a microscopic #math.equation(alt: "Xi equals 8.67 times 10 to the minus 18", $Xi = 8.67 times 10^(-18)$) — freezing its two-lobed silhouette in place.
+ESA's Rosetta orbiter weighed Comet 67P/Churyumov–Gerasimenko from subtle radio shifts in its flight path — surface gravity is *#comma-int(d.c67_to_earth_g_inv) times weaker* than Earth's. At *#fmt(d.c67_diam_km, digits: 1) km* wide, compactness sits at #box[#math.equation(alt: "Xi equals 8.67 times 10 to the minus 18", $Xi = 8.67 times 10^(-18)$)] — leaving rock and ice strong enough to freeze its two-lobed silhouette.
 
 #v(8pt)
 #open-note("Intuition · Porous Cosmic Sponge", [
   Measured at *#fmt(d.c67_dens_g_cm3, digits: 3) g/cm³* — roughly half the density of water — most of 67P is empty pore space between loose dust and ice grains. Far from solid frozen glass, it is a fragile rubble pile that would float.
 ], accent: acc-gold, line-col: reticle)
-
-#void-plate("plates/plate_04_67p.jpg", "Panoramic deep-space visual of the dark bi-lobed rubble nucleus of Comet 67P with faint sunlit sublimation gas wisps floating in space void.")
 
 #source-footer((
   bare-link("https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=67P&phys-par=1", "NASA JPL SBDB"),
@@ -379,28 +383,27 @@ ESA's Rosetta orbiter weighed Comet 67P/Churyumov–Gerasimenko from subtle radi
 ))
 
 // ============================================================================
-// CARD 5 — EARTH & JUPITER
+// CARD 5 — EARTH & JUPITER  [Layout: Aligned KPI-Over-Horizon  H -> K -> P -> T -> N -> F]
 // ============================================================================
 #pagebreak()
 #kicker("04 · Hydrostatic Worlds  ·  Stops 2 & 3", accent: acc-gold)
 #card-title([Earth & Jupiter: Gravity#linebreak()Sculpts Round Worlds])
 
-Accumulate enough rock or gas and gravity crushes crystal lattices into near-perfect spheres in *hydrostatic equilibrium*.
-
 #stat-strip-2(
   stat-col("Earth · Rock", fmt(d.earth_v_esc_kms, digits: 2) + " km/s", "R = " + comma-int(d.earth_radius_km) + " km · " + fmt(d.earth_density_g_cm3, digits: 2) + " g/cm³", accent: acc-ice),
   stat-col("Jupiter · Gas", fmt(d.jupiter_v_esc_kms, digits: 2) + " km/s", "R = " + comma-int(d.jupiter_radius_km) + " km · " + fmt(d.jup_earth_mass_ratio, digits: 1) + " Earths", accent: acc-gold),
 )
+#v(6pt)
+
+#flow-plate("plates/plate_05_earth_jupiter.jpg", "Panoramic deep-space pairing of Earth's thin blue crescent limb on the left and Jupiter's sweeping turbulent amber cloud horizon on the right.")
 #v(8pt)
 
-*Rock vs. Compressed Hydrogen:* Earth's iron core and silicate mantle reach *#fmt(d.earth_density_g_cm3, digits: 2) g/cm³* — the densest major world in our Solar System. Jupiter carries *#fmt(d.jup_earth_mass_ratio, digits: 1) times* Earth's mass yet averages *#fmt(d.jupiter_density_g_cm3, digits: 2) g/cm³*, squeezing deep hydrogen into a liquid metallic state.
+Accumulate enough rock or gas and gravity crushes crystal lattices into near-perfect spheres in *hydrostatic equilibrium*. Earth's iron core and silicate mantle reach *#fmt(d.earth_density_g_cm3, digits: 2) g/cm³* — the densest major world in our Solar System. Jupiter carries *#fmt(d.jup_earth_mass_ratio, digits: 1) times* Earth's mass yet averages *#fmt(d.jupiter_density_g_cm3, digits: 2) g/cm³*, squeezing deep hydrogen into a liquid metallic state.
 
 #v(8pt)
 #open-note("Scale Shock · Earth's Event Horizon", [
-  Plug Earth's mass into #math.equation(alt: "R_s equals 2 G M over c squared", $R_s = (2 G M) / c^2$): our entire planet would have to be crushed to a glass marble just *#fmt(d.earth_rs_mm, digits: 2) mm* in radius to form a black hole. Today Earth rests calmly at #math.equation(alt: "Xi equals 1.39 times 10 to the minus 9", $Xi = 1.39 times 10^(-9)$).
+  Plug Earth's mass into #box[#math.equation(alt: "R_s equals 2 G M over c squared", $R_s = (2 G M) / c^2$)]: our entire planet would have to be crushed to a glass marble just *#fmt(d.earth_rs_mm, digits: 2) mm* in radius to form a black hole. Today Earth rests calmly at #box[#math.equation(alt: "Xi equals 1.39 times 10 to the minus 9", $Xi = 1.39 times 10^(-9)$)].
 ], accent: acc-ice, line-col: reticle)
-
-#void-plate("plates/plate_05_earth_jupiter.jpg", "Panoramic deep-space pairing of Earth's thin blue crescent limb on the left and Jupiter's sweeping turbulent amber cloud horizon on the right.")
 
 #source-footer((
   bare-link("https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html", "NASA Earth Fact Sheet"),
@@ -408,27 +411,27 @@ Accumulate enough rock or gas and gravity crushes crystal lattices into near-per
 ))
 
 // ============================================================================
-// CARD 6 — THE SUN
+// CARD 6 — THE SUN  [Layout: Corner-Note Hook Lead  H -> N -> T -> K -> P -> F]
 // ============================================================================
 #pagebreak()
 #kicker("05 · Nuclear Fusion  ·  Stop 4 of 9", accent: acc-gold)
 #card-title([The Sun: A Self-Regulating#linebreak()Fusion Thermostat])
 
-Gather *#comma-int(d.sun_earth_mass_ratio) Earths* of hydrogen and central pressure ignites nuclear fusion. Gravity tries to crush the star in under an hour; outward thermal and radiation pressure holds it aloft for billions of years.
+#open-note("The Catch · Thermal Support Expires", [
+  Thermal pressure lasts only while fuel burns. Once a star exhausts nuclear fusion, heat radiates into space and gravity collects its debt — handing control over to quantum mechanics.
+], accent: acc-gold, line-col: reticle)
+#v(10pt)
 
+Gather *#comma-int(d.sun_earth_mass_ratio) Earths* of hydrogen and central pressure ignites nuclear fusion. Gravity tries to crush the star in under an hour; outward heat holds it aloft for billions of years.
+
+*Built-In Negative Feedback:* If the solar core compresses slightly, fusion accelerates and extra pressure expands and cools it back into balance. Intense heat puffs its envelope wide so average density stays just *#fmt(d.sun_density_g_cm3, digits: 2) g/cm³* — a quarter of Earth's rock.
+
+#v(4pt)
 #stat-strip-3(
   stat-col("Radius", comma-int(d.sun_radius_km) + " km", "Gas sphere", accent: acc-gold),
   stat-col("Escape", fmt(d.sun_v_esc_kms, digits: 1) + " km/s", "Solar limb", accent: acc-ice),
   stat-col("Horizon", fmt(d.sun_rs_km, digits: 2) + " km", "Xi = 4.24×10⁻⁶", accent: acc-rose),
 )
-#v(8pt)
-
-*Built-In Negative Feedback:* If the solar core compresses slightly, temperature rises, fusion accelerates, and extra pressure expands and cools the core back into balance. Intense heat puffs its envelope wide so average density stays just *#fmt(d.sun_density_g_cm3, digits: 2) g/cm³* — a quarter of Earth's rock.
-
-#v(8pt)
-#open-note("The Catch · Thermal Support Expires", [
-  Thermal pressure lasts only while fuel burns. Once a star exhausts nuclear fusion, heat radiates into space and gravity collects its debt — handing control over to quantum mechanics.
-], accent: acc-gold, line-col: reticle)
 
 #void-plate("plates/plate_06_sun.jpg", "Panoramic solar horizon showing the Sun's golden chromospheric arc and three translucent magnetic coronal plasma loops rising into black space.")
 
@@ -438,13 +441,11 @@ Gather *#comma-int(d.sun_earth_mass_ratio) Earths* of hydrogen and central press
 ))
 
 // ============================================================================
-// CARD 7 — SIRIUS B (WHITE DWARF)
+// CARD 7 — SIRIUS B  [Layout: Metric Shock -> Prose -> Mid Plate -> Bottom Note]
 // ============================================================================
 #pagebreak()
 #kicker("06 · Electron Degeneracy  ·  Stop 5 of 9", accent: acc-ice)
 #card-title([Sirius B: A Whole Sun#linebreak()Packed Inside Earth])
-
-When a Sun-like star runs dry, its outer gas drifts off and its carbon-oxygen core implodes until the *Pauli Exclusion Principle* halts collapse.
 
 #stat-strip-3(
   stat-col("Mass", fmt(d.sirius_b_mass_gr_msun, digits: 3) + " M☉", "Dyn " + fmt(d.sirius_b_mass_dyn_msun, digits: 3), accent: acc-ice),
@@ -453,14 +454,15 @@ When a Sun-like star runs dry, its outer gas drifts off and its carbon-oxygen co
 )
 #v(8pt)
 
-*Quantum Support (Zero Heat Needed):* No two electrons can share the exact same quantum state. Squeezed smaller than Earth (*#comma-int(d.sirius_b_rad_km) km*), electrons push back permanently even at absolute zero. White dwarfs burn no fuel — they only glow with trapped leftover heat.
+When a Sun-like star runs dry, its carbon-oxygen core implodes until the *Pauli Exclusion Principle* halts collapse. Squeezed smaller than Earth (*#comma-int(d.sirius_b_rad_km) km*), electrons push back permanently even at absolute zero — burning no fuel, glowing only with trapped heat.
 
 #v(8pt)
+#flow-plate("plates/plate_07_sirius_b.jpg", "Panoramic deep-space view of the compact blue-white dwarf star Sirius B with crisp four-point diffraction spikes beside the distant warm glow of Sirius A.")
+#v(8pt)
+
 #open-note("VES Receipt · Derived From Einstein's Redshift", [
   Hubble measured starlight climbing out of Sirius B redshifted by *#fmt(d.sirius_b_vg_kms, digits: 2) km/s* (Joyce et al. 2018). Our Zig engine solved #math.equation(alt: "R equals G M over c times v_g", $R = (G M) / (c v_g)$) directly from raw arXiv bytes to derive *#comma-int(d.sirius_b_rad_km) km* and *#comma-int(d.sirius_b_v_esc_kms) km/s* escape speed.
 ], accent: acc-ice, line-col: reticle)
-
-#void-plate("plates/plate_07_sirius_b.jpg", "Panoramic deep-space view of the compact blue-white dwarf star Sirius B with crisp four-point diffraction spikes beside the distant warm glow of Sirius A.")
 
 #source-footer((
   bare-link("https://doi.org/10.3847/1538-4357/aa6af8", "Bond 2017 · ApJ"),
@@ -468,14 +470,18 @@ When a Sun-like star runs dry, its outer gas drifts off and its carbon-oxygen co
 ))
 
 // ============================================================================
-// CARD 8 — PSR J0740+6620 (NEUTRON STAR)
+// CARD 8 — PSR J0740+6620  [Layout: Cold-Open Visual Above Title  P -> H -> T -> K -> N -> F]
 // ============================================================================
 #pagebreak()
+#flow-plate("plates/plate_08_psr_j0740.jpg", "Panoramic relativistic visualization of neutron star PSR J0740+6620 with faint magnetic dipole loops and slender tilted polar X-ray beams in pure space void.")
+#v(8pt)
+
 #kicker("07 · Neutron Degeneracy  ·  Stop 6 of 9", accent: acc-ice)
 #card-title([PSR J0740+6620: A City-Sized#linebreak()Atomic Nucleus])
 
-Pile too much mass onto a white dwarf and electrons merge with protons into a superfluid sea of neutrons halted only by nuclear degeneracy and the strong force.
+Pile too much mass onto a white dwarf and electrons merge with protons into a superfluid sea of neutrons halted only by nuclear degeneracy and the strong force. NASA's NICER telescope timed X-ray pulses from *PSR J0740+6620*, packing *#fmt(d.psr_mass_msun, digits: 3) solar masses* inside *#fmt(d.psr_rad_km, digits: 2) km*. At #math.equation(alt: "Xi equals 0.494", $Xi = 0.494$), gravity bends light so hard you can see *behind* the star's edge.
 
+#v(4pt)
 #stat-strip-3(
   stat-col("Mass", fmt(d.psr_mass_msun, digits: 3) + " M☉", "NICER X-ray", accent: acc-ice),
   stat-col("Radius", fmt(d.psr_rad_km, digits: 2) + " km", "City scale", accent: acc-gold),
@@ -483,21 +489,16 @@ Pile too much mass onto a white dwarf and electrons merge with protons into a su
 )
 #v(8pt)
 
-*Halfway to a Black Hole:* NASA's NICER telescope aboard the Space Station timed X-ray pulses from *PSR J0740+6620*, packing *#fmt(d.psr_mass_msun, digits: 3) solar masses* inside *#fmt(d.psr_rad_km, digits: 2) km*. At #math.equation(alt: "Xi equals 0.494", $Xi = 0.494$), gravity bends light so hard you can see *behind* the star's edge.
-
-#v(8pt)
 #open-note("Denser Than an Atomic Nucleus", [
   At *#math.equation(alt: "5.17 times 10 to the 14", $5.17 times 10^(14)$) g/cm³*, a single *#str(int(d.teaspoon_cm3)) cm³* teaspoon weighs *#fmt(d.psr_teaspoon_billion_t, digits: 2) billion metric tons* — a mountain range on a spoon. Push mass slightly higher and the last floor in physics snaps.
 ], accent: acc-ice, line-col: reticle)
-
-#void-plate("plates/plate_08_psr_j0740.jpg", "Panoramic relativistic visualization of neutron star PSR J0740+6620 with faint magnetic dipole loops and slender tilted polar X-ray beams in pure space void.")
 
 #source-footer((
   bare-link("https://doi.org/10.3847/2041-8213/ac0a81", "Riley et al. 2021 · NICER ApJL"),
 ))
 
 // ============================================================================
-// CARD 9 — CYGNUS X-1 & PRECISION COMPACTNESS LADDER
+// CARD 9 — CYGNUS X-1 & PRECISION COMPACTNESS LADDER  [Layout: Lead -> K -> SVG -> T -> F]
 // ============================================================================
 #pagebreak()
 #kicker("08 · Stellar Black Hole  ·  Stop 7 of 9", accent: acc-rose)
@@ -521,21 +522,22 @@ VLBA radio astrometry at *#fmt(d.cyg_dist_kpc, digits: 2) kpc* confirmed *Cygnus
 ))
 
 // ============================================================================
-// CARD 10 — SGR A* & M87* (THE TWO PARADOXES)
+// CARD 10 — SGR A* & M87*  [Layout: Chart-First Inversion  H -> SVG -> K -> T -> F]
 // ============================================================================
 #pagebreak()
 #kicker("09 · Supermassive Monsters  ·  Stops 8 & 9", accent: acc-rose)
 #card-title([Sgr A\* & M87\*:#linebreak()Bigger Means Gentler])
 
-Scale up to galactic cores — Milky Way *Sgr A\** (*#fmt(d.sgra_mass_million_msun, digits: 2)M M☉*, EHT ring *#fmt(d.sgra_ring_uas, digits: 1) μas*) and giant *M87\** (*#fmt(d.m87_mass_billion_msun, digits: 1)B M☉*, ring *#fmt(d.m87_ring_uas, digits: 0) μas*) — and intuition inverts.
+#image("figures/fig_spaghettification.svg", width: 100%, alt: "Box-free Tufte plot of horizon tidal shear scaling as inverse mass squared across Cygnus X-1, Sgr A*, and M87*, paired with the M87* versus Earth sea-level air density comparison.")
+#v(8pt)
 
 #stat-strip-2(
   stat-col("Sgr A* Horizon", fmt(d.sgra_rs_mkm, digits: 2) + "M km", "Shear: " + fmt(d.sgra_tidal_millig, digits: 3) + " milli-g", accent: acc-gold),
   stat-col("M87* Horizon", fmt(d.m87_rs_au, digits: 1) + " AU", fmt(d.m87_rs_pluto_ratio, digits: 2) + " × Pluto's orbit", accent: acc-sage),
 )
-#v(6pt)
-#image("figures/fig_spaghettification.svg", width: 100%, alt: "Box-free Tufte plot of horizon tidal shear scaling as inverse mass squared across Cygnus X-1, Sgr A*, and M87*, paired with the M87* versus Earth sea-level air density comparison.")
-#v(6pt)
+#v(8pt)
+
+Scale up to galactic cores — Milky Way *Sgr A\** (*#fmt(d.sgra_mass_million_msun, digits: 2)M M☉*, EHT ring *#fmt(d.sgra_ring_uas, digits: 1) μas*) and giant *M87\** (*#fmt(d.m87_mass_billion_msun, digits: 1)B M☉*, ring *#fmt(d.m87_ring_uas, digits: 0) μas*) — and intuition inverts.
 
 *Because #math.equation(alt: "R_s proportional to M", $R_s prop M$):* Volume grows as #math.equation(alt: "M cubed", $M^3$) while tidal shear plunges as #math.equation(alt: "1 over M squared", $1 / M^2$). You would cross *M87\*'s* *#fmt(d.m87_rs_bkm, digits: 2) billion km* horizon feeling *#fmt(d.m87_tidal_picog, digits: 1) pico-g* — inside a sphere *#fmt(d.air_to_m87_ratio, digits: 2) times less dense than air*.
 

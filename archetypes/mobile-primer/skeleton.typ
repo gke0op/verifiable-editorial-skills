@@ -1,5 +1,5 @@
 // Auto-dissected Typst 0.15.1 PDF/UA-1 Archetype Skeleton
-// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 645eb09bf66e1229)
+// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 9a032663b6923c07)
 // Archetype Slug: mobile-primer (mobile_portrait_9x16, dark polarity)
 
 #let data = json("../data/summary_metrics.json")
