@@ -144,7 +144,7 @@
   "bodies": [
     {
       "id": "comet_67p", "name": "67P/Churyumov-Gerasimenko", "short_label": "Comet 67P",
-      "regime": "Rubble & Ice", "support_force": "Chemical bonds beat gravity", "color": "#94A3B8",
+      "regime": "Rubble & Ice", "support_force": "Chemical bonds beat gravity", "color": "#9AA8BC",
       "is_black_hole": false,
       "mass_kg": 9.9216e12, "mass_msun": 4.9898e-18, "radius_km": 1.70,
       "rs_m": 1.4736e-14, "compactness": 8.668e-18, "log10_xi": -17.1,
@@ -155,7 +155,7 @@
     },
     {
       "id": "earth", "name": "Earth", "short_label": "Earth",
-      "regime": "Rocky Planet", "support_force": "Iron-silicate hydrostatic crust", "color": "#60A5FA",
+      "regime": "Rocky Planet", "support_force": "Iron-silicate hydrostatic crust", "color": "#8CC8F0",
       "is_black_hole": false,
       "mass_kg": 5.9722e24, "mass_msun": 3.0035e-6, "radius_km": 6371.00,
       "rs_m": 8.8700e-3, "compactness": 1.392e-9, "log10_xi": -8.9,
@@ -166,7 +166,7 @@
     },
     {
       "id": "jupiter", "name": "Jupiter", "short_label": "Jupiter",
-      "regime": "Gas Giant", "support_force": "Metallic hydrogen + degeneracy", "color": "#F5B041",
+      "regime": "Gas Giant", "support_force": "Metallic hydrogen + degeneracy", "color": "#E8C078",
       "is_black_hole": false,
       "mass_kg": 1.8981e27, "mass_msun": 9.5460e-4, "radius_km": 69911.00,
       "rs_m": 2.8192e0, "compactness": 4.033e-8, "log10_xi": -7.4,
@@ -177,7 +177,7 @@
     },
     {
       "id": "sun", "name": "The Sun", "short_label": "Sun",
-      "regime": "Main-Seq Star", "support_force": "Hydrogen fusion thermal pressure", "color": "#FCD34D",
+      "regime": "Main-Seq Star", "support_force": "Hydrogen fusion thermal pressure", "color": "#F0D08A",
       "is_black_hole": false,
       "mass_kg": 1.9884e30, "mass_msun": 1.0000e0, "radius_km": 695700.00,
       "rs_m": 2.9532e3, "compactness": 4.245e-6, "log10_xi": -5.4,
@@ -188,7 +188,7 @@
     },
     {
       "id": "sirius_b", "name": "Sirius B", "short_label": "Sirius B",
-      "regime": "White Dwarf", "support_force": "Electron Pauli degeneracy", "color": "#7DD3FC",
+      "regime": "White Dwarf", "support_force": "Electron Pauli degeneracy", "color": "#8CC8F0",
       "is_black_hole": false,
       "mass_kg": 2.0222e30, "mass_msun": 1.0170e0, "radius_km": 5582.21,
       "rs_m": 3.0034e3, "compactness": 5.380e-4, "log10_xi": -3.3,
@@ -199,7 +199,7 @@
     },
     {
       "id": "psr_j0740", "name": "PSR J0740+6620", "short_label": "PSR J0740",
-      "regime": "Neutron Star", "support_force": "Neutron degeneracy + strong force", "color": "#38BDF8",
+      "regime": "Neutron Star", "support_force": "Neutron degeneracy + strong force", "color": "#70B8E8",
       "is_black_hole": false,
       "mass_kg": 4.1200e30, "mass_msun": 2.0720e0, "radius_km": 12.39,
       "rs_m": 6.1191e3, "compactness": 4.939e-1, "log10_xi": -0.3,
@@ -210,7 +210,7 @@
     },
     {
       "id": "cygnus_x1", "name": "Cygnus X-1", "short_label": "Cygnus X-1",
-      "regime": "Stellar BH", "support_force": "None: trapped inside R_s", "color": "#FF7B72",
+      "regime": "Stellar BH", "support_force": "None: trapped inside R_s", "color": "#E58A8A",
       "is_black_hole": true,
       "mass_kg": 4.2154e31, "mass_msun": 2.1200e1, "radius_km": 62.61,
       "rs_m": 6.2609e4, "compactness": 1.000e0, "log10_xi": 0.0,
@@ -221,7 +221,7 @@
     },
     {
       "id": "sgr_a_star", "name": "Sagittarius A*", "short_label": "Sgr A*",
-      "regime": "Galactic SMBH", "support_force": "None: Milky Way core horizon", "color": "#FB7185",
+      "regime": "Galactic SMBH", "support_force": "None: Milky Way core horizon", "color": "#E58A8A",
       "is_black_hole": true,
       "mass_kg": 8.5501e36, "mass_msun": 4.3000e6, "radius_km": 12698933.22,
       "rs_m": 1.2699e10, "compactness": 1.000e0, "log10_xi": 0.0,
@@ -232,7 +232,7 @@
     },
     {
       "id": "m87_star", "name": "M87*", "short_label": "M87*",
-      "regime": "Supermassive BH", "support_force": "None: swallows Solar System", "color": "#F43F5E",
+      "regime": "Supermassive BH", "support_force": "None: swallows Solar System", "color": "#E58A8A",
       "is_black_hole": true,
       "mass_kg": 1.2925e40, "mass_msun": 6.5000e9, "radius_km": 19196061851.07,
       "rs_m": 1.9196e13, "compactness": 1.000e0, "log10_xi": 0.0,

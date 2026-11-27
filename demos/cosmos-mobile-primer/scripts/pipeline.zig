@@ -239,63 +239,71 @@ fn fmtNum(alloc: std.mem.Allocator, val: f64, decimals: usize) ![]u8 {
 }
 
 // ============================================================================
-// Pure-Zig Mobile-Native Dark-OLED Vector SVG Generators (312 pt wide, inf DPI)
+// Pure-Zig Mobile-Native Minimalist Dark-OLED Vector SVGs (304 pt wide, ZERO boxes)
 // ============================================================================
 
-/// SVG 1: Cover Poster Hero — Concentric Compactness Halo & 9-Body Horizon Radar (312 x 226 pt)
+/// SVG 1: Cover Poster Hero — Box-Free Concentric Compactness Reticle (304 x 226 pt)
 fn renderCoverSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
-    const w: f64 = 312.0;
+    const w: f64 = 304.0;
     const h: f64 = 226.0;
-    const cx: f64 = 156.0;
-    const cy: f64 = 113.0;
+    const cx: f64 = 152.0;
+    const cy: f64 = 110.0;
     var out: std.ArrayList(u8) = .empty;
 
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\<svg xmlns="http://www.w3.org/2000/svg" width="{d:.0}pt" height="{d:.0}pt" viewBox="0 0 {d:.0} {d:.0}">
         \\<defs>
         \\  <radialGradient id="bhGlow" cx="50%" cy="50%" r="50%">
-        \\    <stop offset="0%" stop-color="#050810" stop-opacity="1" />
-        \\    <stop offset="22%" stop-color="#050810" stop-opacity="1" />
-        \\    <stop offset="30%" stop-color="#FF7B72" stop-opacity="0.85" />
-        \\    <stop offset="44%" stop-color="#F5B041" stop-opacity="0.34" />
-        \\    <stop offset="72%" stop-color="#38BDF8" stop-opacity="0.10" />
-        \\    <stop offset="100%" stop-color="#0B101B" stop-opacity="0" />
+        \\    <stop offset="0%" stop-color="#07090F" stop-opacity="1" />
+        \\    <stop offset="21%" stop-color="#07090F" stop-opacity="1" />
+        \\    <stop offset="28%" stop-color="#E58A8A" stop-opacity="0.58" />
+        \\    <stop offset="42%" stop-color="#E8C078" stop-opacity="0.20" />
+        \\    <stop offset="70%" stop-color="#8CC8F0" stop-opacity="0.06" />
+        \\    <stop offset="100%" stop-color="#07090F" stop-opacity="0" />
         \\  </radialGradient>
         \\</defs>
-        \\<rect width="{d:.0}" height="{d:.0}" rx="12" fill="#0E1525" stroke="#1E2D4A" stroke-width="0.9" />
-        \\<circle cx="{d:.1}" cy="{d:.1}" r="102" fill="url(#bhGlow)" />
+        \\<rect width="{d:.0}" height="{d:.0}" fill="#07090F" />
+        \\<path d="M 1 24 L 1 1 L 30 1" fill="none" stroke="#2B384E" stroke-width="0.6" />
+        \\<path d="M 274 225 L 303 225 L 303 202" fill="none" stroke="#2B384E" stroke-width="0.6" />
+        \\<circle cx="{d:.1}" cy="{d:.1}" r="96" fill="url(#bhGlow)" />
         \\
     , .{ w, h, w, h, w, h, cx, cy }));
 
-    // Deterministic background starfield (pseudo-random LCG)
+    // Quiet minimalist starfield
     var seed: u64 = 0x5A17_C05A_0001;
-    for (0..42) |_| {
+    for (0..32) |_| {
         seed = seed *% 6364136223846793005 +% 1442695040888963407;
-        const sx = 12.0 + @as(f64, @floatFromInt((seed >> 16) % 288));
+        const sx = 14.0 + @as(f64, @floatFromInt((seed >> 16) % 276));
         seed = seed *% 6364136223846793005 +% 1442695040888963407;
-        const sy = 12.0 + @as(f64, @floatFromInt((seed >> 16) % 202));
+        const sy = 14.0 + @as(f64, @floatFromInt((seed >> 16) % 192));
         const dx = sx - cx;
         const dy = sy - cy;
-        if (dx * dx + dy * dy < 32.0 * 32.0) continue;
-        const sr: f64 = if ((seed & 3) == 0) 1.05 else 0.65;
-        const op: f64 = if ((seed & 7) == 0) 0.55 else 0.28;
+        if (dx * dx + dy * dy < 30.0 * 30.0) continue;
+        const sr: f64 = if ((seed & 3) == 0) 0.9 else 0.55;
+        const op: f64 = if ((seed & 7) == 0) 0.42 else 0.22;
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
             \\<circle cx="{d:.1}" cy="{d:.1}" r="{d:.2}" fill="#E2E8F0" fill-opacity="{d:.2}" />
             \\
         , .{ sx, sy, sr, op }));
     }
 
-    // Concentric compactness rings (outer = rubble Xi=1e-19, inner = Event Horizon Xi=1)
-    const ring_radii = [_]f64{ 94.0, 74.0, 54.0, 36.0 };
+    // Fine crosshair observatory axes
+    try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
+        \\<line x1="{d:.1}" y1="14" x2="{d:.1}" y2="206" stroke="#182234" stroke-width="0.45" />
+        \\<line x1="22" y1="{d:.1}" x2="282" y2="{d:.1}" stroke="#182234" stroke-width="0.45" />
+        \\
+    , .{ cx, cx, cy, cy }));
+
+    // Whisper-thin concentric compactness rings
+    const ring_radii = [_]f64{ 90.0, 70.0, 51.0, 34.0 };
     for (ring_radii, 0..) |rr, idx| {
-        const dash: []const u8 = if (idx == 3) "" else "2.5,3";
-        const scol: []const u8 = if (idx == 3) "#FF7B72" else "#334A70";
-        const sw: f64 = if (idx == 3) 1.25 else 0.7;
-        if (dash.len > 0) {
+        const scol: []const u8 = if (idx == 3) "#E58A8A" else "#263348";
+        const sw: f64 = if (idx == 3) 0.9 else 0.5;
+        if (idx < 3) {
             try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-                \\<circle cx="{d:.1}" cy="{d:.1}" r="{d:.1}" fill="none" stroke="{s}" stroke-width="{d:.2}" stroke-dasharray="{s}" />
+                \\<circle cx="{d:.1}" cy="{d:.1}" r="{d:.1}" fill="none" stroke="{s}" stroke-width="{d:.2}" stroke-dasharray="2,3.5" />
                 \\
-            , .{ cx, cy, rr, scol, sw, dash }));
+            , .{ cx, cy, rr, scol, sw }));
         } else {
             try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
                 \\<circle cx="{d:.1}" cy="{d:.1}" r="{d:.1}" fill="none" stroke="{s}" stroke-width="{d:.2}" />
@@ -304,23 +312,23 @@ fn renderCoverSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         }
     }
 
-    // Event Horizon core circle + subtle tilted relativistic photon ring ellipse
+    // Event Horizon core circle + slender relativistic photon ring
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<ellipse cx="{d:.1}" cy="{d:.1}" rx="42" ry="12" fill="none" stroke="#FCD34D" stroke-width="1.0" stroke-opacity="0.72" transform="rotate(-18 {d:.1} {d:.1})" />
-        \\<circle cx="{d:.1}" cy="{d:.1}" r="22" fill="#050810" stroke="#FCA5A5" stroke-width="1.35" />
-        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.2" font-weight="700" fill="#FCA5A5">Xi = 1</text>
-        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#CBD5E1">HORIZON</text>
+        \\<ellipse cx="{d:.1}" cy="{d:.1}" rx="40" ry="10.5" fill="none" stroke="#E8C078" stroke-width="0.75" stroke-opacity="0.65" transform="rotate(-17 {d:.1} {d:.1})" />
+        \\<circle cx="{d:.1}" cy="{d:.1}" r="21" fill="#07090F" stroke="#E58A8A" stroke-width="1.0" />
+        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.0" font-weight="600" fill="#F2B8B8">Xi = 1</text>
+        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#B8C4D4">HORIZON</text>
         \\
-    , .{ cx, cy, cx, cy, cx, cy, cx, cy - 1.5, cx, cy + 8.5 }));
+    , .{ cx, cy, cx, cy, cx, cy, cx, cy - 1.2, cx, cy + 8.0 }));
 
-    // Place 6 key landmark nodes along spiral from outer comet (r=94) inward to Event Horizon (r=36)
+    // 6 landmark nodes with minimalist hairlines
     const landmarks = [_]struct { b_idx: usize, r: f64, deg: f64, lx_off: f64, ly_off: f64, anchor: []const u8 }{
-        .{ .b_idx = 0, .r = 94.0, .deg = -148.0, .lx_off = -8.0, .ly_off = -4.0, .anchor = "end" }, // 67P
-        .{ .b_idx = 1, .r = 81.0, .deg = -40.0, .lx_off = 8.0, .ly_off = -4.0, .anchor = "start" }, // Earth
-        .{ .b_idx = 3, .r = 68.0, .deg = 22.0, .lx_off = 9.0, .ly_off = 3.0, .anchor = "start" }, // Sun
-        .{ .b_idx = 4, .r = 56.0, .deg = 148.0, .lx_off = -9.0, .ly_off = 3.0, .anchor = "end" }, // Sirius B
-        .{ .b_idx = 5, .r = 44.0, .deg = -102.0, .lx_off = -8.0, .ly_off = -6.0, .anchor = "end" }, // PSR J0740
-        .{ .b_idx = 8, .r = 36.0, .deg = 78.0, .lx_off = 8.0, .ly_off = 12.0, .anchor = "start" }, // M87*
+        .{ .b_idx = 0, .r = 90.0, .deg = -148.0, .lx_off = -8.0, .ly_off = -3.0, .anchor = "end" }, // 67P
+        .{ .b_idx = 1, .r = 78.0, .deg = -38.0, .lx_off = 8.0, .ly_off = -3.0, .anchor = "start" }, // Earth
+        .{ .b_idx = 3, .r = 65.0, .deg = 22.0, .lx_off = 8.0, .ly_off = 3.0, .anchor = "start" }, // Sun
+        .{ .b_idx = 4, .r = 53.0, .deg = 148.0, .lx_off = -8.0, .ly_off = 3.0, .anchor = "end" }, // Sirius B
+        .{ .b_idx = 5, .r = 42.0, .deg = -104.0, .lx_off = -8.0, .ly_off = -5.0, .anchor = "end" }, // PSR J0740
+        .{ .b_idx = 8, .r = 34.0, .deg = 78.0, .lx_off = 8.0, .ly_off = 11.0, .anchor = "start" }, // M87*
     };
 
     for (landmarks) |lm| {
@@ -331,74 +339,66 @@ fn renderCoverSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         const lx = px + lm.lx_off;
         const ly = py + lm.ly_off;
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="{s}" stroke-width="0.65" stroke-opacity="0.7" />
-            \\<circle cx="{d:.1}" cy="{d:.1}" r="4.0" fill="{s}" stroke="#0B101B" stroke-width="1.2" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">{s}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="{s}" stroke-width="0.5" stroke-opacity="0.6" />
+            \\<circle cx="{d:.1}" cy="{d:.1}" r="3.1" fill="{s}" stroke="#07090F" stroke-width="1.0" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">{s}</text>
             \\
         , .{ px, py, lx, ly - 2.0, b.color_hex, px, py, b.color_hex, lx, ly, lm.anchor, b.short_label }));
     }
 
-    // Bottom caption strip inside SVG frame (non-numeric editorial tagline)
     try out.appendSlice(alloc,
-        \\<text x="156" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.4" fill="#CBD5E1">COMPACTNESS LADDER: RUBBLE PILE -> QUANTUM CORE -> EVENT HORIZON</text>
+        \\<text x="152" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#A6B4C8">COMPACTNESS RETICLE · RUBBLE PILE TO EVENT HORIZON</text>
         \\</svg>
         \\
     );
     return out.toOwnedSlice(alloc);
 }
 
-/// SVG 2: Grand Mass-Radius Phase Diagram (312 x 252 pt, log10 M vs log10 R, Schwarzschild Forbidden Zone)
+/// SVG 2: Grand Mass-Radius Phase Diagram — Box-Free Tufte Open L-Axis (304 x 244 pt)
 fn renderMassRadiusSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
-    const w: f64 = 312.0;
-    const h: f64 = 252.0;
-    const x0: f64 = 42.0;
-    const y0: f64 = 24.0;
+    const w: f64 = 304.0;
+    const h: f64 = 244.0;
+    const x0: f64 = 38.0;
+    const y0: f64 = 22.0;
     const pw: f64 = 256.0;
-    const ph: f64 = 186.0;
+    const ph: f64 = 182.0;
 
-    // Ranges: log10(M/kg) in [11, 42], log10(R/m) in [2.5, 14.5]
     const lm_min: f64 = 11.0;
     const lr_min: f64 = 2.5;
     const lr_max: f64 = 14.5;
 
     const mapX = struct {
         fn f(lm: f64) f64 {
-            return 42.0 + ((lm - 11.0) / (42.0 - 11.0)) * 256.0;
+            return 38.0 + ((lm - 11.0) / (42.0 - 11.0)) * 256.0;
         }
     }.f;
     const mapY = struct {
         fn f(lr: f64) f64 {
-            return 24.0 + 186.0 - ((lr - 2.5) / (14.5 - 2.5)) * 186.0;
+            return 22.0 + 182.0 - ((lr - 2.5) / (14.5 - 2.5)) * 182.0;
         }
     }.f;
 
-    // Schwarzschild line: R_s = (2G/c^2) M => log10(R_s) = log10(M) + log10(2G/c^2)
-    // log10(2G/c^2) = -26.82825...
     const rs_offset: f64 = @log10((2.0 * G_CONST) / (C_LIGHT * C_LIGHT));
-    // Where R_s enters plot at bottom (lr = 2.5): lm = 2.5 - rs_offset = 29.328
-    const lm_bh_start = lr_min - rs_offset;
-    const lm_bh_end = lr_max - rs_offset; // 41.328
-    const x_bh0 = mapX(lm_bh_start);
+    const x_bh0 = mapX(lr_min - rs_offset);
     const y_bh0 = mapY(lr_min);
-    const x_bh1 = mapX(lm_bh_end);
+    const x_bh1 = mapX(lr_max - rs_offset);
     const y_bh1 = mapY(lr_max);
 
     var out: std.ArrayList(u8) = .empty;
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\<svg xmlns="http://www.w3.org/2000/svg" width="{d:.0}pt" height="{d:.0}pt" viewBox="0 0 {d:.0} {d:.0}">
-        \\<rect width="{d:.0}" height="{d:.0}" rx="10" fill="#0E1525" stroke="#1E2D4A" stroke-width="0.9" />
-        \\<text x="14" y="15" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">MASS-RADIUS PHASE SPACE (LOG10 SI)</text>
-        \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="{d:.1}" fill="#090E19" stroke="#334A70" stroke-width="0.8" />
+        \\<rect width="{d:.0}" height="{d:.0}" fill="#07090F" />
+        \\<text x="38" y="12" font-family="IBM Plex Mono, monospace" font-size="6.8" font-weight="600" fill="#B8C4D4">MASS-RADIUS PHASE SPACE (LOG10 SI)</text>
         \\
-    , .{ w, h, w, h, w, h, x0, y0, pw, ph }));
+    , .{ w, h, w, h, w, h }));
 
-    // Gridlines (x: 15, 20, 25, 30, 35, 40; y: 4, 6, 8, 10, 12, 14)
+    // Whisper-faint interior gridlines (no box border)
     const xm_ticks = [_]f64{ 15.0, 20.0, 25.0, 30.0, 35.0, 40.0 };
     for (xm_ticks) |mt| {
         const fx = mapX(mt);
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#1B2840" stroke-width="0.6" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.8" fill="#CBD5E1">{d:.0}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#151E2E" stroke-width="0.45" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.6" fill="#A6B4C8">{d:.0}</text>
             \\
         , .{ fx, y0, fx, y0 + ph, fx, y0 + ph + 11.0, mt }));
     }
@@ -406,19 +406,25 @@ fn renderMassRadiusSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
     for (yr_ticks) |rt| {
         const fy = mapY(rt);
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#1B2840" stroke-width="0.6" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.8" fill="#CBD5E1">{d:.0}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#151E2E" stroke-width="0.45" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.6" fill="#A6B4C8">{d:.0}</text>
             \\
-        , .{ x0, fy, x0 + pw, fy, x0 - 5.0, fy + 2.4, rt }));
+        , .{ x0, fy, x0 + pw, fy, x0 - 5.0, fy + 2.3, rt }));
     }
 
-    // Forbidden Black Hole Zone polygon (below-right of Schwarzschild line R = R_s)
+    // Open Tufte L-axis only (left + bottom hairlines, zero top/right frame)
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<polygon points="{d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1}" fill="#FF7B72" fill-opacity="0.16" />
-        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#FF7B72" stroke-width="1.5" />
-        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.8" font-weight="700" fill="#FCA5A5" transform="rotate(-48 {d:.1} {d:.1})">EVENT HORIZON (R = R_s)</text>
-        \\<text x="260" y="198" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.6" font-weight="700" fill="#FCA5A5">FORBIDDEN</text>
-        \\<text x="260" y="206" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.2" fill="#FCA5A5">ZONE (R &lt; R_s)</text>
+        \\<polyline points="{d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1}" fill="none" stroke="#364660" stroke-width="0.65" />
+        \\
+    , .{ x0, y0, x0, y0 + ph, x0 + pw, y0 + ph }));
+
+    // Subtle Forbidden Black Hole Zone polygon & Event Horizon line
+    try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
+        \\<polygon points="{d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1}" fill="#E58A8A" fill-opacity="0.10" />
+        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#E58A8A" stroke-width="1.2" />
+        \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.5" font-weight="600" fill="#F2B8B8" transform="rotate(-47 {d:.1} {d:.1})">EVENT HORIZON (R = R_s)</text>
+        \\<text x="256" y="191" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#F2B8B8">FORBIDDEN</text>
+        \\<text x="256" y="199" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="5.8" fill="#F2B8B8">R &lt; R_s</text>
         \\
     , .{
         x_bh0,                        y_bh0,
@@ -431,28 +437,28 @@ fn renderMassRadiusSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         (x_bh0 + x_bh1) * 0.5 + 14.0, (y_bh0 + y_bh1) * 0.5 + 10.0,
     }));
 
-    // Water-density reference diagonal: rho = 1000 kg/m^3 -> R = (3M/(4*pi*1000))^(1/3)
+    // Water-density reference diagonal
     const water_c = @log10(3.0 / (4.0 * PI * 1000.0)) / 3.0;
     const lx_w0 = lm_min;
     const ly_w0 = lx_w0 / 3.0 + water_c;
     const lx_w1 = 33.5;
     const ly_w1 = lx_w1 / 3.0 + water_c;
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#7DD3FC" stroke-opacity="0.45" stroke-width="0.9" stroke-dasharray="3,2.5" />
-        \\<text x="{d:.1}" y="{d:.1}" font-family="Inter, sans-serif" font-size="6.2" fill="#7DD3FC" transform="rotate(-17 {d:.1} {d:.1})">water density</text>
+        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#8CC8F0" stroke-opacity="0.4" stroke-width="0.75" stroke-dasharray="2.5,3" />
+        \\<text x="{d:.1}" y="{d:.1}" font-family="Inter, sans-serif" font-size="6.0" fill="#8CC8F0" transform="rotate(-17 {d:.1} {d:.1})">water density</text>
         \\
     , .{
         mapX(lx_w0), mapY(ly_w0),                      mapX(lx_w1), mapY(ly_w1),
         mapX(14.0),  mapY(14.0 / 3.0 + water_c) - 6.0, mapX(14.0),  mapY(14.0 / 3.0 + water_c) - 6.0,
     }));
 
-    // Plot all 9 bodies with clean custom offsets (guaranteed zero overlap)
+    // Plot all 9 bodies
     const offsets = [_]struct { dx: f64, dy: f64, anchor: []const u8 }{
         .{ .dx = 7.0, .dy = 3.0, .anchor = "start" }, // 0: 67P
         .{ .dx = -7.0, .dy = 11.0, .anchor = "end" }, // 1: Earth
         .{ .dx = -7.0, .dy = -6.0, .anchor = "end" }, // 2: Jupiter
         .{ .dx = -7.0, .dy = -6.0, .anchor = "end" }, // 3: Sun
-        .{ .dx = -7.0, .dy = 3.0, .anchor = "end" }, // 4: Sirius B (cleanly left of Event Horizon line)
+        .{ .dx = -7.0, .dy = 3.0, .anchor = "end" }, // 4: Sirius B
         .{ .dx = -7.0, .dy = 3.0, .anchor = "end" }, // 5: PSR J0740
         .{ .dx = -7.0, .dy = -6.0, .anchor = "end" }, // 6: Cyg X-1
         .{ .dx = -7.0, .dy = -6.0, .anchor = "end" }, // 7: Sgr A*
@@ -464,53 +470,48 @@ fn renderMassRadiusSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         const py = mapY(b.log10_radius_m);
         const off = offsets[i];
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<circle cx="{d:.1}" cy="{d:.1}" r="3.8" fill="{s}" stroke="#090E19" stroke-width="1.1" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.1" font-weight="700" fill="#F1F5F9">{s}</text>
+            \\<circle cx="{d:.1}" cy="{d:.1}" r="3.2" fill="{s}" stroke="#07090F" stroke-width="1.0" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.0" font-weight="600" fill="#EAEEF5">{s}</text>
             \\
         , .{ px, py, b.color_hex, px + off.dx, py + off.dy, off.anchor, b.short_label }));
     }
 
-    // Axis titles
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<text x="{d:.1}" y="236" text-anchor="middle" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#E2E8F0">log10 Mass (kg)</text>
-        \\<text x="12" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#E2E8F0" transform="rotate(-90 12 {d:.1})">log10 Radius (m)</text>
-        \\<text x="156" y="247" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.2" fill="#CBD5E1">Gold: planets/Sun  |  Cyan: quantum cores  |  Coral: black holes</text>
+        \\<text x="{d:.1}" y="229" text-anchor="middle" font-family="Inter, sans-serif" font-size="7.0" fill="#D6DCE6">log10 Mass (kg)</text>
+        \\<text x="10" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="7.0" fill="#D6DCE6" transform="rotate(-90 10 {d:.1})">log10 Radius (m)</text>
+        \\<text x="166" y="240" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="5.9" fill="#A6B4C8">Gold: worlds/Sun  ·  Blue: quantum cores  ·  Rose: black holes</text>
         \\</svg>
         \\
     , .{ x0 + pw * 0.5, y0 + ph * 0.5, y0 + ph * 0.5 }));
     return out.toOwnedSlice(alloc);
 }
 
-/// SVG 3: Escape Velocity & Compactness Log-Ladder (312 x 232 pt)
+/// SVG 3: Minimalist Precision Lollipop Ladder — Zero Boxes, Hairline Tracks & Dots (304 x 222 pt)
 fn renderCompactnessSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
-    const w: f64 = 312.0;
-    const h: f64 = 232.0;
-    const bar_x0: f64 = 78.0;
-    const bar_w: f64 = 160.0;
+    const w: f64 = 304.0;
+    const h: f64 = 222.0;
+    const bar_x0: f64 = 74.0;
+    const bar_w: f64 = 158.0;
     var out: std.ArrayList(u8) = .empty;
 
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\<svg xmlns="http://www.w3.org/2000/svg" width="{d:.0}pt" height="{d:.0}pt" viewBox="0 0 {d:.0} {d:.0}">
-        \\<rect width="{d:.0}" height="{d:.0}" rx="10" fill="#0E1525" stroke="#1E2D4A" stroke-width="0.9" />
-        \\<text x="12" y="16" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F1F5F9">COMPACTNESS LADDER: log10(R_s / R) &amp; ESCAPE SPEED</text>
-        \\<text x="78" y="29" font-family="IBM Plex Mono, monospace" font-size="6.2" fill="#CBD5E1">Xi = 10^-18</text>
-        \\<text x="238" y="29" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.2" fill="#FCA5A5">Xi = 1 (v_esc = c)</text>
+        \\<rect width="{d:.0}" height="{d:.0}" fill="#07090F" />
+        \\<path d="M 1 20 L 1 1 L 28 1" fill="none" stroke="#2B384E" stroke-width="0.6" />
+        \\<path d="M 276 221 L 303 221 L 303 202" fill="none" stroke="#2B384E" stroke-width="0.6" />
+        \\<text x="10" y="15" font-family="IBM Plex Mono, monospace" font-size="6.8" font-weight="600" fill="#B8C4D4">COMPACTNESS LOG10(R_s / R) &amp; ESCAPE SPEED</text>
+        \\<text x="74" y="28" font-family="IBM Plex Mono, monospace" font-size="6.0" fill="#A6B4C8">Xi = 10^-18</text>
+        \\<text x="232" y="28" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.0" fill="#F2B8B8">Xi = 1 (c)</text>
+        \\<line x1="{d:.1}" y1="33" x2="{d:.1}" y2="204" stroke="#263348" stroke-width="0.5" />
+        \\<line x1="{d:.1}" y1="33" x2="{d:.1}" y2="204" stroke="#E58A8A" stroke-width="0.85" stroke-dasharray="2,2.5" />
         \\
-    , .{ w, h, w, h, w, h }));
+    , .{ w, h, w, h, w, h, bar_x0, bar_x0, bar_x0 + bar_w, bar_x0 + bar_w }));
 
-    // Vertical Event Horizon wall at bar_x0 + bar_w
-    try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<line x1="{d:.1}" y1="34" x2="{d:.1}" y2="210" stroke="#FF7B72" stroke-width="1.2" stroke-dasharray="2.5,2" />
-        \\
-    , .{ bar_x0 + bar_w, bar_x0 + bar_w }));
-
-    // Map log10(Xi) from [-19.0, 0.0] -> [0, bar_w]
     for (bodies, 0..) |b, i| {
-        const y = 39.0 + @as(f64, @floatFromInt(i)) * 19.0;
+        const cy = 42.0 + @as(f64, @floatFromInt(i)) * 18.8;
         const frac = std.math.clamp((b.log10_xi + 19.0) / 19.0, 0.04, 1.0);
-        const bw = frac * bar_w;
+        const bx = bar_x0 + frac * bar_w;
 
-        // Clean human-readable escape speed label
         const speed_lbl = if (b.is_black_hole)
             try std.fmt.allocPrint(alloc, "100% c", .{})
         else if (b.v_esc_over_c >= 0.05)
@@ -521,77 +522,75 @@ fn renderCompactnessSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
             try std.fmt.allocPrint(alloc, "{d:.2} m/s", .{b.v_esc_ms});
 
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<text x="72" y="{d:.1}" text-anchor="end" font-family="Inter, sans-serif" font-size="7.3" font-weight="700" fill="#F1F5F9">{s}</text>
-            \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="10.5" rx="3" fill="#172238" />
-            \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="10.5" rx="3" fill="{s}" />
-            \\<text x="{d:.1}" y="{d:.1}" font-family="IBM Plex Mono, monospace" font-size="6.8" font-weight="700" fill="#E2E8F0">{s}</text>
+            \\<text x="68" y="{d:.1}" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">{s}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#192336" stroke-width="0.6" />
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="{s}" stroke-width="1.9" stroke-linecap="round" />
+            \\<circle cx="{d:.1}" cy="{d:.1}" r="2.8" fill="{s}" stroke="#07090F" stroke-width="0.8" />
+            \\<text x="{d:.1}" y="{d:.1}" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">{s}</text>
             \\
         , .{
-            y + 8.0,     b.short_label,
-            bar_x0,      y,
-            bar_w,       bar_x0,
-            y,           bw,
-            b.color_hex, bar_x0 + bar_w + 6.0,
-            y + 8.0,     speed_lbl,
+            cy + 2.5,             b.short_label,
+            bar_x0,               cy,
+            bar_x0 + bar_w,       cy,
+            bar_x0,               cy,
+            bx,                   cy,
+            b.color_hex,          bx,
+            cy,                   b.color_hex,
+            bar_x0 + bar_w + 6.0, cy + 2.5,
+            speed_lbl,
         }));
     }
 
     try out.appendSlice(alloc,
-        \\<text x="156" y="223" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.3" fill="#CBD5E1">Every bar computed live in Zig f64 from v_esc = sqrt(2GM/R)</text>
+        \\<text x="152" y="215" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="5.9" fill="#A6B4C8">Computed live in Zig f64 from v_esc = sqrt(2GM/R)</text>
         \\</svg>
         \\
     );
     return out.toOwnedSlice(alloc);
 }
 
-/// SVG 4: The Spaghettification Paradox (Tidal Shear at R_s vs BH Mass) + Air Density Paradox (312 x 226 pt)
+/// SVG 4: Box-Free Spaghettification Paradox (Open Tufte Axis) + Hairline Air-Density Ratio (304 x 220 pt)
 fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m87: Body) ![]u8 {
-    const w: f64 = 312.0;
-    const h: f64 = 226.0;
-    const x0: f64 = 46.0;
-    const y0: f64 = 26.0;
-    const pw: f64 = 248.0;
-    const ph: f64 = 128.0;
+    const w: f64 = 304.0;
+    const h: f64 = 220.0;
+    const x0: f64 = 44.0;
+    const y0: f64 = 24.0;
+    const pw: f64 = 246.0;
+    const ph: f64 = 124.0;
 
-    // X: log10(M/Msun) in [0.5, 10.5], Y: log10(tidal_g) in [-12.0, 8.0]
     const mapX = struct {
         fn f(lm_sun: f64) f64 {
-            return 46.0 + ((lm_sun - 0.5) / 10.0) * 248.0;
+            return 44.0 + ((lm_sun - 0.5) / 10.0) * 246.0;
         }
     }.f;
     const mapY = struct {
         fn f(lg: f64) f64 {
-            return 26.0 + 128.0 - ((lg + 12.0) / 20.0) * 128.0;
+            return 24.0 + 124.0 - ((lg + 12.0) / 20.0) * 124.0;
         }
     }.f;
 
-    const y_1g = mapY(0.0); // 1 Earth g threshold
+    const y_1g = mapY(0.0);
 
     var out: std.ArrayList(u8) = .empty;
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\<svg xmlns="http://www.w3.org/2000/svg" width="{d:.0}pt" height="{d:.0}pt" viewBox="0 0 {d:.0} {d:.0}">
-        \\<rect width="{d:.0}" height="{d:.0}" rx="10" fill="#0E1525" stroke="#1E2D4A" stroke-width="0.9" />
-        \\<text x="12" y="16" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F1F5F9">HORIZON TIDAL SHEAR ACROSS 1.8 m ASTRONAUT</text>
-        \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="{d:.1}" fill="#090E19" stroke="#334A70" stroke-width="0.8" />
-        \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="{d:.1}" fill="#FF7B72" fill-opacity="0.11" />
-        \\<rect x="{d:.1}" y="{d:.1}" width="{d:.1}" height="{d:.1}" fill="#34D399" fill-opacity="0.09" />
-        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#FCD34D" stroke-width="1.0" stroke-dasharray="3,2.5" />
-        \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.4" font-weight="700" fill="#FCD34D">1 g threshold</text>
+        \\<rect width="{d:.0}" height="{d:.0}" fill="#07090F" />
+        \\<text x="44" y="13" font-family="IBM Plex Mono, monospace" font-size="6.8" font-weight="600" fill="#B8C4D4">HORIZON TIDAL SHEAR ACROSS 1.8 m ASTRONAUT</text>
+        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#E8C078" stroke-width="0.85" stroke-dasharray="2.5,2.5" />
+        \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.2" fill="#E8C078">1 g human threshold</text>
         \\
     , .{
-        w,  h,         w,       h,    w,             h,
-        x0, y0,        pw,      ph,   x0,            y0,
-        pw, y_1g - y0, x0,      y_1g, pw,            (y0 + ph) - y_1g,
-        x0, y_1g,      x0 + pw, y_1g, x0 + pw - 4.0, y_1g - 3.5,
+        w,  h,    w,       h,    w,             h,
+        x0, y_1g, x0 + pw, y_1g, x0 + pw - 2.0, y_1g - 3.5,
     }));
 
-    // Ticks
+    // Subtle interior hairlines
     const x_ticks = [_]f64{ 1.0, 3.0, 5.0, 7.0, 9.0 };
     for (x_ticks) |xt| {
         const fx = mapX(xt);
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#1B2840" stroke-width="0.6" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.6" fill="#CBD5E1">10^{d:.0}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#151E2E" stroke-width="0.45" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.4" fill="#A6B4C8">10^{d:.0}</text>
             \\
         , .{ fx, y0, fx, y0 + ph, fx, y0 + ph + 10.5, xt }));
     }
@@ -599,14 +598,19 @@ fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m
     for (y_ticks) |yt| {
         const fy = mapY(yt);
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#1B2840" stroke-width="0.6" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.6" fill="#CBD5E1">10^{d:.0}</text>
+            \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#151E2E" stroke-width="0.45" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.4" fill="#A6B4C8">10^{d:.0}</text>
             \\
-        , .{ x0, fy, x0 + pw, fy, x0 - 4.5, fy + 2.3, yt }));
+        , .{ x0, fy, x0 + pw, fy, x0 - 4.5, fy + 2.2, yt }));
     }
 
-    // Exact analytic M^-2 scaling line from 10^1 Msun to 10^10 Msun
-    // Using Cygnus X-1 exact point as anchor: log10(tidal_g) = log10(cyg.tidal_human_g) - 2*(lm - log10(cyg.mass_msun))
+    // Open Tufte L-axis (no rectangle box!)
+    try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
+        \\<polyline points="{d:.1},{d:.1} {d:.1},{d:.1} {d:.1},{d:.1}" fill="none" stroke="#364660" stroke-width="0.65" />
+        \\
+    , .{ x0, y0, x0, y0 + ph, x0 + pw, y0 + ph }));
+
+    // Analytic M^-2 scaling line
     const lm_cyg = @log10(cyg.mass_msun);
     const lg_cyg = @log10(cyg.tidal_human_g);
     const l_x1: f64 = 0.8;
@@ -614,7 +618,7 @@ fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m
     const l_x2: f64 = 10.2;
     const l_y2 = lg_cyg - 2.0 * (l_x2 - lm_cyg);
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#7DD3FC" stroke-width="1.6" />
+        \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#8CC8F0" stroke-width="1.35" />
         \\
     , .{
         mapX(l_x1), mapY(std.math.clamp(l_y1, -12.0, 8.0)),
@@ -623,33 +627,34 @@ fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m
 
     // Plot Cygnus X-1, Sgr A*, M87*
     const bhs = [_]struct { b: Body, dx: f64, dy: f64, anchor: []const u8, col: []const u8 }{
-        .{ .b = cyg, .dx = 8.0, .dy = -2.0, .anchor = "start", .col = "#FF7B72" },
-        .{ .b = sgra, .dx = 8.0, .dy = -5.0, .anchor = "start", .col = "#FCD34D" },
-        .{ .b = m87, .dx = -10.0, .dy = 10.0, .anchor = "end", .col = "#34D399" },
+        .{ .b = cyg, .dx = 8.0, .dy = -2.0, .anchor = "start", .col = "#E58A8A" },
+        .{ .b = sgra, .dx = 8.0, .dy = -5.0, .anchor = "start", .col = "#E8C078" },
+        .{ .b = m87, .dx = -10.0, .dy = 10.0, .anchor = "end", .col = "#7AD1B8" },
     };
     for (bhs) |item| {
         const px = mapX(@log10(item.b.mass_msun));
         const py = mapY(@log10(item.b.tidal_human_g));
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<circle cx="{d:.1}" cy="{d:.1}" r="4.2" fill="{s}" stroke="#090E19" stroke-width="1.2" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.3" font-weight="700" fill="#F1F5F9">{s}</text>
+            \\<circle cx="{d:.1}" cy="{d:.1}" r="3.6" fill="{s}" stroke="#07090F" stroke-width="1.0" />
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.1" font-weight="600" fill="#EAEEF5">{s}</text>
             \\
         , .{ px, py, item.col, px + item.dx, py + item.dy, item.anchor, item.b.short_label }));
     }
 
-    // Zone callouts + bottom air-density comparison bar
+    // Minimalist hairline density comparison below (zero outer card box!)
     const air_ratio = AIR_DENSITY_KG_M3 / m87.density_kg_m3;
-    const m87_bar_w = (m87.density_kg_m3 / AIR_DENSITY_KG_M3) * 145.0;
+    const m87_bar_w = (m87.density_kg_m3 / AIR_DENSITY_KG_M3) * 140.0;
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-        \\<text x="288" y="38" text-anchor="end" font-family="Inter, sans-serif" font-size="6.4" font-weight="700" fill="#FCA5A5">SHRED ZONE (&gt; 1 g)</text>
-        \\<text x="52" y="148" font-family="Inter, sans-serif" font-size="6.4" font-weight="700" fill="#6EE7B7">CALM CROSSING (&lt; 1 g)</text>
-        \\<text x="{d:.1}" y="176" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.9" font-weight="600" fill="#E2E8F0">Black Hole Mass (Solar Masses)</text>
-        \\<text x="12" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.9" font-weight="600" fill="#E2E8F0" transform="rotate(-90 12 {d:.1})">Tidal Shear (Earth g)</text>
-        \\<rect x="12" y="185" width="288" height="33" rx="6" fill="#141F35" stroke="#253657" stroke-width="0.7" />
-        \\<text x="19" y="197" font-family="Inter, sans-serif" font-size="6.6" font-weight="700" fill="#7DD3FC">MEAN DENSITY PARADOX: M87* IS {d:.2}x LIGHTER THAN AIR</text>
-        \\<rect x="19" y="203" width="145" height="7" rx="2" fill="#334A70" />
-        \\<rect x="19" y="203" width="{d:.1}" height="7" rx="2" fill="#34D399" />
-        \\<text x="171" y="209.5" font-family="IBM Plex Mono, monospace" font-size="6.3" fill="#E2E8F0">{d:.3} vs {d:.3} kg/m3</text>
+        \\<text x="288" y="34" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#F2B8B8">SHRED ZONE (&gt; 1 g)</text>
+        \\<text x="50" y="142" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#7AD1B8">CALM CROSSING (&lt; 1 g)</text>
+        \\<text x="{d:.1}" y="170" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.8" fill="#D6DCE6">Black Hole Mass (Solar Masses)</text>
+        \\<text x="10" y="{d:.1}" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.8" fill="#D6DCE6" transform="rotate(-90 10 {d:.1})">Tidal Shear (Earth g)</text>
+        \\<line x1="10" y1="181" x2="294" y2="181" stroke="#222E42" stroke-width="0.5" />
+        \\<text x="10" y="195" font-family="IBM Plex Mono, monospace" font-size="6.4" font-weight="600" fill="#8CC8F0">AIR PARADOX · M87* IS {d:.2}x LIGHTER THAN AIR</text>
+        \\<line x1="10" y1="205" x2="150" y2="205" stroke="#2B384E" stroke-width="2.2" stroke-linecap="round" />
+        \\<line x1="10" y1="205" x2="{d:.1}" y2="205" stroke="#7AD1B8" stroke-width="2.4" stroke-linecap="round" />
+        \\<circle cx="{d:.1}" cy="205" r="2.6" fill="#7AD1B8" />
+        \\<text x="160" y="207.5" font-family="IBM Plex Mono, monospace" font-size="6.3" fill="#D6DCE6">{d:.3} vs {d:.3} kg/m3</text>
         \\</svg>
         \\
     , .{
@@ -657,7 +662,8 @@ fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m
         y0 + ph * 0.5,
         y0 + ph * 0.5,
         air_ratio,
-        m87_bar_w,
+        10.0 + m87_bar_w,
+        10.0 + m87_bar_w,
         m87.density_kg_m3,
         AIR_DENSITY_KG_M3,
     }));
@@ -764,7 +770,7 @@ pub fn main(init: std.process.Init) !void {
             "Comet 67P",
             "Rubble & Ice",
             "Chemical bonds beat gravity",
-            "#94A3B8",
+            "#9AA8BC",
             f_jpl67.rel_path,
             "phys_par[GM,diameter,density]",
             f_jpl67.sha,
@@ -781,7 +787,7 @@ pub fn main(init: std.process.Init) !void {
             "Earth",
             "Rocky Planet",
             "Iron-silicate hydrostatic crust",
-            "#60A5FA",
+            "#8CC8F0",
             f_earth.rel_path,
             "Mass, GM, Volumetric mean radius",
             f_earth.sha,
@@ -798,7 +804,7 @@ pub fn main(init: std.process.Init) !void {
             "Jupiter",
             "Gas Giant",
             "Metallic hydrogen + degeneracy",
-            "#F5B041",
+            "#E8C078",
             f_jup.rel_path,
             "Mass, GM, Volumetric mean radius",
             f_jup.sha,
@@ -815,7 +821,7 @@ pub fn main(init: std.process.Init) !void {
             "Sun",
             "Main-Seq Star",
             "Hydrogen fusion thermal pressure",
-            "#FCD34D",
+            "#F0D08A",
             f_sun.rel_path,
             "Mass, GM, Volumetric mean radius",
             f_sun.sha,
@@ -832,7 +838,7 @@ pub fn main(init: std.process.Init) !void {
             "Sirius B",
             "White Dwarf",
             "Electron Pauli degeneracy",
-            "#7DD3FC",
+            "#8CC8F0",
             f_arxiv.rel_path,
             "arXiv:1809.01240 M=1.017 Msun, v_g=80.65 km/s",
             f_arxiv.sha,
@@ -849,7 +855,7 @@ pub fn main(init: std.process.Init) !void {
             "PSR J0740",
             "Neutron Star",
             "Neutron degeneracy + strong force",
-            "#38BDF8",
+            "#70B8E8",
             f_nicer.rel_path,
             "10.3847/2041-8213/ac0a81 M=2.072 Msun, R=12.39 km",
             f_nicer.sha,
@@ -866,7 +872,7 @@ pub fn main(init: std.process.Init) !void {
             "Cygnus X-1",
             "Stellar BH",
             "None: trapped inside R_s",
-            "#FF7B72",
+            "#E58A8A",
             f_arxiv.rel_path,
             "arXiv:2102.09091 M=21.2 Msun, d=2.22 kpc",
             f_arxiv.sha,
@@ -883,7 +889,7 @@ pub fn main(init: std.process.Init) !void {
             "Sgr A*",
             "Galactic SMBH",
             "None: Milky Way core horizon",
-            "#FB7185",
+            "#E58A8A",
             f_arxiv.rel_path,
             "arXiv:2112.07478 M=4.30e6 Msun; EHT 51.8 uas",
             f_arxiv.sha,
@@ -900,7 +906,7 @@ pub fn main(init: std.process.Init) !void {
             "M87*",
             "Supermassive BH",
             "None: swallows Solar System",
-            "#F43F5E",
+            "#E58A8A",
             f_m87.rel_path,
             "10.3847/2041-8213/ab0ec7 M=6.5e9 Msun, ring=42 uas",
             f_m87.sha,

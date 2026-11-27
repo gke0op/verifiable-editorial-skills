@@ -1,17 +1,17 @@
 // Auto-dissected Typst 0.15.1 PDF/UA-1 Archetype Skeleton
-// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 51af05d9f4186124)
+// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: e188b15d1dba8452)
 // Archetype Slug: mobile-primer (mobile_portrait_9x16, dark polarity)
 
 #let data = json("../data/summary_metrics.json")
 #let ledger = json("../data/provenance_ledger.json")
 #let m = data.metrics
 
-#let c-bg     = rgb("#081018")
-#let c-tint   = rgb("#162230")
-#let c-ink    = rgb("#d8e0f0")
+#let c-bg     = rgb("#000808")
+#let c-tint   = rgb("#0e1a20")
+#let c-ink    = rgb("#d0d8e0")
 #let c-muted  = rgb("#c4ceda")
-#let c-acc1   = rgb("#78d0f8")
-#let c-acc2   = rgb("#f8d048")
+#let c-acc1   = rgb("#88c8f0")
+#let c-acc2   = rgb("#e8c078")
 #let c-rule   = rgb("#2A394A")
 
 #set document(
@@ -22,7 +22,7 @@
   width: 360.0pt,
   height: 640.0pt,
   fill: c-bg,
-  margin: (top: 28.0pt, bottom: 28.0pt, left: 28.0pt, right: 28.0pt),
+  margin: (top: 28.0pt, bottom: 34.4pt, left: 28.0pt, right: 28.0pt),
   footer: context {
     let pg = counter(page).get().first()
     let tot = counter(page).final().first()
@@ -37,14 +37,14 @@
   },
 )
 
-#set text(font: "Inter", size: 9.9pt, fill: c-ink, lang: "en", region: "US")
+#set text(font: "Inter", size: 10.2pt, fill: c-ink, lang: "en", region: "US")
 #set par(leading: 0.6em, spacing: 0.8em, justify: false)
 // === PAGE 1: COVER HERO (Dissected Archetype: cover_hero) ===
 #line(length: 100%, stroke: 2.2pt + c-acc1)
 #v(6pt)
 #text(font: "Inter", size: 7.2pt, weight: "bold", fill: c-acc1, tracking: 0.14em)[#upper(data.metadata.kicker)]
 #v(4pt)
-#text(font: "Cormorant Garamond", size: 25.5pt, weight: "bold", fill: c-ink, number-type: "lining")[#data.metadata.title]
+#text(font: "Cormorant Garamond", size: 26.0pt, weight: "bold", fill: c-ink, number-type: "lining")[#data.metadata.title]
 #v(4pt)
 #text(size: 10.2pt, style: "italic", fill: c-muted)[#data.metadata.subtitle]
 #v(12pt)

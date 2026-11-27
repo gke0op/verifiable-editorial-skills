@@ -14,7 +14,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 ## Gallery
 
 ### 00 · *Cosmos in Your Pocket* (`mobile-primer` · `360×640 pt` WhatsApp `9:16` PDF/UA-1) — Comets to Supermassive Black Holes · `100% Zig 0.17 + Typst`
-[PDF (`262 KB`)](demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf) · [Source](demos/cosmos-mobile-primer/) · Live NASA JPL SBDB, NSSDC Fact Sheets, arXiv & Crossref (`9` raw SHA-256 files, `27.1` mass decades, `18.1` density decades) · Zero pinch-zoom mobile cards · `191/191` Rule 10 · `16/16` live clickable Rule 11 pills · `6.56:1` worst CR · **`veraPDF 106/106`**
+[PDF (`234 KB`)](demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf) · [Source](demos/cosmos-mobile-primer/) · Zero-box minimalist OLED void + open `┌ ... ┘` corner brackets · Live NASA JPL SBDB, NSSDC Fact Sheets, arXiv & Crossref (`9` raw SHA-256 files, `27.1` mass decades, `18.1` density decades) · `187/187` Rule 10 · `16/16` live clickable Rule 11 links · `7.90:1` worst CR (`AAA`) · **`veraPDF 106/106`**
 
 | Card 1 · WhatsApp OLED Cover | Card 3 · Mass–Radius Phase Map | Card 9 · Compactness Ladder | Card 10 · Tidal & Air Paradoxes |
 | :---: | :---: | :---: | :---: |

@@ -1,80 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="312pt" height="226pt" viewBox="0 0 312 226">
+<svg xmlns="http://www.w3.org/2000/svg" width="304pt" height="226pt" viewBox="0 0 304 226">
 <defs>
   <radialGradient id="bhGlow" cx="50%" cy="50%" r="50%">
-    <stop offset="0%" stop-color="#050810" stop-opacity="1" />
-    <stop offset="22%" stop-color="#050810" stop-opacity="1" />
-    <stop offset="30%" stop-color="#FF7B72" stop-opacity="0.85" />
-    <stop offset="44%" stop-color="#F5B041" stop-opacity="0.34" />
-    <stop offset="72%" stop-color="#38BDF8" stop-opacity="0.10" />
-    <stop offset="100%" stop-color="#0B101B" stop-opacity="0" />
+    <stop offset="0%" stop-color="#07090F" stop-opacity="1" />
+    <stop offset="21%" stop-color="#07090F" stop-opacity="1" />
+    <stop offset="28%" stop-color="#E58A8A" stop-opacity="0.58" />
+    <stop offset="42%" stop-color="#E8C078" stop-opacity="0.20" />
+    <stop offset="70%" stop-color="#8CC8F0" stop-opacity="0.06" />
+    <stop offset="100%" stop-color="#07090F" stop-opacity="0" />
   </radialGradient>
 </defs>
-<rect width="312" height="226" rx="12" fill="#0E1525" stroke="#1E2D4A" stroke-width="0.9" />
-<circle cx="156.0" cy="113.0" r="102" fill="url(#bhGlow)" />
-<circle cx="123.0" cy="188.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="293.0" cy="89.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="255.0" cy="30.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="19.0" cy="131.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="59.0" cy="142.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="212.0" cy="187.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="41.0" cy="186.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="275.0" cy="76.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="166.0" cy="184.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="170.0" cy="79.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="257.0" cy="122.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="281.0" cy="35.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="81.0" cy="43.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="122.0" cy="156.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="197.0" cy="19.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="82.0" cy="131.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="128.0" cy="141.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="139.0" cy="142.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="229.0" cy="183.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="65.0" cy="122.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="79.0" cy="112.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="58.0" cy="190.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="236.0" cy="82.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="54.0" cy="15.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="62.0" cy="186.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="200.0" cy="108.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="58.0" cy="52.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="35.0" cy="41.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="40.0" cy="143.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="208.0" cy="169.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="24.0" cy="134.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="34.0" cy="167.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="299.0" cy="75.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="24.0" cy="19.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="194.0" cy="93.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="226.0" cy="69.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="88.0" cy="44.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="177.0" cy="20.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="286.0" cy="187.0" r="0.65" fill="#E2E8F0" fill-opacity="0.28" />
-<circle cx="156.0" cy="113.0" r="94.0" fill="none" stroke="#334A70" stroke-width="0.70" stroke-dasharray="2.5,3" />
-<circle cx="156.0" cy="113.0" r="74.0" fill="none" stroke="#334A70" stroke-width="0.70" stroke-dasharray="2.5,3" />
-<circle cx="156.0" cy="113.0" r="54.0" fill="none" stroke="#334A70" stroke-width="0.70" stroke-dasharray="2.5,3" />
-<circle cx="156.0" cy="113.0" r="36.0" fill="none" stroke="#FF7B72" stroke-width="1.25" />
-<ellipse cx="156.0" cy="113.0" rx="42" ry="12" fill="none" stroke="#FCD34D" stroke-width="1.0" stroke-opacity="0.72" transform="rotate(-18 156.0 113.0)" />
-<circle cx="156.0" cy="113.0" r="22" fill="#050810" stroke="#FCA5A5" stroke-width="1.35" />
-<text x="156.0" y="111.5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.2" font-weight="700" fill="#FCA5A5">Xi = 1</text>
-<text x="156.0" y="121.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.0" fill="#CBD5E1">HORIZON</text>
-<line x1="76.3" y1="63.2" x2="68.3" y2="57.2" stroke="#94A3B8" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="76.3" cy="63.2" r="4.0" fill="#94A3B8" stroke="#0B101B" stroke-width="1.2" />
-<text x="68.3" y="59.2" text-anchor="end" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">Comet 67P</text>
-<line x1="218.0" y1="60.9" x2="226.0" y2="54.9" stroke="#60A5FA" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="218.0" cy="60.9" r="4.0" fill="#60A5FA" stroke="#0B101B" stroke-width="1.2" />
-<text x="226.0" y="56.9" text-anchor="start" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">Earth</text>
-<line x1="219.0" y1="138.5" x2="228.0" y2="139.5" stroke="#FCD34D" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="219.0" cy="138.5" r="4.0" fill="#FCD34D" stroke="#0B101B" stroke-width="1.2" />
-<text x="228.0" y="141.5" text-anchor="start" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">Sun</text>
-<line x1="108.5" y1="142.7" x2="99.5" y2="143.7" stroke="#7DD3FC" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="108.5" cy="142.7" r="4.0" fill="#7DD3FC" stroke="#0B101B" stroke-width="1.2" />
-<text x="99.5" y="145.7" text-anchor="end" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">Sirius B</text>
-<line x1="146.9" y1="70.0" x2="138.9" y2="62.0" stroke="#38BDF8" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="146.9" cy="70.0" r="4.0" fill="#38BDF8" stroke="#0B101B" stroke-width="1.2" />
-<text x="138.9" y="64.0" text-anchor="end" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">PSR J0740</text>
-<line x1="163.5" y1="148.2" x2="171.5" y2="158.2" stroke="#F43F5E" stroke-width="0.65" stroke-opacity="0.7" />
-<circle cx="163.5" cy="148.2" r="4.0" fill="#F43F5E" stroke="#0B101B" stroke-width="1.2" />
-<text x="171.5" y="160.2" text-anchor="start" font-family="Inter, sans-serif" font-size="7.6" font-weight="700" fill="#F1F5F9">M87*</text>
-<text x="156" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.4" fill="#CBD5E1">COMPACTNESS LADDER: RUBBLE PILE -> QUANTUM CORE -> EVENT HORIZON</text>
+<rect width="304" height="226" fill="#07090F" />
+<path d="M 1 24 L 1 1 L 30 1" fill="none" stroke="#2B384E" stroke-width="0.6" />
+<path d="M 274 225 L 303 225 L 303 202" fill="none" stroke="#2B384E" stroke-width="0.6" />
+<circle cx="152.0" cy="110.0" r="96" fill="url(#bhGlow)" />
+<circle cx="113.0" cy="194.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="101.0" cy="72.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="129.0" cy="175.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="217.0" cy="92.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="262.0" cy="59.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="115.0" cy="170.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="205.0" cy="58.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="288.0" cy="28.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="100.0" cy="143.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="115.0" cy="64.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="263.0" cy="105.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="76.0" cy="104.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="31.0" cy="83.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="288.0" cy="161.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="214.0" cy="203.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="81.0" cy="32.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="207.0" cy="143.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="223.0" cy="140.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="45.0" cy="178.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="180.0" cy="144.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="195.0" cy="68.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="80.0" cy="151.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="82.0" cy="176.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="152.0" cy="23.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="76.0" cy="166.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="190.0" cy="146.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="84.0" cy="58.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="277.0" cy="153.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="99.0" cy="77.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<circle cx="102.0" cy="19.0" r="0.55" fill="#E2E8F0" fill-opacity="0.22" />
+<line x1="152.0" y1="14" x2="152.0" y2="206" stroke="#182234" stroke-width="0.45" />
+<line x1="22" y1="110.0" x2="282" y2="110.0" stroke="#182234" stroke-width="0.45" />
+<circle cx="152.0" cy="110.0" r="90.0" fill="none" stroke="#263348" stroke-width="0.50" stroke-dasharray="2,3.5" />
+<circle cx="152.0" cy="110.0" r="70.0" fill="none" stroke="#263348" stroke-width="0.50" stroke-dasharray="2,3.5" />
+<circle cx="152.0" cy="110.0" r="51.0" fill="none" stroke="#263348" stroke-width="0.50" stroke-dasharray="2,3.5" />
+<circle cx="152.0" cy="110.0" r="34.0" fill="none" stroke="#E58A8A" stroke-width="0.90" />
+<ellipse cx="152.0" cy="110.0" rx="40" ry="10.5" fill="none" stroke="#E8C078" stroke-width="0.75" stroke-opacity="0.65" transform="rotate(-17 152.0 110.0)" />
+<circle cx="152.0" cy="110.0" r="21" fill="#07090F" stroke="#E58A8A" stroke-width="1.0" />
+<text x="152.0" y="108.8" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7.0" font-weight="600" fill="#F2B8B8">Xi = 1</text>
+<text x="152.0" y="118.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#B8C4D4">HORIZON</text>
+<line x1="75.7" y1="62.3" x2="67.7" y2="57.3" stroke="#9AA8BC" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="75.7" cy="62.3" r="3.1" fill="#9AA8BC" stroke="#07090F" stroke-width="1.0" />
+<text x="67.7" y="59.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Comet 67P</text>
+<line x1="213.5" y1="62.0" x2="221.5" y2="57.0" stroke="#8CC8F0" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="213.5" cy="62.0" r="3.1" fill="#8CC8F0" stroke="#07090F" stroke-width="1.0" />
+<text x="221.5" y="59.0" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Earth</text>
+<line x1="212.3" y1="134.3" x2="220.3" y2="135.3" stroke="#F0D08A" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="212.3" cy="134.3" r="3.1" fill="#F0D08A" stroke="#07090F" stroke-width="1.0" />
+<text x="220.3" y="137.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Sun</text>
+<line x1="107.1" y1="138.1" x2="99.1" y2="139.1" stroke="#8CC8F0" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="107.1" cy="138.1" r="3.1" fill="#8CC8F0" stroke="#07090F" stroke-width="1.0" />
+<text x="99.1" y="141.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Sirius B</text>
+<line x1="141.8" y1="69.2" x2="133.8" y2="62.2" stroke="#70B8E8" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="141.8" cy="69.2" r="3.1" fill="#70B8E8" stroke="#07090F" stroke-width="1.0" />
+<text x="133.8" y="64.2" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">PSR J0740</text>
+<line x1="159.1" y1="143.3" x2="167.1" y2="152.3" stroke="#E58A8A" stroke-width="0.5" stroke-opacity="0.6" />
+<circle cx="159.1" cy="143.3" r="3.1" fill="#E58A8A" stroke="#07090F" stroke-width="1.0" />
+<text x="167.1" y="154.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">M87*</text>
+<text x="152" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#A6B4C8">COMPACTNESS RETICLE · RUBBLE PILE TO EVENT HORIZON</text>
 </svg>
