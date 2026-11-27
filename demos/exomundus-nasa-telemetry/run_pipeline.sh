@@ -19,7 +19,7 @@ echo "=== [2/4] Engaging Pure-Zig Rule 4 + Rule 6 Compilation Latch ==="
 
 echo "=== [3/4] Compiling Rust-Native Typst PDF/UA-1 Monograph (Zero Python!) ==="
 if [[ ! -d "$FONT_DIR" ]]; then
-  vedit fetch-fonts --out-dir "$FONT_DIR"
+  "$VEDIT_ZIG" fetch-fonts --dir "$FONT_DIR"
 fi
 typst compile --root "$DEMO" --font-path "$FONT_DIR" --pdf-standard ua-1 \
   "$DEMO/report/monograph.typ" "$OUT_PDF"

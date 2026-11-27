@@ -1,4 +1,4 @@
-//! Sovereign Zig 0.17.0 Agent Harness CLI (`vedit`).
+//! Sovereign Zig 0.17.0 Agent Harness CLI (`vedit` v0.7.0-zig).
 //! Zero-Python verification court, PDF sample dissector/injector, and archetype project scaffolder,
 //! powered by `p2zig --strict`-transpiled mathematical kernels (`kernels_p2zig.zig`).
 
@@ -11,23 +11,23 @@ const dissect = @import("dissect.zig");
 const scaffold = @import("scaffold.zig");
 const media = @import("media.zig");
 
-const VERSION = "0.6.0-zig";
+const VERSION = "0.7.0-zig";
 
 fn writeOut(io: std.Io, s: []const u8) !void {
     try std.Io.File.stdout().writeStreamingAll(io, s);
 }
 
 fn writeErr(io: std.Io, s: []const u8) void {
-    std.Io.File.stderr().writeStreamingAll(io, s) catch {};
+    mupdf.writeStderrBestEffort(io, s);
 }
 
 fn printUsage(io: std.Io) !void {
     try writeOut(io,
-        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.6.0-zig — 100% Zero-Python)
+        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.7.0-zig — 100% Zero-Python)
         \\
         \\Commands:
         \\  vedit fetch-fonts [--dir PATH] [--force] [--json]
-        \\      Provision & SHA-256 verify the 8 cross-platform SIL-OFL open-source editorial fonts
+        \\      Provision & SHA-256 pin-verify the 8 cross-platform SIL-OFL open-source editorial fonts
         \\  vedit plate <in.(jpg|png)> <out.(jpg|png)> [--width-pt 304] [--height-pt 118] [--bg "#07090F"] [--feather-y 0.15] [--feather-x 0.08] [--quality 88] [--no-lift] [--json]
         \\      Pure-Zig panoramic center-crop, black-point alignment & raised-cosine void feathering (>=300 DPI)
         \\  vedit spreads <pdf> <out_dir> [--dpi 150] [--width 1600] [--json]
@@ -41,24 +41,71 @@ fn printUsage(io: std.Io) !void {
         \\  vedit init <target_dir> --archetype <slug> [--dir archetypes] [--title "..."]
         \\      Scaffold a SHA-256-sealed, Rule-6-latched Typst PDF/UA-1 project from an injected archetype
         \\  vedit latch <project_dir> [--json]
-        \\      Pure-Zig SHA-256 manifest + Rule 4 provenance ledger compilation latch
+        \\      Pure-Zig SHA-256 manifest + Rule 4 cryptographic provenance ledger compilation latch
         \\  vedit contrast <pdf> [--json]
-        \\      Background-sampled WCAG 2.1 AA contrast gate (p2zig kernel)
+        \\      Composited 144-DPI background-vs-foreground WCAG 2.1 AA contrast gate (p2zig kernel)
         \\  vedit geometry <pdf> [--max-rms 55] [--json]
-        \\      AABB collision, W/W* clip-path slicing, trim overflow, headline orphan & photo-texture gate
+        \\      OBB/AABB collision, Bezier W/W* clip-path slicing, trim overflow, orphan & photo-texture gate
         \\  vedit coverage <pdf> [--min-pct 50] [--min-bleed 2] [--pages "1,4-9"] [--json]
-        \\      Exact clip-aware dual-key pixel-diff visible photography coverage gate (p2zig kernel)
+        \\      Exact clip-aware dual-key pixel-diff & tonal-variance visible photography coverage gate
         \\  vedit prose <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--json]
-        \\      Rule 10 post-render signed + superscript-safe prose grounding gate (half-ULP f64)
-        \\  vedit links <pdf> [--citations F] [--ledger F] [--min-links 1] [--offline] [--timeout 10] [--json]
+        \\      Rule 10 post-render signed + superscript-safe + ToUnicode-hardened prose grounding gate
+        \\  vedit links <pdf> [--citations F] [--ledger F] [--min-links 1] [--offline] [--timeout 10] [--allow-localhost] [--json]
         \\      Rule 11 clickable PDF resource link coverage & live anti-hallucination verifier
-        \\  vedit prepress <pdf> [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
-        \\      Effective DPI, font embedding, Trim/BleedBox, CMYK GCR TAC & live veraPDF ISO 14289-1 gate
-        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--plate-pages "1,4-9"] [--min-dpi 300] [--require-bleed] [--require-ua] [--verify-links|--check-links-offline] [--no-verapdf] [--json]
-        \\      Run all applicable verification gates in one invocation (exits non-zero on any failure)
+        \\  vedit prepress <pdf> [--min-dpi 300] [--max-tac 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
+        \\      Effective DPI, font embedding, Trim/BleedBox, real CMYK PAM TAC & live veraPDF ISO 14289-1 gate
+        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--plate-pages "1,4-9"] [--min-photo-pct 50] [--min-dpi 300] [--max-tac 300] [--require-bleed] [--require-ua] [--verify-links|--check-links-offline|--skip-links] [--min-links N] [--allow-localhost] [--no-verapdf] [--json]
+        \\      Run all 6 verification gates in one fail-closed invocation (Gate 6 offline links enabled by default)
         \\  vedit version
         \\
     );
+}
+
+fn containsStr(list: []const []const u8, needle: []const u8) bool {
+    for (list) |item| {
+        if (std.mem.eql(u8, item, needle)) return true;
+    }
+    return false;
+}
+
+/// Strict per-subcommand argument validator: fails closed (`exit 2`) on unknown flags, missing option values, or wrong positional counts.
+fn validateArgs(
+    alloc: std.mem.Allocator,
+    io: std.Io,
+    sub_args: []const [:0]const u8,
+    min_pos: usize,
+    max_pos: usize,
+    bool_flags: []const []const u8,
+    val_flags: []const []const u8,
+) ![]const []const u8 {
+    var positionals: std.ArrayList([]const u8) = .empty;
+    var i: usize = 0;
+    while (i < sub_args.len) {
+        const a: []const u8 = sub_args[i];
+        if (a.len > 1 and a[0] == '-') {
+            if (containsStr(bool_flags, a)) {
+                i += 1;
+                continue;
+            }
+            if (containsStr(val_flags, a)) {
+                if (i + 1 >= sub_args.len) {
+                    writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: option '{s}' requires a value\n", .{a}));
+                    std.process.exit(2);
+                }
+                i += 2;
+                continue;
+            }
+            writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: unknown option '{s}' (run `vedit --help`)\n", .{a}));
+            std.process.exit(2);
+        }
+        try positionals.append(alloc, a);
+        i += 1;
+    }
+    if (positionals.items.len < min_pos or positionals.items.len > max_pos) {
+        writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: expected {d}..{d} positional argument(s), got {d}\n", .{ min_pos, max_pos, positionals.items.len }));
+        std.process.exit(2);
+    }
+    return positionals.toOwnedSlice(alloc);
 }
 
 fn hasFlag(args: []const [:0]const u8, flag: []const u8) bool {
@@ -74,6 +121,54 @@ fn getOpt(args: []const [:0]const u8, flag: []const u8) ?[]const u8 {
         if (std.mem.eql(u8, args[i], flag)) return args[i + 1];
     }
     return null;
+}
+
+fn parseFiniteFloatOpt(
+    alloc: std.mem.Allocator,
+    io: std.Io,
+    args: []const [:0]const u8,
+    flag: []const u8,
+    default_val: f64,
+    lo: f64,
+    hi: f64,
+) !f64 {
+    const raw = getOpt(args, flag) orelse return default_val;
+    const v = std.fmt.parseFloat(f64, raw) catch {
+        writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: invalid float '{s}' for {s}\n", .{ raw, flag }));
+        std.process.exit(2);
+    };
+    if (!std.math.isFinite(v) or v < lo or v > hi) {
+        writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: {s}={s} out of allowed finite range [{d:.2}, {d:.2}]\n", .{ flag, raw, lo, hi }));
+        std.process.exit(2);
+    }
+    return v;
+}
+
+fn parseIntOpt(
+    comptime T: type,
+    alloc: std.mem.Allocator,
+    io: std.Io,
+    args: []const [:0]const u8,
+    flag: []const u8,
+    default_val: T,
+    lo: T,
+    hi: T,
+) !T {
+    const raw = getOpt(args, flag) orelse return default_val;
+    const v = std.fmt.parseInt(T, raw, 10) catch {
+        writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: invalid integer '{s}' for {s}\n", .{ raw, flag }));
+        std.process.exit(2);
+    };
+    if (v < lo or v > hi) {
+        writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: {s}={s} out of allowed range [{d}, {d}]\n", .{ flag, raw, lo, hi }));
+        std.process.exit(2);
+    }
+    return v;
+}
+
+fn jsonOptBool(ran: bool, passed: bool) []const u8 {
+    if (!ran) return "null";
+    return if (passed) "true" else "false";
 }
 
 fn sanitizeSlug(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
@@ -102,8 +197,6 @@ pub fn main(init: std.process.Init) !void {
 
     const cmd = all_args[1];
     const sub_args = all_args[2..];
-    const as_json = hasFlag(sub_args, "--json");
-    const tmp_tag = "zig017";
 
     if (std.mem.eql(u8, cmd, "version") or std.mem.eql(u8, cmd, "--version")) {
         try writeOut(io, try std.fmt.allocPrint(alloc, "vedit {s} (Zig 0.17.0 + p2zig-strict kernels)\n", .{VERSION}));
@@ -114,21 +207,26 @@ pub fn main(init: std.process.Init) !void {
         return;
     }
 
+    const as_json = hasFlag(sub_args, "--json");
+    const tmp_dir = try mupdf.makePrivateTmpDir(alloc, io);
+    defer mupdf.removeTmpDirBestEffort(io, tmp_dir);
+
     // -------------------------------------------------------------------------
     // FETCH-FONTS / PLATE / SPREADS (Pure-Zig Media & Font Provisioning)
     // -------------------------------------------------------------------------
     if (std.mem.eql(u8, cmd, "fetch-fonts")) {
+        _ = try validateArgs(alloc, io, sub_args, 0, 0, &.{ "--force", "--json" }, &.{"--dir"});
         const home = init.environ_map.get("HOME") orelse ".";
         const default_dir = try std.fs.path.join(alloc, &.{ home, ".cache", "verifiable-editorial", "fonts" });
         const target_dir = getOpt(sub_args, "--dir") orelse default_dir;
         const rep = try media.fetchFonts(alloc, io, target_dir, hasFlag(sub_args, "--force"));
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "command": "fetch-fonts", "font_dir": "{s}", "count": {d} }}
+                \\{{ "command": "fetch-fonts", "font_dir": {s}, "count": {d} }}
                 \\
-            , .{ rep.font_dir, rep.fonts.len }));
+            , .{ try mupdf.jsonString(alloc, rep.font_dir), rep.fonts.len }));
         } else {
-            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:fetch-fonts] Ready ({d} SIL-OFL fonts) -> {s}\n", .{ rep.fonts.len, rep.font_dir }));
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:fetch-fonts] Ready ({d} SHA-256 verified SIL-OFL fonts) -> {s}\n", .{ rep.fonts.len, rep.font_dir }));
             for (rep.fonts) |f| {
                 try writeOut(io, try std.fmt.allocPrint(alloc, "  - {s:<32} [{s}] {d} B  sha256={s}\n", .{ f.file, f.status, f.bytes, f.sha256_hex[0..16] }));
             }
@@ -137,20 +235,28 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "plate")) {
-        if (sub_args.len < 2) {
-            writeErr(io, "usage: vedit plate <in.(jpg|png)> <out.(jpg|png)> [--width-pt 304] [--height-pt 118] [--bg \"#07090F\"] [--feather-y 0.15] [--feather-x 0.08] [--quality 88] [--no-lift] [--json]\n");
-            std.process.exit(2);
-        }
-        const width_pt: f64 = if (getOpt(sub_args, "--width-pt")) |v| std.fmt.parseFloat(f64, v) catch 304.0 else 304.0;
-        const height_pt: f64 = if (getOpt(sub_args, "--height-pt")) |v| std.fmt.parseFloat(f64, v) catch 118.0 else 118.0;
+        const pos = try validateArgs(
+            alloc,
+            io,
+            sub_args,
+            2,
+            2,
+            &.{ "--no-lift", "--json" },
+            &.{ "--width-pt", "--height-pt", "--bg", "--feather-y", "--feather-x", "--quality" },
+        );
+        const width_pt = try parseFiniteFloatOpt(alloc, io, sub_args, "--width-pt", 304.0, 1.0, 100000.0);
+        const height_pt = try parseFiniteFloatOpt(alloc, io, sub_args, "--height-pt", 118.0, 1.0, 100000.0);
         const bg_hex = getOpt(sub_args, "--bg") orelse "#07090F";
-        const bg_rgb = media.parseHexRgb(bg_hex) orelse mupdf.Rgb{ .r = 7, .g = 9, .b = 15 };
-        const fy: f64 = if (getOpt(sub_args, "--feather-y")) |v| std.fmt.parseFloat(f64, v) catch 0.15 else 0.15;
-        const fx: f64 = if (getOpt(sub_args, "--feather-x")) |v| std.fmt.parseFloat(f64, v) catch 0.08 else 0.08;
-        const qual: u8 = if (getOpt(sub_args, "--quality")) |v| std.fmt.parseInt(u8, v, 10) catch 88 else 88;
+        const bg_rgb = media.parseHexRgb(bg_hex) orelse {
+            writeErr(io, try std.fmt.allocPrint(alloc, "[vedit] error: invalid hex color '{s}' for --bg\n", .{bg_hex}));
+            std.process.exit(2);
+        };
+        const fy = try parseFiniteFloatOpt(alloc, io, sub_args, "--feather-y", 0.15, 0.0, 0.5);
+        const fx = try parseFiniteFloatOpt(alloc, io, sub_args, "--feather-x", 0.08, 0.0, 0.5);
+        const qual = try parseIntOpt(u8, alloc, io, sub_args, "--quality", 88, 1, 100);
         const do_lift = !hasFlag(sub_args, "--no-lift");
 
-        const rep = try media.processPlate(alloc, io, sub_args[0], sub_args[1], width_pt, height_pt, bg_rgb, fy, fx, qual, do_lift, tmp_tag);
+        const rep = try media.processPlate(alloc, io, pos[0], pos[1], width_pt, height_pt, bg_rgb, fy, fx, qual, do_lift, tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
                 \\{{ "command": "plate", "out_w": {d}, "out_h": {d}, "bytes": {d}, "dpi_x": {d:.1}, "dpi_y": {d:.1}, "corner": [{d},{d},{d}] }}
@@ -158,27 +264,24 @@ pub fn main(init: std.process.Init) !void {
             , .{ rep.out_w, rep.out_h, rep.out_bytes, rep.dpi_x, rep.dpi_y, rep.corner.r, rep.corner.g, rep.corner.b }));
         } else {
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:plate] {s} -> {s} ({d}x{d}, {d} B, DPI={d:.1}x{d:.1}, corner=({d},{d},{d}))\n", .{
-                sub_args[0], sub_args[1], rep.out_w, rep.out_h, rep.out_bytes, rep.dpi_x, rep.dpi_y, rep.corner.r, rep.corner.g, rep.corner.b,
+                pos[0], pos[1], rep.out_w, rep.out_h, rep.out_bytes, rep.dpi_x, rep.dpi_y, rep.corner.r, rep.corner.g, rep.corner.b,
             }));
         }
         return;
     }
 
     if (std.mem.eql(u8, cmd, "spreads")) {
-        if (sub_args.len < 2) {
-            writeErr(io, "usage: vedit spreads <pdf> <out_dir> [--dpi 150] [--width 1600] [--json]\n");
-            std.process.exit(2);
-        }
-        const dpi: u32 = if (getOpt(sub_args, "--dpi")) |v| std.fmt.parseInt(u32, v, 10) catch 150 else 150;
-        const width: usize = if (getOpt(sub_args, "--width")) |v| std.fmt.parseInt(usize, v, 10) catch 1600 else 1600;
-        const rep = try media.renderSpreads(alloc, io, sub_args[0], sub_args[1], dpi, width, tmp_tag);
+        const pos = try validateArgs(alloc, io, sub_args, 2, 2, &.{"--json"}, &.{ "--dpi", "--width" });
+        const dpi = try parseIntOpt(u32, alloc, io, sub_args, "--dpi", 150, 18, 600);
+        const width = try parseIntOpt(usize, alloc, io, sub_args, "--width", 1600, 0, 16384);
+        const rep = try media.renderSpreads(alloc, io, pos[0], pos[1], dpi, width, tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "command": "spreads", "count": {d}, "out_dir": "{s}" }}
+                \\{{ "command": "spreads", "count": {d}, "out_dir": {s} }}
                 \\
-            , .{ rep.written.len, sub_args[1] }));
+            , .{ rep.written.len, try mupdf.jsonString(alloc, pos[1]) }));
         } else {
-            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:spreads] Exported {d} facing spread(s) -> {s}\n", .{ rep.written.len, sub_args[1] }));
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:spreads] Exported {d} facing spread(s) -> {s}\n", .{ rep.written.len, pos[1] }));
         }
         return;
     }
@@ -187,17 +290,14 @@ pub fn main(init: std.process.Init) !void {
     // INJECT / INSPECT (Pillar #6: PDF Sample Dissection & Archetype Injection)
     // -------------------------------------------------------------------------
     if (std.mem.eql(u8, cmd, "inject") or std.mem.eql(u8, cmd, "inspect")) {
-        if (sub_args.len < 1) {
-            writeErr(io, "usage: vedit inject <sample.pdf> [--name <slug>] [--out-dir archetypes] [--json]\n");
-            std.process.exit(2);
-        }
-        const pdf_path = sub_args[0];
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{ "--name", "--out-dir" });
+        const pdf_path = pos[0];
         const base = std.fs.path.stem(pdf_path);
         const raw_slug = getOpt(sub_args, "--name") orelse base;
         const slug = try sanitizeSlug(alloc, raw_slug);
         const out_dir = getOpt(sub_args, "--out-dir") orelse "archetypes";
 
-        const bp = try dissect.dissectPdf(alloc, io, pdf_path, slug, tmp_tag);
+        const bp = try dissect.dissectPdf(alloc, io, pdf_path, slug, tmp_dir);
         if (std.mem.eql(u8, cmd, "inspect")) {
             const j = try dissect.formatBlueprintJson(alloc, bp);
             try writeOut(io, j);
@@ -242,6 +342,7 @@ pub fn main(init: std.process.Init) !void {
     // ARCHETYPES & INIT (Pillar #2: Sovereign Zig CLI Scaffolding)
     // -------------------------------------------------------------------------
     if (std.mem.eql(u8, cmd, "archetypes")) {
+        _ = try validateArgs(alloc, io, sub_args, 0, 0, &.{"--json"}, &.{"--dir"});
         const dir = getOpt(sub_args, "--dir") orelse "archetypes";
         const entries = try scaffold.listArchetypes(alloc, io, dir);
         if (as_json) {
@@ -250,9 +351,18 @@ pub fn main(init: std.process.Init) !void {
             for (entries, 0..) |e, idx| {
                 const comma: []const u8 = if (idx + 1 < entries.len) "," else "";
                 try buf.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-                    \\  {{ "slug": "{s}", "source_pdf": "{s}", "format_class": "{s}", "polarity": "{s}", "pages": {d}, "canvas_bg": "{s}", "accent_primary": "{s}" }}{s}
+                    \\  {{ "slug": {s}, "source_pdf": {s}, "format_class": {s}, "polarity": {s}, "pages": {d}, "canvas_bg": {s}, "accent_primary": {s} }}{s}
                     \\
-                , .{ e.slug, e.source_pdf, e.format_class, e.polarity, e.page_count, e.canvas_bg, e.accent_primary, comma }));
+                , .{
+                    try mupdf.jsonString(alloc, e.slug),
+                    try mupdf.jsonString(alloc, e.source_pdf),
+                    try mupdf.jsonString(alloc, e.format_class),
+                    try mupdf.jsonString(alloc, e.polarity),
+                    e.page_count,
+                    try mupdf.jsonString(alloc, e.canvas_bg),
+                    try mupdf.jsonString(alloc, e.accent_primary),
+                    comma,
+                }));
             }
             try buf.appendSlice(alloc, "]\n");
             try writeOut(io, buf.items);
@@ -268,11 +378,8 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "init")) {
-        if (sub_args.len < 1) {
-            writeErr(io, "usage: vedit init <target_dir> --archetype <slug> [--dir archetypes] [--title \"...\"]\n");
-            std.process.exit(2);
-        }
-        const target_dir = sub_args[0];
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{}, &.{ "--archetype", "--dir", "--title" });
+        const target_dir = pos[0];
         const arch = getOpt(sub_args, "--archetype") orelse {
             writeErr(io, "error: --archetype <slug> is required\n");
             std.process.exit(2);
@@ -293,11 +400,8 @@ pub fn main(init: std.process.Init) !void {
     // LATCH (Pure-Zig Rule 4 + Rule 6 SHA-256 Compilation Latch)
     // -------------------------------------------------------------------------
     if (std.mem.eql(u8, cmd, "latch")) {
-        if (sub_args.len < 1) {
-            writeErr(io, "usage: vedit latch <project_dir> [--json]\n");
-            std.process.exit(2);
-        }
-        const rep = try audit.auditLatch(alloc, io, sub_args[0]);
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{});
+        const rep = try audit.auditLatch(alloc, io, pos[0]);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
                 \\{{ "gate": "latch", "passed": {}, "manifest_files": {d}, "manifest_verified": {d}, "ledger_records": {d}, "metrics_verified": {d}, "failures": {d} }}
@@ -306,7 +410,7 @@ pub fn main(init: std.process.Init) !void {
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:latch] {s} -> {s}\n  manifest={d}/{d} SHA-256 verified | ledger={d} records | metrics_covered={d}\n", .{
-                st, sub_args[0], rep.manifest_verified, rep.manifest_files, rep.ledger_records, rep.metrics_verified,
+                st, pos[0], rep.manifest_verified, rep.manifest_files, rep.ledger_records, rep.metrics_verified,
             }));
             for (rep.failures) |f| {
                 try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] {s}\n", .{f}));
@@ -317,23 +421,19 @@ pub fn main(init: std.process.Init) !void {
     }
 
     // -------------------------------------------------------------------------
-    // VERIFICATION COURT GATES: contrast / geometry / prose / prepress / audit-all
+    // VERIFICATION COURT GATES: contrast / geometry / coverage / prose / links / prepress / audit-all
     // -------------------------------------------------------------------------
-    if (sub_args.len < 1) {
-        try printUsage(io);
-        std.process.exit(2);
-    }
-    const pdf_path = sub_args[0];
-    const pdf_name = std.fs.path.basename(pdf_path);
-    const pages = try mupdf.extractPages(alloc, io, pdf_path);
-
     if (std.mem.eql(u8, cmd, "contrast")) {
-        const rep = try audit.auditContrast(alloc, io, pdf_path, pages, tmp_tag);
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{});
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
+        const rep = try audit.auditContrast(alloc, io, pdf_path, pages, tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "wcag_contrast", "pdf": "{s}", "passed": {}, "spans": {d}, "worst_cr": {d:.2}, "violations": {d} }}
+                \\{{ "gate": "wcag_contrast", "pdf": {s}, "passed": {}, "spans": {d}, "worst_cr": {d:.2}, "violations": {d} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.total_spans, @as(f64, @floatFromInt(rep.worst_cr_x100)) / 100.0, rep.total_violations }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.total_spans, @as(f64, @floatFromInt(rep.worst_cr_x100)) / 100.0, rep.total_violations }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:wcag_contrast] {s} -> {s}\n  spans={d} | worst_cr={d:.2}:1 | violations={d}\n", .{
@@ -350,13 +450,17 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "geometry")) {
-        const max_rms: f64 = if (getOpt(sub_args, "--max-rms")) |v| std.fmt.parseFloat(f64, v) catch 55.0 else 55.0;
-        const rep = try audit.auditGeometry(alloc, io, pdf_path, pages, max_rms, tmp_tag);
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{"--max-rms"});
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const max_rms = try parseFiniteFloatOpt(alloc, io, sub_args, "--max-rms", 55.0, 0.0, 255.0);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
+        const rep = try audit.auditGeometry(alloc, io, pdf_path, pages, max_rms, tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "geometry", "pdf": "{s}", "passed": {}, "collisions": {d}, "clipped": {d}, "overflow": {d}, "orphans": {d}, "noisy_overlays": {d}, "worst_rms": {d:.1} }}
+                \\{{ "gate": "geometry", "pdf": {s}, "passed": {}, "collisions": {d}, "clipped": {d}, "overflow": {d}, "orphans": {d}, "noisy_overlays": {d}, "worst_rms": {d:.1} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.collisions, rep.clipped, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.collisions, rep.clipped, rep.trim_overflow, rep.headline_orphans, rep.noisy_overlays, rep.worst_rms }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:geometry] {s} -> {s}\n  collisions={d} | clipped={d} | overflow={d} | orphans={d} | noisy_overlays={d} (worst_rms={d:.1})\n", .{
@@ -371,14 +475,18 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "coverage")) {
-        const min_pct: f64 = if (getOpt(sub_args, "--min-pct")) |v| std.fmt.parseFloat(f64, v) catch 50.0 else 50.0;
-        const min_bl: i64 = if (getOpt(sub_args, "--min-bleed")) |v| std.fmt.parseInt(i64, v, 10) catch 2 else 2;
-        const rep = try audit.auditCoverage(alloc, io, pdf_path, pages.len, min_pct, min_bl, getOpt(sub_args, "--pages"), tmp_tag);
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{ "--min-pct", "--min-bleed", "--pages" });
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const min_pct = try parseFiniteFloatOpt(alloc, io, sub_args, "--min-pct", 50.0, 0.0, 100.0);
+        const min_bl = try parseIntOpt(i64, alloc, io, sub_args, "--min-bleed", 2, 0, 4);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
+        const rep = try audit.auditCoverage(alloc, io, pdf_path, pages.len, min_pct, min_bl, getOpt(sub_args, "--pages"), tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "photo_coverage", "pdf": "{s}", "passed": {}, "enforced_pages": {d}, "min_visible_pct": {d:.2}, "avg_visible_pct": {d:.2}, "failures": {d} }}
+                \\{{ "gate": "photo_coverage", "pdf": {s}, "passed": {}, "enforced_pages": {d}, "min_visible_pct": {d:.2}, "avg_visible_pct": {d:.2}, "failures": {d} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.enforced_count, rep.min_visible_pct, rep.avg_visible_pct, rep.failures.len }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.enforced_count, rep.min_visible_pct, rep.avg_visible_pct, rep.failures.len }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:photo_coverage] {s} -> {s}\n  enforced={d} pages | min_visible={d:.1}% | avg_visible={d:.1}%\n", .{
@@ -393,6 +501,10 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "prose")) {
+        const pos = try validateArgs(alloc, io, sub_args, 1, 1, &.{"--json"}, &.{ "--ledger", "--summary", "--citations", "--manifest" });
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
         const rep = try audit.auditProse(
             alloc,
             io,
@@ -404,9 +516,9 @@ pub fn main(init: std.process.Init) !void {
         );
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "rule10_prose", "pdf": "{s}", "passed": {}, "numbers_checked": {d}, "authorized_pool": {d}, "ungrounded": {d} }}
+                \\{{ "gate": "rule10_prose", "pdf": {s}, "passed": {}, "numbers_checked": {d}, "authorized_pool": {d}, "ungrounded": {d} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.numbers_checked, rep.authorized_pool, rep.ungrounded_count }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.numbers_checked, rep.authorized_pool, rep.ungrounded_count }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:rule10_prose] {s} -> {s}\n  numbers_checked={d} | authorized_pool={d} | ungrounded={d}\n", .{
@@ -421,10 +533,22 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "links")) {
-        const min_l: usize = if (getOpt(sub_args, "--min-links")) |v| std.fmt.parseInt(usize, v, 10) catch 1 else 1;
-        const tout: u32 = if (getOpt(sub_args, "--timeout")) |v| std.fmt.parseInt(u32, v, 10) catch 10 else 10;
+        const pos = try validateArgs(
+            alloc,
+            io,
+            sub_args,
+            1,
+            1,
+            &.{ "--offline", "--allow-localhost", "--json" },
+            &.{ "--citations", "--ledger", "--min-links", "--timeout" },
+        );
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const min_l = try parseIntOpt(usize, alloc, io, sub_args, "--min-links", 1, 0, 100000);
+        const tout = try parseIntOpt(u32, alloc, io, sub_args, "--timeout", 10, 1, 60);
         const live = !hasFlag(sub_args, "--offline");
         const allow_local = hasFlag(sub_args, "--allow-localhost");
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
         const rep = try links.auditLinks(
             alloc,
             io,
@@ -439,9 +563,9 @@ pub fn main(init: std.process.Init) !void {
         );
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "rule11_links", "pdf": "{s}", "passed": {}, "clickable_links": {d}, "unique_uris": {d}, "text_resources": {d}, "declared_resources": {d}, "live_checked": {}, "failures": {d} }}
+                \\{{ "gate": "rule11_links", "pdf": {s}, "passed": {}, "clickable_links": {d}, "unique_uris": {d}, "text_resources": {d}, "declared_resources": {d}, "live_checked": {}, "failures": {d} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.clickable_links, rep.unique_uris, rep.text_resources, rep.declared_resources, rep.live_checked, rep.failures.len }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.clickable_links, rep.unique_uris, rep.text_resources, rep.declared_resources, rep.live_checked, rep.failures.len }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             const mode_s: []const u8 = if (rep.live_checked) "live" else "offline";
@@ -463,21 +587,33 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "prepress")) {
+        const pos = try validateArgs(
+            alloc,
+            io,
+            sub_args,
+            1,
+            1,
+            &.{ "--require-bleed", "--require-ua", "--no-verapdf", "--json" },
+            &.{ "--min-dpi", "--max-tac" },
+        );
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const min_dpi = try parseFiniteFloatOpt(alloc, io, sub_args, "--min-dpi", 300.0, 1.0, 2400.0);
+        const max_tac = try parseFiniteFloatOpt(alloc, io, sub_args, "--max-tac", 300.0, 100.0, 400.0);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
         const cat = try mupdf.inspectCatalog(alloc, io, pdf_path);
-        const min_dpi: f64 = if (getOpt(sub_args, "--min-dpi")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
-        const max_tac: f64 = if (getOpt(sub_args, "--max-tac")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
-        const rep = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, max_tac, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_tag);
+        const rep = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, max_tac, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_dir);
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "prepress", "pdf": "{s}", "passed": {}, "images": {d}, "unembedded_fonts": {d}, "bleed_all": {}, "cmyk_p99_tac": {d:.1}, "ua_struct": {}, "verapdf_available": {}, "verapdf_compliant": {}, "verapdf_pass": {d}, "verapdf_fail": {d} }}
+                \\{{ "gate": "prepress", "pdf": {s}, "passed": {}, "images": {d}, "unembedded_fonts": {d}, "bleed_all": {}, "cmyk_p99_tac": {d:.1}, "cmyk_peak_tac": {d:.1}, "ua_struct": {}, "verapdf_available": {}, "verapdf_compliant": {}, "verapdf_pass": {d}, "verapdf_fail": {d} }}
                 \\
-            , .{ pdf_name, rep.passed, rep.image_count, rep.unembedded_fonts.len, rep.bleed_all_pages, @as(f64, @floatFromInt(rep.cmyk_p99_tac_x10)) / 10.0, rep.ua_struct_pass, rep.verapdf.available, rep.verapdf.compliant, rep.verapdf.passed_rules, rep.verapdf.failed_rules }));
+            , .{ try mupdf.jsonString(alloc, pdf_name), rep.passed, rep.image_count, rep.unembedded_fonts.len, rep.bleed_all_pages, @as(f64, @floatFromInt(rep.cmyk_p99_tac_x10)) / 10.0, @as(f64, @floatFromInt(rep.cmyk_peak_tac_x10)) / 10.0, rep.ua_struct_pass, rep.verapdf.available, rep.verapdf.compliant, rep.verapdf.passed_rules, rep.verapdf.failed_rules }));
         } else {
             const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
             const dpi_s = if (rep.min_eff_dpi_x10 >= 0) try std.fmt.allocPrint(alloc, "{d:.1}", .{@as(f64, @floatFromInt(rep.min_eff_dpi_x10)) / 10.0}) else "n/a(vector)";
             const vp_s = if (rep.verapdf.available) try std.fmt.allocPrint(alloc, "compliant={} (pass={d}, fail={d})", .{ rep.verapdf.compliant, rep.verapdf.passed_rules, rep.verapdf.failed_rules }) else "not-installed";
-            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:prepress] {s} -> {s}\n  images={d} | min_dpi={s} | unembedded_fonts={d} | bleed_all={} | cmyk_p99_tac={d:.1}% | ua_struct={} | verapdf={s}\n", .{
-                st, pdf_name, rep.image_count, dpi_s, rep.unembedded_fonts.len, rep.bleed_all_pages, @as(f64, @floatFromInt(rep.cmyk_p99_tac_x10)) / 10.0, rep.ua_struct_pass, vp_s,
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:prepress] {s} -> {s}\n  images={d} | min_dpi={s} | unembedded_fonts={d} | bleed_all={} | cmyk_p99_tac={d:.1}% (peak={d:.1}%) | ua_struct={} | verapdf={s}\n", .{
+                st, pdf_name, rep.image_count, dpi_s, rep.unembedded_fonts.len, rep.bleed_all_pages, @as(f64, @floatFromInt(rep.cmyk_p99_tac_x10)) / 10.0, @as(f64, @floatFromInt(rep.cmyk_peak_tac_x10)) / 10.0, rep.ua_struct_pass, vp_s,
             }));
             for (rep.failures) |f| {
                 try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] {s}\n", .{f}));
@@ -488,21 +624,39 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (std.mem.eql(u8, cmd, "audit-all")) {
+        const pos = try validateArgs(
+            alloc,
+            io,
+            sub_args,
+            1,
+            1,
+            &.{ "--require-bleed", "--require-ua", "--verify-links", "--check-links-offline", "--skip-links", "--allow-localhost", "--no-verapdf", "--json" },
+            &.{ "--ledger", "--summary", "--citations", "--manifest", "--plate-pages", "--min-photo-pct", "--min-dpi", "--max-tac", "--min-links", "--max-rms", "--timeout" },
+        );
+        const pdf_path = pos[0];
+        const pdf_name = std.fs.path.basename(pdf_path);
+        const max_rms = try parseFiniteFloatOpt(alloc, io, sub_args, "--max-rms", 55.0, 0.0, 255.0);
+        const min_dpi = try parseFiniteFloatOpt(alloc, io, sub_args, "--min-dpi", 300.0, 1.0, 2400.0);
+        const max_tac = try parseFiniteFloatOpt(alloc, io, sub_args, "--max-tac", 300.0, 100.0, 400.0);
+        const tout = try parseIntOpt(u32, alloc, io, sub_args, "--timeout", 10, 1, 60);
+        const pages = try mupdf.extractPages(alloc, io, pdf_path);
+
         var all_ok = true;
-        const cr = try audit.auditContrast(alloc, io, pdf_path, pages, tmp_tag);
+        const cr = try audit.auditContrast(alloc, io, pdf_path, pages, tmp_dir);
         if (!cr.passed) all_ok = false;
-        const geo = try audit.auditGeometry(alloc, io, pdf_path, pages, 55.0, tmp_tag);
+        const geo = try audit.auditGeometry(alloc, io, pdf_path, pages, max_rms, tmp_dir);
         if (!geo.passed) all_ok = false;
 
         var prose_ran = false;
-        var prose_ok = true;
+        var prose_ok = false;
         var prose_checked: usize = 0;
         var prose_ungr: usize = 0;
         const lp = getOpt(sub_args, "--ledger");
         const sp = getOpt(sub_args, "--summary");
+        const cp = getOpt(sub_args, "--citations");
         if (lp != null or sp != null) {
             prose_ran = true;
-            const pr = try audit.auditProse(alloc, io, pages, lp, sp, getOpt(sub_args, "--citations"), getOpt(sub_args, "--manifest"));
+            const pr = try audit.auditProse(alloc, io, pages, lp, sp, cp, getOpt(sub_args, "--manifest"));
             prose_ok = pr.passed;
             prose_checked = pr.numbers_checked;
             prose_ungr = pr.ungrounded_count;
@@ -518,12 +672,12 @@ pub fn main(init: std.process.Init) !void {
         }
 
         var cov_ran = false;
-        var cov_ok = true;
+        var cov_ok = false;
         var cov_min_pct: f64 = 0.0;
         if (getOpt(sub_args, "--plate-pages")) |pspec| {
             cov_ran = true;
-            const cov_min: f64 = if (getOpt(sub_args, "--min-photo-pct")) |v| std.fmt.parseFloat(f64, v) catch 50.0 else 50.0;
-            const cov = try audit.auditCoverage(alloc, io, pdf_path, pages.len, cov_min, 2, pspec, tmp_tag);
+            const cov_min = try parseFiniteFloatOpt(alloc, io, sub_args, "--min-photo-pct", 50.0, 0.0, 100.0);
+            const cov = try audit.auditCoverage(alloc, io, pdf_path, pages.len, cov_min, 2, pspec, tmp_dir);
             cov_ok = cov.passed;
             cov_min_pct = cov.min_visible_pct;
             if (!cov.passed) all_ok = false;
@@ -538,26 +692,36 @@ pub fn main(init: std.process.Init) !void {
         }
 
         const cat = try mupdf.inspectCatalog(alloc, io, pdf_path);
-        const min_dpi: f64 = if (getOpt(sub_args, "--min-dpi")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
-        const pp = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, 300.0, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_tag);
+        const pp = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, max_tac, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_dir);
         if (!pp.passed) all_ok = false;
 
+        // Gate 6 (Rule 11) is ON by default in offline mode unless `--skip-links` is passed (`--verify-links` upgrades to live HTTP/DOI checks)
+        const skip_links = hasFlag(sub_args, "--skip-links");
         const verify_links = hasFlag(sub_args, "--verify-links");
         const check_links_off = hasFlag(sub_args, "--check-links-offline");
-        if (verify_links or check_links_off) {
-            const min_l: usize = if (getOpt(sub_args, "--min-links")) |v| std.fmt.parseInt(usize, v, 10) catch 1 else 1;
+        var links_ran = false;
+        var links_ok = false;
+        var links_count: usize = 0;
+        var links_failures: usize = 0;
+        if (!skip_links) {
+            links_ran = true;
+            const default_min_l: usize = if (verify_links or check_links_off or cp != null) 1 else 0;
+            const min_l = try parseIntOpt(usize, alloc, io, sub_args, "--min-links", default_min_l, 0, 100000);
             const lr = try links.auditLinks(
                 alloc,
                 io,
                 pdf_path,
                 pages,
-                getOpt(sub_args, "--citations"),
+                cp,
                 lp,
                 min_l,
                 verify_links,
-                10,
+                tout,
                 hasFlag(sub_args, "--allow-localhost"),
             );
+            links_ok = lr.passed;
+            links_count = lr.clickable_links;
+            links_failures = lr.failures.len;
             if (!lr.passed) all_ok = false;
             if (!as_json) {
                 try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:rule11_links] {s} -> {s} (clickable={d}, unique={d}, mode={s}, failures={d})\n", .{
@@ -576,9 +740,29 @@ pub fn main(init: std.process.Init) !void {
 
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
-                \\{{ "gate": "audit_all", "pdf": "{s}", "passed": {}, "contrast_passed": {}, "worst_cr": {d:.2}, "geometry_passed": {}, "clipped": {d}, "coverage_ran": {}, "coverage_passed": {}, "min_photo_pct": {d:.1}, "prose_ran": {}, "prose_passed": {}, "prose_checked": {d}, "prose_ungrounded": {d}, "prepress_passed": {}, "verapdf_compliant": {} }}
+                \\{{ "gate": "audit_all", "pdf": {s}, "passed": {}, "contrast_passed": {}, "worst_cr": {d:.2}, "geometry_passed": {}, "clipped": {d}, "coverage_ran": {}, "coverage_passed": {s}, "min_photo_pct": {d:.1}, "prose_ran": {}, "prose_passed": {s}, "prose_checked": {d}, "prose_ungrounded": {d}, "links_ran": {}, "links_passed": {s}, "clickable_links": {d}, "links_failures": {d}, "prepress_passed": {}, "verapdf_compliant": {} }}
                 \\
-            , .{ pdf_name, all_ok, cr.passed, @as(f64, @floatFromInt(cr.worst_cr_x100)) / 100.0, geo.passed, geo.clipped, cov_ran, cov_ok, cov_min_pct, prose_ran, prose_ok, prose_checked, prose_ungr, pp.passed, pp.verapdf.compliant }));
+            , .{
+                try mupdf.jsonString(alloc, pdf_name),
+                all_ok,
+                cr.passed,
+                @as(f64, @floatFromInt(cr.worst_cr_x100)) / 100.0,
+                geo.passed,
+                geo.clipped,
+                cov_ran,
+                jsonOptBool(cov_ran, cov_ok),
+                cov_min_pct,
+                prose_ran,
+                jsonOptBool(prose_ran, prose_ok),
+                prose_checked,
+                prose_ungr,
+                links_ran,
+                jsonOptBool(links_ran, links_ok),
+                links_count,
+                links_failures,
+                pp.passed,
+                pp.verapdf.compliant,
+            }));
         } else {
             try writeOut(io, try std.fmt.allocPrint(alloc,
                 \\[vedit:wcag_contrast] {s} -> {s} (spans={d}, worst_cr={d:.2}:1, violations={d})

@@ -13,6 +13,7 @@ pub const FontSpec = struct {
     file: []const u8,
     family: []const u8,
     url: []const u8,
+    sha256: [64]u8,
 };
 
 pub const FONT_SPECS = [_]FontSpec{
@@ -20,41 +21,49 @@ pub const FONT_SPECS = [_]FontSpec{
         .file = "CormorantGaramond-Regular.ttf",
         .family = "Cormorant Garamond",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/cormorantgaramond/CormorantGaramond%5Bwght%5D.ttf",
+        .sha256 = "b20b7d9626dd956b2c5e558692ad328b1f19e3275e2782db4fa07670d83f35e0".*,
     },
     .{
         .file = "CormorantGaramond-Italic.ttf",
         .family = "Cormorant Garamond",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/cormorantgaramond/CormorantGaramond-Italic%5Bwght%5D.ttf",
+        .sha256 = "0f48ea6abb2084537854f7174c470991a463b13036309e3b50a81511611c530d".*,
     },
     .{
         .file = "SourceSerif4-Regular.ttf",
         .family = "Source Serif 4",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/sourceserif4/SourceSerif4%5Bopsz%2Cwght%5D.ttf",
+        .sha256 = "97b2d4da6e3cb494b5a1e66ae176914d852ccabef49e0c02c0df25f3e39aca0b".*,
     },
     .{
         .file = "SourceSerif4-Italic.ttf",
         .family = "Source Serif 4",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/sourceserif4/SourceSerif4-Italic%5Bopsz%2Cwght%5D.ttf",
+        .sha256 = "15fbc7e4679489a501998c3669272637a6646388ef7e4bd77eebb5bf967a1f42".*,
     },
     .{
         .file = "Inter-Variable.ttf",
         .family = "Inter",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+        .sha256 = "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031".*,
     },
     .{
         .file = "Inter-Italic-Variable.ttf",
         .family = "Inter",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter-Italic%5Bopsz%2Cwght%5D.ttf",
+        .sha256 = "acd98e64795781b2058f07b18475e0ecee2a0fe2b42a49e2f9e37d0d6bf66ce6".*,
     },
     .{
         .file = "IBMPlexMono-Regular.ttf",
         .family = "IBM Plex Mono",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+        .sha256 = "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46".*,
     },
     .{
         .file = "IBMPlexMono-SemiBold.ttf",
         .family = "IBM Plex Mono",
         .url = "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-SemiBold.ttf",
+        .sha256 = "d3c38e55c78f5b0f28009fddba4834ec503278936a5986032424c9bd2d23aa46".*,
     },
 };
 
@@ -111,8 +120,20 @@ fn ensureDir(io: std.Io, path: []const u8) !void {
         var dir = d;
         dir.close(io);
         return;
-    } else |_| {}
+    } else |err| switch (err) {
+        error.FileNotFound => {},
+        else => return err,
+    }
     try std.Io.Dir.cwd().createDirPath(io, path);
+}
+
+pub fn isValidFontMagic(data: []const u8) bool {
+    if (data.len < 12) return false;
+    const h = data[0..4];
+    return std.mem.eql(u8, h, &[_]u8{ 0x00, 0x01, 0x00, 0x00 }) or
+        std.mem.eql(u8, h, "OTTO") or
+        std.mem.eql(u8, h, "true") or
+        std.mem.eql(u8, h, "ttcf");
 }
 
 pub fn fetchFonts(alloc: std.mem.Allocator, io: std.Io, target_dir: []const u8, force: bool) !FetchFontsReport {
@@ -123,61 +144,78 @@ pub fn fetchFonts(alloc: std.mem.Allocator, io: std.Io, target_dir: []const u8, 
         const dest = try std.fs.path.join(alloc, &.{ target_dir, spec.file });
         if (!force) {
             if (std.Io.Dir.cwd().readFileAlloc(io, dest, alloc, .unlimited)) |existing| {
-                if (existing.len > 10_000) {
+                const got_sha = sha256Hex(existing);
+                if (existing.len > 10_000 and isValidFontMagic(existing) and std.mem.eql(u8, &got_sha, &spec.sha256)) {
                     try results.append(alloc, .{
                         .file = spec.file,
                         .family = spec.family,
                         .status = "cached",
                         .bytes = existing.len,
-                        .sha256_hex = sha256Hex(existing),
+                        .sha256_hex = got_sha,
                     });
                     continue;
                 }
-            } else |_| {}
+            } else |err| switch (err) {
+                error.FileNotFound => {},
+                else => return err,
+            }
         }
 
-        const tmp_dest = try std.fmt.allocPrint(alloc, "{s}.tmp", .{dest});
+        const tmp_dest = try std.fmt.allocPrint(alloc, "{s}.{d}.tmp", .{ dest, std.c.getpid() });
         const res = try mupdf.runCmd(alloc, io, &.{
             "curl",
             "-fsSL",
+            "--proto",
+            "=https",
+            "--proto-redir",
+            "=https",
             "--max-time",
             "25",
             "-A",
-            "verifiable-editorial-font-fetcher/0.6-zig (+https://github.com/gke0op/verifiable-editorial-skills)",
+            "verifiable-editorial-font-fetcher/0.7-zig (+https://github.com/gke0op/verifiable-editorial-skills)",
             "-o",
             tmp_dest,
+            "--",
             spec.url,
         }, null);
         if (res.exit_code != 0) {
-            std.Io.Dir.cwd().deleteFile(io, tmp_dest) catch {};
+            mupdf.removeTmpBestEffort(io, tmp_dest);
             return error.FontDownloadFailed;
         }
         const data = try std.Io.Dir.cwd().readFileAlloc(io, tmp_dest, alloc, .unlimited);
-        if (data.len < 10_000) {
-            std.Io.Dir.cwd().deleteFile(io, tmp_dest) catch {};
-            return error.FontTooSmall;
+        if (data.len < 10_000 or !isValidFontMagic(data)) {
+            mupdf.removeTmpBestEffort(io, tmp_dest);
+            return error.InvalidFontBinary;
+        }
+        const got_sha = sha256Hex(data);
+        if (!std.mem.eql(u8, &got_sha, &spec.sha256)) {
+            mupdf.removeTmpBestEffort(io, tmp_dest);
+            return error.FontDigestMismatch;
         }
         try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = dest, .data = data });
-        std.Io.Dir.cwd().deleteFile(io, tmp_dest) catch {};
+        mupdf.removeTmpBestEffort(io, tmp_dest);
 
         try results.append(alloc, .{
             .file = spec.file,
             .family = spec.family,
             .status = "downloaded",
             .bytes = data.len,
-            .sha256_hex = sha256Hex(data),
+            .sha256_hex = got_sha,
         });
     }
 
-    // Write deterministic fonts_manifest.json
+    // Write deterministic RFC 8259 escaped fonts_manifest.json
     var mf: std.ArrayList(u8) = .empty;
     try mf.appendSlice(alloc, "{\n  \"license\": \"SIL Open Font License 1.1\",\n  \"fonts\": [\n");
     for (results.items, 0..) |fr, idx| {
         const comma: []const u8 = if (idx + 1 < results.items.len) "," else "";
+        const j_file = try mupdf.jsonString(alloc, fr.file);
+        const j_fam = try mupdf.jsonString(alloc, fr.family);
+        const j_st = try mupdf.jsonString(alloc, fr.status);
         try mf.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\    {{ "file": "{s}", "family": "{s}", "status": "{s}", "bytes": {d}, "sha256": "{s}" }}{s}
+            \\    {{ "file": {s}, "family": {s}, "status": {s}, "bytes": {d}, "sha256": "{s}" }}{s}
             \\
-        , .{ fr.file, fr.family, fr.status, fr.bytes, fr.sha256_hex[0..], comma }));
+        , .{ j_file, j_fam, j_st, fr.bytes, fr.sha256_hex[0..], comma }));
     }
     try mf.appendSlice(alloc, "  ]\n}\n");
     const mf_path = try std.fs.path.join(alloc, &.{ target_dir, "fonts_manifest.json" });
@@ -684,8 +722,10 @@ pub fn applyBlackLiftAndFeather(
         (255.0 - bg_f[2]) / @max(255.0 - p10[2], 1.0),
     };
 
-    const fy: usize = if (feather_y > 0.0) @max(@as(usize, 1), @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(height)) * feather_y)))) else 0;
-    const fx: usize = if (feather_x > 0.0) @max(@as(usize, 1), @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(width)) * feather_x)))) else 0;
+    const safe_fy = if (std.math.isFinite(feather_y)) std.math.clamp(feather_y, 0.0, 0.5) else 0.0;
+    const safe_fx = if (std.math.isFinite(feather_x)) std.math.clamp(feather_x, 0.0, 0.5) else 0.0;
+    const fy: usize = if (safe_fy > 0.0) @max(@as(usize, 1), @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(height)) * safe_fy)))) else 0;
+    const fx: usize = if (safe_fx > 0.0) @max(@as(usize, 1), @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(width)) * safe_fx)))) else 0;
 
     for (0..height) |y| {
         var wy: f64 = 1.0;
@@ -738,11 +778,19 @@ pub fn processPlate(
     do_lift: bool,
     tmp_tag: []const u8,
 ) !PlateResult {
+    if (!std.math.isFinite(width_pt) or !std.math.isFinite(height_pt) or width_pt <= 0.0 or height_pt <= 0.0 or width_pt > 1.0e6 or height_pt > 1.0e6) {
+        return error.InvalidPlateDimensions;
+    }
+    if (!std.math.isFinite(feather_y) or !std.math.isFinite(feather_x) or feather_y < 0.0 or feather_y > 0.5 or feather_x < 0.0 or feather_x > 0.5) {
+        return error.InvalidFeatherParameter;
+    }
+    if (quality < 1 or quality > 100) return error.InvalidJpegQuality;
+
     const raw_in = try std.Io.Dir.cwd().readFileAlloc(io, input_path, alloc, .unlimited);
     const dims = probeImageDims(raw_in) orelse return error.UnsupportedImageFormat;
 
-    const ppm_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_plate_{s}.ppm", .{tmp_tag});
-    defer std.Io.Dir.cwd().deleteFile(io, ppm_path) catch {};
+    const ppm_path = try mupdf.tmpPath(alloc, tmp_tag, "plate.ppm");
+    defer mupdf.removeTmpBestEffort(io, ppm_path);
 
     const w_arg = try std.fmt.allocPrint(alloc, "{d}", .{dims.width});
     const h_arg = try std.fmt.allocPrint(alloc, "{d}", .{dims.height});
@@ -752,15 +800,17 @@ pub fn processPlate(
     const ppm_raw = try std.Io.Dir.cwd().readFileAlloc(io, ppm_path, alloc, .unlimited);
     const img = try mupdf.parsePpm(ppm_raw);
 
-    // Deterministic center crop to target slot aspect
+    // Deterministic center crop to target slot aspect (checked finite rounding)
     const target_aspect = width_pt / height_pt;
     const src_aspect = @as(f64, @floatFromInt(img.width)) / @as(f64, @floatFromInt(img.height));
     var crop_w = img.width;
     var crop_h = img.height;
     if (src_aspect < target_aspect) {
-        crop_h = @max(@as(usize, 1), @min(img.height, @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(img.width)) / target_aspect)))));
+        const raw_h = try mupdf.checkedRoundInt(usize, @as(f64, @floatFromInt(img.width)) / target_aspect, 0.0, @as(f64, @floatFromInt(img.height)) + 1.0);
+        crop_h = @max(@as(usize, 1), @min(img.height, raw_h));
     } else {
-        crop_w = @max(@as(usize, 1), @min(img.width, @as(usize, @intFromFloat(@round(@as(f64, @floatFromInt(img.height)) * target_aspect)))));
+        const raw_w = try mupdf.checkedRoundInt(usize, @as(f64, @floatFromInt(img.height)) * target_aspect, 0.0, @as(f64, @floatFromInt(img.width)) + 1.0);
+        crop_w = @max(@as(usize, 1), @min(img.width, raw_w));
     }
     const x0 = (img.width - crop_w) / 2;
     const y0 = (img.height - crop_h) / 2;
@@ -841,6 +891,8 @@ pub fn renderSpreads(
     target_width: usize,
     tmp_tag: []const u8,
 ) !SpreadsResult {
+    if (dpi < 18 or dpi > 600) return error.InvalidDpi;
+    if (target_width > 16384) return error.InvalidTargetWidth;
     try ensureDir(io, out_dir);
     const cat = try mupdf.inspectCatalog(alloc, io, pdf_path);
     var written: std.ArrayList([]const u8) = .empty;

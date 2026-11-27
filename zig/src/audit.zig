@@ -112,16 +112,106 @@ fn isAsciiAlnum(ch: u8) bool {
     return (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9');
 }
 
+fn isCheckableCodepoint(cp: u21) bool {
+    if (cp < 0x80) return isAsciiAlnum(@intCast(cp));
+    // Exclude standalone decorative arrows, geometric shapes, dingbats, box drawing & punctuation
+    if (cp >= 0x2000 and cp <= 0x206F) return false;
+    if (cp >= 0x2190 and cp <= 0x27BF) return false;
+    if (cp == 0x00A0 or cp == 0x00B7) return false;
+    return true;
+}
+
 fn isSpanCheckable(txt: []const u8) bool {
     if (txt.len == 0) return false;
-    if (txt.len == 1) return isAsciiAlnum(txt[0]);
-    for (txt) |ch| {
-        if (isAsciiAlnum(ch) or ch >= 0x80) return true;
+    var i: usize = 0;
+    while (i < txt.len) {
+        const b0 = txt[i];
+        if (b0 < 0x80) {
+            if (isAsciiAlnum(b0)) return true;
+            i += 1;
+            continue;
+        }
+        const slen = std.unicode.utf8ByteSequenceLength(b0) catch {
+            i += 1;
+            continue;
+        };
+        if (i + slen > txt.len) break;
+        const cp = std.unicode.utf8Decode(txt[i .. i + slen]) catch {
+            i += 1;
+            continue;
+        };
+        if (isCheckableCodepoint(cp)) return true;
+        i += slen;
     }
     return false;
 }
 
-/// Gate 1: Background-sampled WCAG 2.1 AA contrast across every span.
+fn pixelL1(a: mupdf.Rgb, b: mupdf.Rgb) i32 {
+    const dr: i32 = @as(i32, a.r) - @as(i32, b.r);
+    const dg: i32 = @as(i32, a.g) - @as(i32, b.g);
+    const db: i32 = @as(i32, a.b) - @as(i32, b.b);
+    return @as(i32, @intCast(@abs(dr))) + @as(i32, @intCast(@abs(dg))) + @as(i32, @intCast(@abs(db)));
+}
+
+const CrRgbSample = struct { cr: i64, rgb: mupdf.Rgb };
+
+fn crSampleLessThan(_: void, a: CrRgbSample, b: CrRgbSample) bool {
+    return a.cr < b.cr;
+}
+
+fn sampleCompositedCoreContrast(
+    alloc: std.mem.Allocator,
+    bg_ppm: mupdf.PpmImage,
+    fg_ppm: mupdf.PpmImage,
+    sp: mupdf.PageSpan,
+    dpi: u32,
+    ink_crs: *std.ArrayList(i64),
+) !struct { has_ink: bool, core_cr: i64, best_fg: mupdf.Rgb, best_bg: mupdf.Rgb } {
+    const w = @min(bg_ppm.width, fg_ppm.width);
+    const h = @min(bg_ppm.height, fg_ppm.height);
+    const scale: f64 = @as(f64, @floatFromInt(dpi)) / 72.0;
+    const ix0: usize = @intFromFloat(std.math.clamp(@round(sp.x0 * scale), 0.0, @as(f64, @floatFromInt(w - 1))));
+    const ix1: usize = @max(ix0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.x1 * scale), 0.0, @as(f64, @floatFromInt(w))))));
+    const iy0: usize = @intFromFloat(std.math.clamp(@round(sp.y0 * scale), 0.0, @as(f64, @floatFromInt(h - 1))));
+    const iy1: usize = @max(iy0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.y1 * scale), 0.0, @as(f64, @floatFromInt(h))))));
+
+    ink_crs.clearRetainingCapacity();
+    const csx = @max(@as(usize, 1), (ix1 - ix0) / 64);
+    const csy = @max(@as(usize, 1), (iy1 - iy0) / 24);
+    var max_delta: i32 = 0;
+    var best_ink_fg: mupdf.Rgb = sp.fg;
+    var best_ink_bg: mupdf.Rgb = bg_ppm.pixelAt((ix0 + ix1) / 2, (iy0 + iy1) / 2);
+
+    var cpy = iy0;
+    while (cpy < iy1) : (cpy += csy) {
+        var cpx = ix0;
+        while (cpx < ix1) : (cpx += csx) {
+            const fp = fg_ppm.pixelAt(cpx, cpy);
+            const bp = bg_ppm.pixelAt(cpx, cpy);
+            const dl = pixelL1(fp, bp);
+            if (dl > max_delta) {
+                max_delta = dl;
+                best_ink_fg = fp;
+                best_ink_bg = bp;
+            }
+            if (dl >= 6) {
+                const pcr = kernels.wcag_contrast_x100(fp.r, fp.g, fp.b, bp.r, bp.g, bp.b);
+                try ink_crs.append(alloc, pcr);
+            }
+        }
+    }
+    if (ink_crs.items.len == 0) {
+        return .{ .has_ink = false, .core_cr = 100, .best_fg = best_ink_fg, .best_bg = best_ink_bg };
+    }
+    std.mem.sort(i64, ink_crs.items, {}, std.sort.asc(i64));
+    const core_idx = (ink_crs.items.len - 1) * 98 / 100;
+    return .{ .has_ink = true, .core_cr = ink_crs.items[core_idx], .best_fg = best_ink_fg, .best_bg = best_ink_bg };
+}
+
+/// Gate 1: Composited 144-DPI (with lazy 360-DPI Nyquist supersampling on sub-pixel hairline strokes)
+/// background-vs-foreground WCAG 2.1 AA contrast across every span.
+/// Defeats alpha-ghost text, Z-order overpainting/occlusion, `/BM /Screen`, `3 Tr`, phantom per-channel RGB medians,
+/// split backgrounds, and trailing-dot foreground color poisoning.
 pub fn auditContrast(
     alloc: std.mem.Allocator,
     io: std.Io,
@@ -130,62 +220,109 @@ pub fn auditContrast(
     tmp_tag: []const u8,
 ) !ContrastReport {
     const bg_pdf = try mupdf.makeBackgroundOnlyPdf(alloc, io, pdf_path, tmp_tag);
-    defer std.Io.Dir.cwd().deleteFile(io, bg_pdf) catch {};
+    defer mupdf.removeTmpBestEffort(io, bg_pdf);
 
     var violations: std.ArrayList(ContrastViolation) = .empty;
     var total_spans: usize = 0;
     var worst_cr: i64 = 2100;
 
-    var rs_buf: std.ArrayList(u8) = .empty;
-    var gs_buf: std.ArrayList(u8) = .empty;
-    var bs_buf: std.ArrayList(u8) = .empty;
+    var bg_samples: std.ArrayList(CrRgbSample) = .empty;
+    var ink_crs: std.ArrayList(i64) = .empty;
+
+    const dpi: u32 = 144;
+    const scale: f64 = @as(f64, @floatFromInt(dpi)) / 72.0;
 
     for (pages) |pg| {
-        const bg_ppm = try mupdf.renderPagePpm(alloc, io, bg_pdf, pg.page_num, 72, tmp_tag);
-        const w = bg_ppm.width;
-        const h = bg_ppm.height;
+        const bg_ppm = try mupdf.renderPagePpm(alloc, io, bg_pdf, pg.page_num, dpi, tmp_tag);
+        const fg_ppm = try mupdf.renderPagePpm(alloc, io, pdf_path, pg.page_num, dpi, tmp_tag);
+        const w = @min(bg_ppm.width, fg_ppm.width);
+        const h = @min(bg_ppm.height, fg_ppm.height);
         if (w == 0 or h == 0) continue;
+
+        // Lazy per-page 360-DPI cache for sub-Nyquist thin strokes (< 1px wide at 144 DPI)
+        var hi_bg_ppm: ?mupdf.PpmImage = null;
+        var hi_fg_ppm: ?mupdf.PpmImage = null;
 
         for (pg.spans) |sp| {
             if (!isSpanCheckable(sp.text)) continue;
-            const ix0: usize = @intFromFloat(std.math.clamp(@round(sp.x0), 0.0, @as(f64, @floatFromInt(w - 1))));
-            const ix1: usize = @max(ix0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.x1), 0.0, @as(f64, @floatFromInt(w))))));
-            const iy0: usize = @intFromFloat(std.math.clamp(@round(sp.y0), 0.0, @as(f64, @floatFromInt(h - 1))));
-            const iy1: usize = @max(iy0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.y1), 0.0, @as(f64, @floatFromInt(h))))));
+            // Skip spans completely outside the visible page bounds (caught by geometry trim_overflow)
+            if (sp.x1 <= 0.0 or sp.y1 <= 0.0 or sp.x0 >= pg.width or sp.y0 >= pg.height) continue;
 
-            rs_buf.clearRetainingCapacity();
-            gs_buf.clearRetainingCapacity();
-            bs_buf.clearRetainingCapacity();
-            const sx = @max(@as(usize, 1), (ix1 - ix0) / 12);
-            const sy = @max(@as(usize, 1), (iy1 - iy0) / 6);
-            var py = iy0;
-            while (py < iy1) : (py += sy) {
-                var px = ix0;
-                while (px < ix1) : (px += sx) {
-                    const pix = bg_ppm.pixelAt(px, py);
-                    try rs_buf.append(alloc, pix.r);
-                    try gs_buf.append(alloc, pix.g);
-                    try bs_buf.append(alloc, pix.b);
+            const ix0: usize = @intFromFloat(std.math.clamp(@round(sp.x0 * scale), 0.0, @as(f64, @floatFromInt(w - 1))));
+            const ix1: usize = @max(ix0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.x1 * scale), 0.0, @as(f64, @floatFromInt(w))))));
+            const iy0: usize = @intFromFloat(std.math.clamp(@round(sp.y0 * scale), 0.0, @as(f64, @floatFromInt(h - 1))));
+            const iy1: usize = @max(iy0 + 1, @as(usize, @intFromFloat(std.math.clamp(@round(sp.y1 * scale), 0.0, @as(f64, @floatFromInt(h))))));
+
+            // 1. Composited foreground-vs-background pixel check (catches alpha opacity, Z-order white rects, /BM /Screen, 3 Tr)
+            var comp = try sampleCompositedCoreContrast(alloc, bg_ppm, fg_ppm, sp, dpi, &ink_crs);
+
+            // 2. Real observed background pixel check (never per-channel independent median!), evaluated across left & right halves on wide spans
+            const span_w_pt = sp.x1 - sp.x0;
+            const n_slices: usize = if (span_w_pt >= 36.0 and (ix1 - ix0) >= 8) 2 else 1;
+            var worst_bg_cr: i64 = 2100;
+            var worst_bg_rgb: mupdf.Rgb = comp.best_bg;
+            const bsx = @max(@as(usize, 1), (ix1 - ix0) / 24);
+            const bsy = @max(@as(usize, 1), (iy1 - iy0) / 10);
+
+            for (0..n_slices) |si| {
+                const sx0 = ix0 + (ix1 - ix0) * si / n_slices;
+                const sx1 = @max(sx0 + 1, ix0 + (ix1 - ix0) * (si + 1) / n_slices);
+                bg_samples.clearRetainingCapacity();
+                var py = iy0;
+                while (py < iy1) : (py += bsy) {
+                    var px = sx0;
+                    while (px < sx1) : (px += bsx) {
+                        const pix = bg_ppm.pixelAt(px, py);
+                        const pcr = kernels.wcag_contrast_x100(sp.fg.r, sp.fg.g, sp.fg.b, pix.r, pix.g, pix.b);
+                        try bg_samples.append(alloc, .{ .cr = pcr, .rgb = pix });
+                    }
+                }
+                if (bg_samples.items.len == 0) continue;
+                std.mem.sort(CrRgbSample, bg_samples.items, {}, crSampleLessThan);
+                const med = bg_samples.items[bg_samples.items.len / 2];
+                if (med.cr < worst_bg_cr) {
+                    worst_bg_cr = med.cr;
+                    worst_bg_rgb = med.rgb;
                 }
             }
-            if (rs_buf.items.len == 0) continue;
-            std.mem.sort(u8, rs_buf.items, {}, std.sort.asc(u8));
-            std.mem.sort(u8, gs_buf.items, {}, std.sort.asc(u8));
-            std.mem.sort(u8, bs_buf.items, {}, std.sort.asc(u8));
-            const mid = rs_buf.items.len / 2;
-            const bg_rgb = mupdf.Rgb{ .r = rs_buf.items[mid], .g = gs_buf.items[mid], .b = bs_buf.items[mid] };
 
-            const cr = kernels.wcag_contrast_x100(sp.fg.r, sp.fg.g, sp.fg.b, bg_rgb.r, bg_rgb.g, bg_rgb.b);
-            const size_x10: i64 = @intFromFloat(@round(sp.size * 10.0));
+            const size_x10 = mupdf.checkedRoundInt(i64, sp.size * 10.0, 0.0, 1.0e7) catch 100;
+            const req: i64 = if (size_x10 >= 180 or (sp.is_bold and size_x10 >= 140)) 300 else 450;
+
+            // Lazy 360-DPI Nyquist supersampling when symbolic contrast passes AA but 144-DPI thin-stroke AA dropped below threshold
+            // (alpha ghosts, Z-order cover rects, `/BM /Screen`, and `3 Tr` still fail identically at 360 DPI!)
+            if (comp.has_ink and comp.core_cr < req and worst_bg_cr >= req) {
+                if (hi_bg_ppm == null) {
+                    hi_bg_ppm = try mupdf.renderPagePpm(alloc, io, bg_pdf, pg.page_num, 360, tmp_tag);
+                    hi_fg_ppm = try mupdf.renderPagePpm(alloc, io, pdf_path, pg.page_num, 360, tmp_tag);
+                }
+                comp = try sampleCompositedCoreContrast(alloc, hi_bg_ppm.?, hi_fg_ppm.?, sp, 360, &ink_crs);
+            }
+
+            // Combine composited pixel contrast with real-pixel half-median contrast
+            var cr: i64 = worst_bg_cr;
+            var eff_fg: mupdf.Rgb = sp.fg;
+            var eff_bg: mupdf.Rgb = worst_bg_rgb;
+
+            if (!comp.has_ink) {
+                // Zero visible pixel delta between bg and fg -> text is occluded, invisible (`3 Tr`), or `/BM /Screen` erased
+                cr = 100;
+                eff_fg = comp.best_fg;
+                eff_bg = comp.best_bg;
+            } else if (comp.core_cr < cr and (comp.core_cr < 300 or sp.size >= 10.0 or comp.core_cr * 100 < cr * 70)) {
+                cr = comp.core_cr;
+                eff_fg = comp.best_fg;
+                eff_bg = comp.best_bg;
+            }
+
             total_spans += 1;
             if (cr < worst_cr) worst_cr = cr;
 
             if (!kernels.wcag_passes_aa(cr, size_x10, sp.is_bold)) {
                 var fg_h: [7]u8 = undefined;
                 var bg_h: [7]u8 = undefined;
-                _ = sp.fg.formatHex(&fg_h);
-                _ = bg_rgb.formatHex(&bg_h);
-                const req: i64 = if (size_x10 >= 180 or (size_x10 >= 140 and sp.is_bold)) 300 else 450;
+                _ = eff_fg.formatHex(&fg_h);
+                _ = eff_bg.formatHex(&bg_h);
                 const cut_len = @min(sp.text.len, 48);
                 try violations.append(alloc, .{
                     .page = pg.page_num,
@@ -248,7 +385,88 @@ fn countAlphaWords(s: []const u8) struct { count: i64, first_len: i64 } {
     return .{ .count = count, .first_len = first_len };
 }
 
-/// Gate 2: Deterministic geometric collision, trim overflow, orphan-headline & texture-energy audit.
+fn countUtf8PrintableFreq(alloc: std.mem.Allocator, spans: []const mupdf.PageSpan, page_w: f64, page_h: f64, filter_trim: bool) !std.AutoHashMap(u21, usize) {
+    var freq = std.AutoHashMap(u21, usize).init(alloc);
+    for (spans) |sp| {
+        if (filter_trim and (sp.x1 < 0.0 or sp.y1 < 0.0 or sp.x0 > page_w or sp.y0 > page_h)) continue;
+        var it = std.unicode.Utf8View.initUnchecked(sp.text).iterator();
+        while (it.nextCodepoint()) |cp| {
+            const ok = if (cp < 0x80) isAsciiAlnum(@intCast(cp)) else (cp >= 0x00C0 and !(cp >= 0x2000 and cp <= 0x206F));
+            if (!ok) continue;
+            const gop = try freq.getOrPut(cp);
+            if (gop.found_existing) gop.value_ptr.* += 1 else gop.value_ptr.* = 1;
+        }
+    }
+    return freq;
+}
+
+const SpanObb = struct {
+    cx: f64,
+    cy: f64,
+    ux: f64,
+    uy: f64,
+    vx: f64,
+    vy: f64,
+    hu: f64,
+    hv: f64,
+};
+
+fn buildSpanObb(sp: mupdf.PageSpan) SpanObb {
+    const dlen = @sqrt(sp.dir_x * sp.dir_x + sp.dir_y * sp.dir_y);
+    const ux: f64 = if (dlen > 1e-6) sp.dir_x / dlen else 1.0;
+    const uy: f64 = if (dlen > 1e-6) sp.dir_y / dlen else 0.0;
+    const vx: f64 = -uy;
+    const vy: f64 = ux;
+    const bw = sp.x1 - sp.x0;
+    const bh = sp.y1 - sp.y0;
+    const cx = 0.5 * (sp.x0 + sp.x1);
+    const cy = 0.5 * (sp.y0 + sp.y1);
+    // Reconstruct tight oriented length & thickness along (u, v) from AABB + font size
+    const thick = @max(2.0, @min(sp.size * 0.95, @min(bw, bh)));
+    const a_cos = @abs(ux);
+    const a_sin = @abs(uy);
+    var len: f64 = if (a_cos >= a_sin)
+        (bw - thick * a_sin) / @max(0.25, a_cos)
+    else
+        (bh - thick * a_cos) / @max(0.25, a_sin);
+    if (len < thick) len = @max(bw, bh);
+    // Shrink slightly to glyph ink core (15% height, 1pt ends)
+    return .{
+        .cx = cx,
+        .cy = cy,
+        .ux = ux,
+        .uy = uy,
+        .vx = vx,
+        .vy = vy,
+        .hu = @max(1.0, len * 0.5 - 1.0),
+        .hv = @max(1.0, thick * 0.38),
+    };
+}
+
+fn obbSatOverlaps(a: mupdf.PageSpan, b: mupdf.PageSpan) bool {
+    // Fast AABB reject
+    if (a.x1 <= b.x0 + 1.5 or b.x1 <= a.x0 + 1.5 or a.y1 <= b.y0 + 1.5 or b.y1 <= a.y0 + 1.5) return false;
+    const oa = buildSpanObb(a);
+    const ob = buildSpanObb(b);
+    const dx = ob.cx - oa.cx;
+    const dy = ob.cy - oa.cy;
+    const axes = [_][2]f64{
+        .{ oa.ux, oa.uy },
+        .{ oa.vx, oa.vy },
+        .{ ob.ux, ob.uy },
+        .{ ob.vx, ob.vy },
+    };
+    for (axes) |ax| {
+        const dist = @abs(dx * ax[0] + dy * ax[1]);
+        const ra = oa.hu * @abs(oa.ux * ax[0] + oa.uy * ax[1]) + oa.hv * @abs(oa.vx * ax[0] + oa.vy * ax[1]);
+        const rb = ob.hu * @abs(ob.ux * ax[0] + ob.uy * ax[1]) + ob.hv * @abs(ob.vx * ax[0] + ob.vy * ax[1]);
+        if (dist + 2.0 >= ra + rb) return false;
+    }
+    return true;
+}
+
+/// Gate 2: Deterministic geometric collision (incl. rotated OBB SAT & vertical overlap), non-ASCII/polygon clip-path slicing,
+/// trim overflow, left/center/right orphan-headline & texture-energy audit.
 pub fn auditGeometry(
     alloc: std.mem.Allocator,
     io: std.Io,
@@ -258,9 +476,9 @@ pub fn auditGeometry(
     tmp_tag: []const u8,
 ) !GeometryReport {
     const bg_pdf = try mupdf.makeBackgroundOnlyPdf(alloc, io, pdf_path, tmp_tag);
-    defer std.Io.Dir.cwd().deleteFile(io, bg_pdf) catch {};
+    defer mupdf.removeTmpBestEffort(io, bg_pdf);
     const unclip_pdf = mupdf.makeUnclippedPdf(alloc, io, pdf_path, tmp_tag) catch null;
-    defer if (unclip_pdf) |up| std.Io.Dir.cwd().deleteFile(io, up) catch {};
+    defer if (unclip_pdf) |up| mupdf.removeTmpBestEffort(io, up);
     const unclip_pages: ?[]mupdf.PageData = if (unclip_pdf) |up| (mupdf.extractPages(alloc, io, up) catch null) else null;
 
     var issues: std.ArrayList(GeometryIssue) = .empty;
@@ -275,29 +493,17 @@ pub fn auditGeometry(
     for (pages, 0..) |pg, pg_idx| {
         tot_spans += pg.spans.len;
 
-        // 0. PDF `W n` / `W* n` clip-path character slicing check:
-        //    Combines version-independent `trace` `<clip_path>` stack glyph auditing (works on mutool 1.23+)
-        //    with `stext` unclipped-vs-clipped differential frequency checking (mutool 1.24+).
+        // 0. PDF `W n` / `W* n` clip-path character slicing check (full UTF-8 printable codepoints + dynamic trace polygons)
         var missing_chars: usize = pg.trace_clipped_chars;
         if (unclip_pages) |upgs| {
             if (pg_idx < upgs.len) {
-                var vis_freq: [128]usize = @splat(0);
-                var raw_freq: [128]usize = @splat(0);
-                for (pg.spans) |sp| {
-                    for (sp.text) |ch| {
-                        if (ch < 128 and isAsciiAlnum(ch)) vis_freq[ch] += 1;
-                    }
-                }
-                for (upgs[pg_idx].spans) |sp| {
-                    // Only count spans intersecting the visible trim box
-                    if (sp.x1 < 0.0 or sp.y1 < 0.0 or sp.x0 > pg.width or sp.y0 > pg.height) continue;
-                    for (sp.text) |ch| {
-                        if (ch < 128 and isAsciiAlnum(ch)) raw_freq[ch] += 1;
-                    }
-                }
+                var vis_freq = try countUtf8PrintableFreq(alloc, pg.spans, pg.width, pg.height, false);
+                var raw_freq = try countUtf8PrintableFreq(alloc, upgs[pg_idx].spans, pg.width, pg.height, true);
                 var stext_missing: usize = 0;
-                for (0..128) |ci| {
-                    if (raw_freq[ci] > vis_freq[ci]) stext_missing += (raw_freq[ci] - vis_freq[ci]);
+                var rit = raw_freq.iterator();
+                while (rit.next()) |ent| {
+                    const vis_c = vis_freq.get(ent.key_ptr.*) orelse 0;
+                    if (ent.value_ptr.* > vis_c) stext_missing += (ent.value_ptr.* - vis_c);
                 }
                 if (stext_missing > missing_chars) missing_chars = stext_missing;
             }
@@ -307,26 +513,40 @@ pub fn auditGeometry(
             try issues.append(alloc, .{
                 .page = pg.page_num,
                 .kind = "clip_path_sliced_text",
-                .detail = try std.fmt.allocPrint(alloc, "{d} alphanumeric character(s) sliced by W/W* clip path", .{missing_chars}),
+                .detail = try std.fmt.allocPrint(alloc, "{d} printable character(s) sliced by W/W* clip path", .{missing_chars}),
             });
         }
 
-        // 1. Pairwise AABB collisions via p2zig kernel
+        // 1. Pairwise collisions: aligned p2zig kernel + tight vertical overlap + cross-angle OBB SAT
         for (pg.spans, 0..) |a, i| {
-            const ax0: i64 = @intFromFloat(@round(a.x0 * 10.0));
-            const ay0: i64 = @intFromFloat(@round(a.y0 * 10.0));
-            const ax1: i64 = @intFromFloat(@round(a.x1 * 10.0));
-            const ay1: i64 = @intFromFloat(@round(a.y1 * 10.0));
+            const ax0 = mupdf.checkedRoundInt(i64, a.x0 * 10.0, -1.0e9, 1.0e9) catch 0;
+            const ay0 = mupdf.checkedRoundInt(i64, a.y0 * 10.0, -1.0e9, 1.0e9) catch 0;
+            const ax1 = mupdf.checkedRoundInt(i64, a.x1 * 10.0, -1.0e9, 1.0e9) catch 0;
+            const ay1 = mupdf.checkedRoundInt(i64, a.y1 * 10.0, -1.0e9, 1.0e9) catch 0;
             var j: usize = i + 1;
             while (j < pg.spans.len) : (j += 1) {
                 const b = pg.spans[j];
-                if (@abs(a.dir_x - b.dir_x) > 0.05 or @abs(a.dir_y - b.dir_y) > 0.05) continue;
-                const same_line = (a.block_idx == b.block_idx and a.line_idx == b.line_idx);
-                const bx0: i64 = @intFromFloat(@round(b.x0 * 10.0));
-                const by0: i64 = @intFromFloat(@round(b.y0 * 10.0));
-                const bx1: i64 = @intFromFloat(@round(b.x1 * 10.0));
-                const by1: i64 = @intFromFloat(@round(b.y1 * 10.0));
-                const kind = kernels.span_collision_kind(ax0, ay0, ax1, ay1, bx0, by0, bx1, by1, same_line);
+                const same_dir = (@abs(a.dir_x - b.dir_x) <= 0.05 and @abs(a.dir_y - b.dir_y) <= 0.05);
+                var kind: i64 = 0;
+                if (same_dir) {
+                    const same_line = (a.block_idx == b.block_idx and a.line_idx == b.line_idx);
+                    const bx0 = mupdf.checkedRoundInt(i64, b.x0 * 10.0, -1.0e9, 1.0e9) catch 0;
+                    const by0 = mupdf.checkedRoundInt(i64, b.y0 * 10.0, -1.0e9, 1.0e9) catch 0;
+                    const bx1 = mupdf.checkedRoundInt(i64, b.x1 * 10.0, -1.0e9, 1.0e9) catch 0;
+                    const by1 = mupdf.checkedRoundInt(i64, b.y1 * 10.0, -1.0e9, 1.0e9) catch 0;
+                    kind = kernels.span_collision_kind(ax0, ay0, ax1, ay1, bx0, by0, bx1, by1, same_line);
+                    // Close vertical padding deadzone on cross-line horizontal crashes (e.g. 6pt spacing on 10pt font)
+                    if (kind == 0 and !same_line and @abs(a.dir_y) < 0.05) {
+                        const iw = @min(a.x1, b.x1) - @max(a.x0, b.x0);
+                        const ih = @min(a.y1, b.y1) - @max(a.y0, b.y0);
+                        const min_h = @min(a.y1 - a.y0, b.y1 - b.y0);
+                        if (iw > 5.0 and min_h >= 6.0 and ih > min_h * 0.42) {
+                            kind = 2;
+                        }
+                    }
+                } else if (obbSatOverlaps(a, b)) {
+                    kind = 3;
+                }
                 if (kind != 0) {
                     tot_coll += 1;
                     const d = try std.fmt.allocPrint(alloc, "'{s}' vs '{s}'", .{
@@ -335,7 +555,7 @@ pub fn auditGeometry(
                     });
                     try issues.append(alloc, .{
                         .page = pg.page_num,
-                        .kind = if (kind == 1) "same_line_overlap" else "cross_line_overlap",
+                        .kind = if (kind == 1) "same_line_overlap" else if (kind == 3) "rotated_overlap" else "cross_line_overlap",
                         .detail = d,
                     });
                 }
@@ -355,7 +575,7 @@ pub fn auditGeometry(
             }
         }
 
-        // 3. Wide-headline 1-word orphan wrap via p2zig kernel
+        // 3. Wide-headline 1-word orphan wrap via p2zig kernel (left, centered & right-aligned blocks)
         var h_lines: std.ArrayList(HeadLine) = .empty;
         for (pg.spans) |sp| {
             if (sp.size < 20.0 or @abs(sp.dir_x - 1.0) > 0.05 or @abs(sp.dir_y) > 0.05) continue;
@@ -388,7 +608,10 @@ pub fn auditGeometry(
                 const prev = h_lines.items[blk_end - 1];
                 const cur = h_lines.items[blk_end];
                 const v_gap = cur.y0 - prev.y1;
-                if (v_gap >= -4.0 and v_gap <= prev.size * 0.65 and @abs(cur.x0 - prev.x0) < 45.0 and @abs(cur.size - prev.size) < 2.0) {
+                const prev_xc = 0.5 * (prev.x0 + prev.x1);
+                const cur_xc = 0.5 * (cur.x0 + cur.x1);
+                const aligned = (@abs(cur.x0 - prev.x0) < 45.0) or (@abs(cur_xc - prev_xc) < 35.0) or (@abs(cur.x1 - prev.x1) < 45.0);
+                if (v_gap >= -4.0 and v_gap <= prev.size * 0.65 and aligned and @abs(cur.size - prev.size) < 2.0) {
                     continue;
                 }
                 break;
@@ -396,8 +619,8 @@ pub fn auditGeometry(
             if (blk_end - hl_i >= 2) {
                 const first_ln = h_lines.items[hl_i];
                 const last_ln = h_lines.items[blk_end - 1];
-                const w0_x10: i64 = @intFromFloat(@round((first_ln.x1 - first_ln.x0) * 10.0));
-                const wl_x10: i64 = @intFromFloat(@round((last_ln.x1 - last_ln.x0) * 10.0));
+                const w0_x10 = mupdf.checkedRoundInt(i64, (first_ln.x1 - first_ln.x0) * 10.0, 0.0, 1.0e8) catch 0;
+                const wl_x10 = mupdf.checkedRoundInt(i64, (last_ln.x1 - last_ln.x0) * 10.0, 0.0, 1.0e8) catch 0;
                 const wc = countAlphaWords(last_ln.text);
                 if (kernels.is_orphan_headline(w0_x10, wl_x10, wc.count, wc.first_len)) {
                     tot_orph += 1;
@@ -465,6 +688,7 @@ pub fn auditGeometry(
 }
 
 /// Parse 1-based page specification like "1,4-9" into a boolean lookup slice (index 1..=page_count).
+/// Fails closed on malformed tokens, reversed ranges, out-of-range page numbers, or zero selected pages.
 pub fn parsePageSpec(alloc: std.mem.Allocator, spec: ?[]const u8, page_count: usize) ![]bool {
     const mask = try alloc.alloc(bool, page_count + 1);
     if (spec == null or spec.?.len == 0) {
@@ -473,26 +697,33 @@ pub fn parsePageSpec(alloc: std.mem.Allocator, spec: ?[]const u8, page_count: us
         return mask;
     }
     @memset(mask, false);
+    var selected: usize = 0;
     var it = std.mem.splitScalar(u8, spec.?, ',');
     while (it.next()) |raw_part| {
         const part = std.mem.trim(u8, raw_part, " \t");
-        if (part.len == 0) continue;
+        if (part.len == 0) return error.InvalidPageSpec;
         if (std.mem.findScalar(u8, part, '-')) |dash| {
-            const a = std.fmt.parseInt(usize, part[0..dash], 10) catch continue;
-            const b = std.fmt.parseInt(usize, part[dash + 1 ..], 10) catch continue;
-            var p = @max(@as(usize, 1), a);
-            const hi = @min(page_count, b);
-            while (p <= hi) : (p += 1) mask[p] = true;
+            const a = std.fmt.parseInt(usize, part[0..dash], 10) catch return error.InvalidPageSpec;
+            const b = std.fmt.parseInt(usize, part[dash + 1 ..], 10) catch return error.InvalidPageSpec;
+            if (a == 0 or b == 0 or a > b or b > page_count) return error.InvalidPageSpec;
+            var p = a;
+            while (p <= b) : (p += 1) {
+                mask[p] = true;
+                selected += 1;
+            }
         } else {
-            const p = std.fmt.parseInt(usize, part, 10) catch continue;
-            if (p >= 1 and p <= page_count) mask[p] = true;
+            const p = std.fmt.parseInt(usize, part, 10) catch return error.InvalidPageSpec;
+            if (p == 0 or p > page_count) return error.InvalidPageSpec;
+            mask[p] = true;
+            selected += 1;
         }
     }
+    if (selected == 0) return error.InvalidPageSpec;
     return mask;
 }
 
-/// Gate 3B: Exact clip-aware dual-key pixel-diff visible photography coverage (defeats raw rect inflation).
-/// Uses pure-Zig image XObject rewriting + `p2zig --strict` bleed & coverage kernels.
+/// Gate 3B: Exact clip-aware dual-key pixel-diff visible photography coverage (defeats raw rect inflation,
+/// 100% blank-white plates, 1%-opacity ghost images, 1pt-inset fake bleed, and 2px edge double-counting).
 pub fn auditCoverage(
     alloc: std.mem.Allocator,
     io: std.Io,
@@ -503,14 +734,25 @@ pub fn auditCoverage(
     page_spec: ?[]const u8,
     tmp_tag: []const u8,
 ) !CoverageReport {
-    const mask = try parsePageSpec(alloc, page_spec, page_count);
+    var failures: std.ArrayList([]const u8) = .empty;
+    const mask = parsePageSpec(alloc, page_spec, page_count) catch {
+        try failures.append(alloc, try std.fmt.allocPrint(alloc, "Invalid or out-of-range --pages specification '{s}' (document has {d} pages)", .{ page_spec orelse "", page_count }));
+        return .{
+            .pages = page_count,
+            .enforced_count = 0,
+            .min_visible_pct = 0.0,
+            .avg_visible_pct = 0.0,
+            .failures = try failures.toOwnedSlice(alloc),
+            .page_reports = &.{},
+            .passed = false,
+        };
+    };
     const dk = try mupdf.makeDualKeyPdfs(alloc, io, pdf_path, tmp_tag);
-    defer std.Io.Dir.cwd().deleteFile(io, dk.pdf_a) catch {};
-    defer std.Io.Dir.cwd().deleteFile(io, dk.pdf_b) catch {};
+    defer mupdf.removeTmpBestEffort(io, dk.pdf_a);
+    defer mupdf.removeTmpBestEffort(io, dk.pdf_b);
 
     var reports: std.ArrayList(PageCoverage) = .empty;
-    var failures: std.ArrayList([]const u8) = .empty;
-    const min_pct_x10: i64 = @intFromFloat(@round(min_pct * 10.0));
+    const min_pct_x10 = try mupdf.checkedRoundInt(i64, min_pct * 10.0, 0.0, 1000.0);
 
     var min_vis: f64 = 100.0;
     var sum_vis: f64 = 0.0;
@@ -524,14 +766,16 @@ pub fn auditCoverage(
         var ok = true;
 
         if (dk.replaced_images > 0) {
-            const tag_a = try std.fmt.allocPrint(alloc, "{s}_ca", .{tmp_tag});
-            const tag_b = try std.fmt.allocPrint(alloc, "{s}_cb", .{tmp_tag});
-            const pa = try mupdf.renderPagePpm(alloc, io, dk.pdf_a, pg, 72, tag_a);
-            const pb = try mupdf.renderPagePpm(alloc, io, dk.pdf_b, pg, 72, tag_b);
-            const w = @min(pa.width, pb.width);
-            const h = @min(pa.height, pb.height);
+            const pa = try mupdf.renderPagePpm(alloc, io, dk.pdf_a, pg, 72, tmp_tag);
+            const pb = try mupdf.renderPagePpm(alloc, io, dk.pdf_b, pg, 72, tmp_tag);
+            const po = try mupdf.renderPagePpm(alloc, io, pdf_path, pg, 72, tmp_tag);
+            const w = @min(po.width, @min(pa.width, pb.width));
+            const h = @min(po.height, @min(pa.height, pb.height));
             const total_px: i64 = @intCast(w * h);
             var changed: i64 = 0;
+            var non_uniform_px: i64 = 0;
+            var first_orig_set = false;
+            var first_orig: mupdf.Rgb = .{ .r = 255, .g = 255, .b = 255 };
             var l_px: i64 = 0;
             var r_px: i64 = 0;
             var t_px: i64 = 0;
@@ -543,21 +787,33 @@ pub fn auditCoverage(
                 while (x < w) : (x += 1) {
                     const ca = pa.pixelAt(x, y);
                     const cb = pb.pixelAt(x, y);
-                    if (ca.r != cb.r or ca.g != cb.g or ca.b != cb.b) {
+                    // Require strong dual-key delta (>= 128 L1 out of 765) to defeat `/ca 0.01` ghost plates
+                    if (pixelL1(ca, cb) >= 128) {
+                        const co = po.pixelAt(x, y);
+                        if (!first_orig_set) {
+                            first_orig = co;
+                            first_orig_set = true;
+                        }
+                        if (pixelL1(co, first_orig) >= 12) non_uniform_px += 1;
                         changed += 1;
-                        if (x <= 1) l_px += 1;
-                        if (x + 2 >= w) r_px += 1;
-                        if (y <= 1) t_px += 1;
-                        if (y + 2 >= h) b_px += 1;
+                        // Strict 1-pixel physical perimeter bleed (defeats 1pt-inset fake bleed & 2px edge double-counting)
+                        if (x == 0) l_px += 1;
+                        if (x + 1 == w) r_px += 1;
+                        if (y == 0) t_px += 1;
+                        if (y + 1 == h) b_px += 1;
                     }
                 }
             }
+            const is_flat_blank = (changed > 0 and non_uniform_px * 100 < changed);
             if (total_px > 0) {
                 pct = (@as(f64, @floatFromInt(changed)) / @as(f64, @floatFromInt(total_px))) * 100.0;
             }
             b_edges = kernels.bleed_edge_count(l_px, r_px, t_px, b_px, @intCast(w), @intCast(h));
             if (enforced) {
-                ok = kernels.coverage_passes(changed, total_px, min_pct_x10, b_edges, min_bleed_edges);
+                ok = (!is_flat_blank) and kernels.coverage_passes(changed, total_px, min_pct_x10, b_edges, min_bleed_edges);
+                if (is_flat_blank) {
+                    try failures.append(alloc, try std.fmt.allocPrint(alloc, "Page {d}: visible photo {d:.1}% is a flat/blank zero-texture plate (rejected)", .{ pg, pct }));
+                }
             }
         } else if (enforced) {
             ok = (min_pct <= 0.0 and min_bleed_edges <= 0);
@@ -567,7 +823,7 @@ pub fn auditCoverage(
             enf_cnt += 1;
             if (pct < min_vis) min_vis = pct;
             sum_vis += pct;
-            if (!ok) {
+            if (!ok and !(dk.replaced_images > 0 and failures.items.len > 0 and std.mem.find(u8, failures.items[failures.items.len - 1], "flat/blank") != null)) {
                 try failures.append(alloc, try std.fmt.allocPrint(alloc, "Page {d}: visible photo {d:.1}% (min {d:.1}%), bleed edges {d} (min {d})", .{
                     pg, pct, min_pct, b_edges, min_bleed_edges,
                 }));
@@ -634,22 +890,57 @@ fn jsonToFloat(v: std.json.Value) ?f64 {
     };
 }
 
-/// Mirror Python `_derive_exact_ratios`: register exact percentages derived from species/country counts.
+/// Mirror Python `_derive_exact_ratios`: register exact percentages derived from species/country counts
+/// and explicit Botanica phenology totals (without polluting the pool with arbitrary axis/year array sums).
 fn deriveExactSpeciesRatios(alloc: std.mem.Allocator, summary: std.json.Value, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64)) !void {
     if (summary != .object) return;
     const sp_val = summary.object.get("species") orelse return;
     if (sp_val != .array) return;
     for (sp_val.array.items) |sp| {
         if (sp != .object) continue;
-        const tot = jsonToFloat(sp.object.get("gbif_total_occurrences") orelse continue) orelse continue;
-        if (tot <= 0.0) continue;
-        const tc_val = sp.object.get("top_countries") orelse continue;
-        if (tc_val != .array) continue;
-        for (tc_val.array.items) |c| {
-            if (c != .object) continue;
-            const cnt = jsonToFloat(c.object.get("count") orelse continue) orelse continue;
-            const pct = (cnt / tot) * 100.0;
-            try addExactFloat(alloc, seen, out, pct);
+        if (sp.object.get("gbif_total_occurrences")) |tot_v| {
+            if (jsonToFloat(tot_v)) |tot| {
+                if (tot > 0.0) {
+                    if (sp.object.get("top_countries")) |tc_val| {
+                        if (tc_val == .array) {
+                            for (tc_val.array.items) |c| {
+                                if (c != .object) continue;
+                                const cnt = jsonToFloat(c.object.get("count") orelse continue) orelse continue;
+                                const pct = (cnt / tot) * 100.0;
+                                try addExactFloat(alloc, seen, out, pct);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Explicit per-taxon sampled coordinate count (Botanica GBIF map sample size, e.g. 120)
+        if (sp.object.get("sampled_coordinates")) |sc| {
+            if (sc == .array and sc.array.items.len > 0) {
+                try addExactFloat(alloc, seen, out, @floatFromInt(sc.array.items.len));
+            }
+        }
+        // Explicit Botanica phenology totals & peak consecutive-pair share (scoped strictly to `species[].inat_monthly_flowering`)
+        if (sp.object.get("inat_monthly_flowering")) |mf| {
+            if (mf == .array and mf.array.items.len == 12) {
+                var sum_v: f64 = 0.0;
+                var vals: [12]f64 = @splat(0.0);
+                for (mf.array.items, 0..) |it, idx| {
+                    const fv = jsonToFloat(it) orelse 0.0;
+                    vals[idx] = fv;
+                    sum_v += fv;
+                }
+                if (sum_v > 0.0) {
+                    try addExactFloat(alloc, seen, out, sum_v);
+                    var best_pair: f64 = 0.0;
+                    for (0..11) |i| {
+                        const pair = vals[i] + vals[i + 1];
+                        if (pair > best_pair) best_pair = pair;
+                    }
+                    try addExactFloat(alloc, seen, out, best_pair);
+                    try addExactFloat(alloc, seen, out, (best_pair / sum_v) * 100.0);
+                }
+            }
         }
     }
 }
@@ -677,6 +968,7 @@ fn collectCitationNumbers(alloc: std.mem.Allocator, parsed: std.json.Value, seen
     }
 }
 
+/// Collect ONLY literal JSON numbers (zero synthetic array sums / pairwise sums — defeats `chart_axis_ticks` & `panel_years` pollution).
 fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.AutoHashMap(u64, void), out: *std.ArrayList(f64)) !void {
     switch (val) {
         .integer => |iv| try addExactFloat(alloc, seen, out, @floatFromInt(iv)),
@@ -689,36 +981,6 @@ fn collectJsonNumbers(alloc: std.mem.Allocator, val: std.json.Value, seen: *std.
             }
         },
         .array => |arr| {
-            var all_num = arr.items.len > 0;
-            var sum_v: f64 = 0.0;
-            for (arr.items) |it| {
-                switch (it) {
-                    .integer => |iv| sum_v += @floatFromInt(iv),
-                    .float => |fv| sum_v += fv,
-                    else => all_num = false,
-                }
-            }
-            if (all_num) {
-                try addExactFloat(alloc, seen, out, sum_v);
-                if (arr.items.len >= 2) {
-                    var i: usize = 0;
-                    while (i + 1 < arr.items.len) : (i += 1) {
-                        const a_v: f64 = switch (arr.items[i]) {
-                            .integer => |iv| @floatFromInt(iv),
-                            .float => |fv| fv,
-                            else => 0.0,
-                        };
-                        const b_v: f64 = switch (arr.items[i + 1]) {
-                            .integer => |iv| @floatFromInt(iv),
-                            .float => |fv| fv,
-                            else => 0.0,
-                        };
-                        const pair = a_v + b_v;
-                        try addExactFloat(alloc, seen, out, pair);
-                        if (sum_v > 0.0) try addExactFloat(alloc, seen, out, (pair / sum_v) * 100.0);
-                    }
-                }
-            }
             for (arr.items) |it| {
                 try collectJsonNumbers(alloc, it, seen, out);
             }
@@ -868,49 +1130,83 @@ fn matchTrimDimPt(raw: []const u8, i: usize, page_w: f64, page_h: f64) ?usize {
     return k;
 }
 
-/// Normalize soft hyphens & fullwidth digits, strip URLs, DOIs, SHA-256 hex digests, version strings,
-/// SI unit exponents, letter-attached superscripts, and page trim dimension specs (`W × H pt`).
+/// Normalize soft hyphens, zero-width invisibles, fullwidth digits, Unicode Mathematical Alphanumeric digits
+/// (`U+1D7CE..U+1D7FF`), and Arabic-Indic digits; strip URLs, DOIs, genuine hex SHA-256 digests, bounded version
+/// strings, SI unit exponents, letter-attached superscripts, and page trim dimension specs (`W × H pt`).
 pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8, page_w: f64, page_h: f64) ![]u8 {
-    // Pass 1: strip UTF-8 soft hyphens (U+00AD) and normalize fullwidth digits/punctuation (０-９ ＋－．，％)
+    // Pass 1: UTF-8 codepoint normalization & invisible format-char stripping
     var norm: std.ArrayList(u8) = .empty;
     defer norm.deinit(alloc);
     try norm.ensureTotalCapacity(alloc, raw_in.len);
     var ni: usize = 0;
     while (ni < raw_in.len) {
-        if (ni + 1 < raw_in.len and raw_in[ni] == 0xC2 and raw_in[ni + 1] == 0xAD) {
-            ni += 2;
+        const b0 = raw_in[ni];
+        if (b0 < 0x80) {
+            try norm.append(alloc, b0);
+            ni += 1;
             continue;
         }
-        if (ni + 2 < raw_in.len and raw_in[ni] == 0xEF and raw_in[ni + 1] == 0xBC) {
-            const b2 = raw_in[ni + 2];
-            if (b2 >= 0x90 and b2 <= 0x99) {
-                try norm.append(alloc, '0' + (b2 - 0x90));
-                ni += 3;
-                continue;
-            } else if (b2 == 0x8B) {
-                try norm.append(alloc, '+');
-                ni += 3;
-                continue;
-            } else if (b2 == 0x8D) {
-                try norm.append(alloc, '-');
-                ni += 3;
-                continue;
-            } else if (b2 == 0x8E) {
-                try norm.append(alloc, '.');
-                ni += 3;
-                continue;
-            } else if (b2 == 0x8C) {
-                try norm.append(alloc, ',');
-                ni += 3;
-                continue;
-            } else if (b2 == 0x85) {
-                try norm.append(alloc, '%');
-                ni += 3;
-                continue;
-            }
+        const seq_len = std.unicode.utf8ByteSequenceLength(b0) catch {
+            try norm.append(alloc, b0);
+            ni += 1;
+            continue;
+        };
+        if (ni + seq_len > raw_in.len) {
+            try norm.append(alloc, b0);
+            ni += 1;
+            continue;
         }
-        try norm.append(alloc, raw_in[ni]);
-        ni += 1;
+        const cp = std.unicode.utf8Decode(raw_in[ni .. ni + seq_len]) catch {
+            try norm.append(alloc, b0);
+            ni += 1;
+            continue;
+        };
+        ni += seq_len;
+        // Strip soft hyphen & zero-width format characters (defeats U+200B ZWSP digit-splitting)
+        if (cp == 0x00AD or (cp >= 0x200B and cp <= 0x200F) or (cp >= 0x2060 and cp <= 0x2064) or cp == 0xFEFF) {
+            continue;
+        }
+        // Normalize thin/narrow/NBSP spaces to ASCII space
+        if (cp == 0x00A0 or cp == 0x2009 or cp == 0x202F or cp == 0x2007) {
+            try norm.append(alloc, ' ');
+            continue;
+        }
+        // Fullwidth ASCII digits & numeric punctuation
+        if (cp >= 0xFF10 and cp <= 0xFF19) {
+            try norm.append(alloc, @intCast('0' + (cp - 0xFF10)));
+            continue;
+        }
+        if (cp == 0xFF0B) {
+            try norm.append(alloc, '+');
+            continue;
+        }
+        if (cp == 0xFF0D) {
+            try norm.append(alloc, '-');
+            continue;
+        }
+        if (cp == 0xFF0E) {
+            try norm.append(alloc, '.');
+            continue;
+        }
+        if (cp == 0xFF0C) {
+            try norm.append(alloc, ',');
+            continue;
+        }
+        if (cp == 0xFF05) {
+            try norm.append(alloc, '%');
+            continue;
+        }
+        // Unicode Mathematical Alphanumeric Digits U+1D7CE..U+1D7FF (Bold, Double-Struck, Sans, Sans-Bold, Mono)
+        if (cp >= 0x1D7CE and cp <= 0x1D7FF) {
+            try norm.append(alloc, @intCast('0' + ((cp - 0x1D7CE) % 10)));
+            continue;
+        }
+        // Arabic-Indic digits U+0660..U+0669
+        if (cp >= 0x0660 and cp <= 0x0669) {
+            try norm.append(alloc, @intCast('0' + (cp - 0x0660)));
+            continue;
+        }
+        try norm.appendSlice(alloc, raw_in[ni - seq_len .. ni]);
     }
     const raw = norm.items;
 
@@ -942,17 +1238,23 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8, page_w: f64,
                 continue;
             }
         }
-        // Strip SHA-256 / SHA256 / line-wrapped SHA-\n256 + optional hex digest
+        // Strip SHA-256 / SHA256 / line-wrapped SHA-\n256 + optional hex digest (MUST contain [a-fA-F] so pure numbers aren't swallowed!)
         if (std.mem.startsWith(u8, raw[i..], "SHA")) {
             var k = i + 3;
             if (k < raw.len and raw[k] == '-') k += 1;
             while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == '\n' or raw[k] == '\r')) : (k += 1) {}
             if (std.mem.startsWith(u8, raw[k..], "256")) {
                 k += 3;
-                while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == ':')) : (k += 1) {}
-                var h = k;
-                while (h < raw.len and isHexDigit(raw[h])) : (h += 1) {}
-                if (h - k >= 6) k = h;
+                var h_ws = k;
+                while (h_ws < raw.len and (raw[h_ws] == ' ' or raw[h_ws] == '\t' or raw[h_ws] == ':')) : (h_ws += 1) {}
+                var h = h_ws;
+                var has_alpha = false;
+                while (h < raw.len and isHexDigit(raw[h])) : (h += 1) {
+                    if ((raw[h] >= 'a' and raw[h] <= 'f') or (raw[h] >= 'A' and raw[h] <= 'F')) has_alpha = true;
+                }
+                if (has_alpha and h - h_ws >= 6 and (h == raw.len or !isAsciiAlnum(raw[h]))) {
+                    k = h;
+                }
                 i = k;
                 try out.append(alloc, ' ');
                 continue;
@@ -974,18 +1276,35 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8, page_w: f64,
             }
         }
         if (!matched_pre) {
-            const ws_prefixes = [_][]const u8{ "ISO", "WCAG", "Typst", "WeasyPrint", "veraPDF" };
+            const ws_prefixes = [_][]const u8{ "ISO", "WCAG", "Typst", "WeasyPrint", "veraPDF", "Zig", "vedit" };
             for (ws_prefixes) |pre| {
                 if (std.mem.startsWith(u8, raw[i..], pre)) {
                     var k = i + pre.len;
                     const ws_start = k;
                     while (k < raw.len and (raw[k] == ' ' or raw[k] == '\t' or raw[k] == '\n' or raw[k] == '\r')) : (k += 1) {}
-                    if (k > ws_start and k < raw.len and raw[k] >= '0' and raw[k] <= '9') {
-                        while (k < raw.len and ((raw[k] >= '0' and raw[k] <= '9') or raw[k] == '.' or raw[k] == '-')) : (k += 1) {}
-                        i = k;
-                        try out.append(alloc, ' ');
-                        matched_pre = true;
-                        break;
+                    if (k > ws_start and k < raw.len) {
+                        const is_iso = std.mem.eql(u8, pre, "ISO");
+                        if (!is_iso and (raw[k] == 'v' or raw[k] == 'V') and k + 1 < raw.len and raw[k + 1] >= '0' and raw[k + 1] <= '9') {
+                            k += 1;
+                        }
+                        if (raw[k] >= '0' and raw[k] <= '9') {
+                            const vstart = k;
+                            while (k < raw.len and raw[k] >= '0' and raw[k] <= '9') : (k += 1) {}
+                            const major_digits = k - vstart;
+                            const major_val = std.fmt.parseInt(usize, raw[vstart..k], 10) catch 999999;
+                            // Reject inflated/fabricated decimals like `ISO 999999.99` (ISO standards are integer/hyphenated <= 99999; software versions have major <= 200)
+                            const valid_ver = if (is_iso)
+                                (major_digits >= 3 and major_digits <= 5 and major_val <= 99999 and (k >= raw.len or raw[k] != '.'))
+                            else
+                                (major_digits <= 3 and major_val <= 200);
+                            if (valid_ver) {
+                                while (k < raw.len and ((raw[k] >= '0' and raw[k] <= '9') or raw[k] == '.' or raw[k] == '-')) : (k += 1) {}
+                                i = k;
+                                try out.append(alloc, ' ');
+                                matched_pre = true;
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -1043,11 +1362,172 @@ pub fn cleanProseText(alloc: std.mem.Allocator, raw_in: []const u8, page_w: f64,
 }
 
 fn isTokenPrevBlocked(ch: u8) bool {
-    return isAsciiAlnum(ch) or ch == '_' or ch == '#' or ch == '-';
+    return isAsciiAlnum(ch) or ch == '_';
+}
+
+/// Smart hyphen guard before a number at `pos` (`cleaned[pos - 1] == '-'`):
+/// Preserves ISO dates (`1958-03`, `2026-10`), year spans (`2020-25`), ISSNs (`0031-9007`), PRL article IDs
+/// (`014101-1`), and identifier codes (`TOI-700`, `Yoshida-4`, `BY-4.0`, `X-1`), while UNBLOCKING
+/// numeric ranges (`64,896-999999`) and percent/currency targets (`non-99%`, `pre-$50`).
+fn isHyphenIdentifierBefore(cleaned: []const u8, pos: usize, num_end: usize, has_pct: bool) bool {
+    if (pos == 0 or cleaned[pos - 1] != '-') return false;
+    if (has_pct) return false; // `non-99%` MUST be checked!
+    if (pos < 2) return false;
+    const before_hyphen = cleaned[pos - 2];
+    // Letter-hyphen-number identifier: `BY-4.0`, `TOI-700`, `Yoshida-4`, `X-1`, `K2-18`, `EM-3`, `OECD-5`, `degree-4`
+    if ((before_hyphen >= 'A' and before_hyphen <= 'Z') or (before_hyphen >= 'a' and before_hyphen <= 'z')) {
+        return true;
+    }
+    if (before_hyphen >= '0' and before_hyphen <= '9') {
+        // Check left token before `-`
+        var ls = pos - 1;
+        var has_comma_left = false;
+        while (ls > 0 and ((cleaned[ls - 1] >= '0' and cleaned[ls - 1] <= '9') or cleaned[ls - 1] == ',')) : (ls -= 1) {
+            if (cleaned[ls - 1] == ',') has_comma_left = true;
+        }
+        // Also check alphanumeric model prefix like `K2-18` (letter immediately before digit)
+        if (ls > 0 and ((cleaned[ls - 1] >= 'A' and cleaned[ls - 1] <= 'Z') or (cleaned[ls - 1] >= 'a' and cleaned[ls - 1] <= 'z'))) {
+            return true;
+        }
+        if (has_comma_left) return false; // `64,896-999999` -> NOT an identifier!
+        const left_tok = cleaned[ls .. pos - 1];
+        const right_tok = cleaned[pos..num_end];
+        if (std.mem.findScalar(u8, right_tok, '.') != null or std.mem.findScalar(u8, right_tok, ',') != null) return false;
+        // ISO YYYY-MM or YYYY-YY (`1958-03`, `2026-10`, `2020-25`)
+        if (left_tok.len == 4 and right_tok.len == 2) {
+            const yr = std.fmt.parseInt(usize, left_tok, 10) catch 0;
+            if (yr >= 1900 and yr <= 2100) return true;
+        }
+        // ISSN `NNNN-NNNN` (e.g. `0031-9007`) or 5-digit ISBN/ID block (`90088-9`)
+        if (left_tok.len == 4 and right_tok.len == 4) return true;
+        if (left_tok.len == 5 and right_tok.len == 1) return true;
+        // PRL 6-digit article page suffix (`014101-1`)
+        if (left_tok.len == 6 and right_tok.len <= 2) return true;
+    }
+    return false;
 }
 
 fn isIdentFollow(ch: u8) bool {
     return isAsciiAlnum(ch) or ch == '_';
+}
+
+const SuffixMatch = struct {
+    len: usize,
+    scale: f64,
+};
+
+/// Unit-aware suffix parser: checks numbers attached directly to editorial magnitude/SI units
+/// (`$99.9B`, `4.21M`, `2.81x`, `450ppm`, `9.9e9m`, `100d`) while safely ignoring decades (`'60s`, `1960s`),
+/// English ordinals (`17th`, `1st`, `2nd`, `3rd`), and alphanumeric catalog IDs (`67P`, `M87`, `CO2`, `J0740`).
+fn matchAllowedNumericSuffix(cleaned: []const u8, pos: usize, num_start: usize, raw_num: []const u8) ?SuffixMatch {
+    if (pos >= cleaned.len or !isIdentFollow(cleaned[pos])) return .{ .len = 0, .scale = 1.0 };
+    // Never treat `'60s` or `1960s` decade suffixes as seconds
+    if (cleaned[pos] == 's' and (pos + 1 == cleaned.len or !isIdentFollow(cleaned[pos + 1]))) {
+        if (num_start > 0 and (cleaned[num_start - 1] == '\'' or (num_start >= 3 and cleaned[num_start - 3] == 0xE2 and cleaned[num_start - 2] == 0x80 and cleaned[num_start - 1] == 0x99))) {
+            return null;
+        }
+        if (raw_num.len == 4 and raw_num[3] == '0') {
+            const yr = std.fmt.parseInt(usize, raw_num, 10) catch 0;
+            if (yr >= 1800 and yr <= 2100) return null;
+        }
+    }
+    // Magnitude multipliers (check either raw or scaled value)
+    const mag_table = [_]struct { s: []const u8, sc: f64 }{
+        .{ .s = "T", .sc = 1e12 },
+        .{ .s = "B", .sc = 1e9 },
+        .{ .s = "M", .sc = 1e6 },
+        .{ .s = "K", .sc = 1e3 },
+        .{ .s = "k", .sc = 1e3 },
+    };
+    for (mag_table) |mt| {
+        if (std.mem.startsWith(u8, cleaned[pos..], mt.s)) {
+            const end = pos + mt.s.len;
+            if (end == cleaned.len or !isIdentFollow(cleaned[end])) {
+                return .{ .len = mt.s.len, .scale = mt.sc };
+            }
+        }
+    }
+    // Explicit SI & financial/editorial unit suffixes (longest first; deliberately excludes st/nd/rd/th ordinals & P/a/b/c IDs)
+    const unit_table = [_][]const u8{
+        "ppm", "ppb", "bps", "pct", "yrs", "hrs", "min", "kHz", "MHz", "GHz",
+        "kPa", "MPa", "GPa", "keV", "MeV", "GeV", "TeV", "kpc", "Mpc", "km",
+        "kg",  "cm",  "mm",  "um",  "nm",  "ms",  "us",  "ns",  "MW",  "GW",
+        "TW",  "kW",  "Gt",  "Mt",  "kt",  "Hz",  "dB",  "yr",  "hr",  "bp",
+        "pt",  "px",  "in",  "ft",  "mi",  "lb",  "oz",  "mL",  "Pa",  "eV",
+        "AU",  "pc",  "ly",  "x",   "X",   "g",   "m",   "W",   "J",   "C",
+        "F",   "d",   "s",   "L",
+    };
+    for (unit_table) |u| {
+        if (std.mem.startsWith(u8, cleaned[pos..], u)) {
+            const end = pos + u.len;
+            if (end == cleaned.len or !isIdentFollow(cleaned[end])) {
+                return .{ .len = u.len, .scale = 1.0 };
+            }
+        }
+    }
+    return null;
+}
+
+fn matchUnarySignAt(cleaned: []const u8, i: usize) ?struct { neg: bool, next_pos: usize } {
+    if (i >= cleaned.len) return null;
+    if (cleaned[i] == '+') {
+        if (i + 1 < cleaned.len and ((cleaned[i + 1] >= '0' and cleaned[i + 1] <= '9') or
+            (cleaned[i + 1] == '.' and i + 2 < cleaned.len and cleaned[i + 2] >= '0' and cleaned[i + 2] <= '9')))
+        {
+            return .{ .neg = false, .next_pos = i + 1 };
+        }
+        return null;
+    }
+    var sign_end: usize = 0;
+    if (cleaned[i] == '-') {
+        sign_end = i + 1;
+    } else if (i + 2 < cleaned.len and cleaned[i] == 0xE2 and cleaned[i + 1] == 0x88 and cleaned[i + 2] == 0x92) {
+        sign_end = i + 3; // U+2212 '−'
+    } else if (i + 2 < cleaned.len and cleaned[i] == 0xE2 and cleaned[i + 1] == 0x80 and
+        (cleaned[i + 2] == 0x90 or cleaned[i + 2] == 0x91 or cleaned[i + 2] == 0x92 or cleaned[i + 2] == 0x93))
+    {
+        sign_end = i + 3; // U+2010..U+2013 hyphens & en-dash '–'
+    } else return null;
+
+    // Directly adjacent digit or leading decimal `.5`
+    if (sign_end < cleaned.len and ((cleaned[sign_end] >= '0' and cleaned[sign_end] <= '9') or
+        (cleaned[sign_end] == '.' and sign_end + 1 < cleaned.len and cleaned[sign_end + 1] >= '0' and cleaned[sign_end + 1] <= '9')))
+    {
+        // Only treat en-dash '–' as unary negative sign when NOT a numeric range (`100–200` has digit immediately before)
+        if (i > 0 and cleaned[i - 1] >= '0' and cleaned[i - 1] <= '9' and cleaned[i] == 0xE2 and cleaned[i + 1] == 0x80 and cleaned[i + 2] == 0x93) {
+            return null;
+        }
+        return .{ .neg = true, .next_pos = sign_end };
+    }
+    // Single space after unary `−` / `-` ONLY at clause start / punctuation (NOT binary `x − 45` or `100 − 50`)
+    if (sign_end + 1 < cleaned.len and cleaned[sign_end] == ' ' and !isMathItalicBefore(cleaned, i)) {
+        const after_sp = sign_end + 1;
+        const is_num_next = (cleaned[after_sp] >= '0' and cleaned[after_sp] <= '9') or
+            (cleaned[after_sp] == '.' and after_sp + 1 < cleaned.len and cleaned[after_sp + 1] >= '0' and cleaned[after_sp + 1] <= '9');
+        if (is_num_next) {
+            // Check previous non-space character is NOT a digit or single-letter math variable
+            var prev_k = i;
+            while (prev_k > 0 and cleaned[prev_k - 1] == ' ') : (prev_k -= 1) {}
+            const unary_ctx = (prev_k == 0) or (cleaned[prev_k - 1] == '\n' or cleaned[prev_k - 1] == ':' or
+                cleaned[prev_k - 1] == '(' or cleaned[prev_k - 1] == '[' or cleaned[prev_k - 1] == '=' or
+                cleaned[prev_k - 1] == '<' or cleaned[prev_k - 1] == '>' or cleaned[prev_k - 1] == ',');
+            if (unary_ctx) return .{ .neg = true, .next_pos = after_sp };
+        }
+    }
+    return null;
+}
+
+fn isLineStartKickerPos(cleaned: []const u8, tok_start: usize) bool {
+    if (tok_start == 0) return true;
+    var k = tok_start;
+    while (k > 0 and (cleaned[k - 1] == ' ' or cleaned[k - 1] == '\t')) : (k -= 1) {}
+    if (k == 0) return true;
+    const ch = cleaned[k - 1];
+    if (ch == '\n' or ch == '\r' or ch == '|' or ch == '/') return true;
+    // Allow after middle dot `·` (0xC2 0xB7) or bullet `•` (0xE2 0x80 0xA2)
+    if (k >= 2 and cleaned[k - 2] == 0xC2 and cleaned[k - 1] == 0xB7) return true;
+    if (k >= 3 and cleaned[k - 3] == 0xE2 and cleaned[k - 2] == 0x80 and cleaned[k - 1] == 0xA2) return true;
+    return false;
 }
 
 const ExpMatch = struct { exp: i32, end: usize };
@@ -1113,7 +1593,7 @@ fn parseExponentAt(s: []const u8, pos: usize, allow_unicode_sup: bool) ?ExpMatch
     return .{ .exp = ev, .end = k };
 }
 
-/// Match optional whitespace + multiplication operator (`×`, `·`, `*`, `x`, `X`) + optional whitespace + `10`.
+/// Match optional whitespace + multiplication operator (`×`, `·`, `⋅`, `∙`, `*`, `x`, `X`) + optional whitespace + `10`.
 fn matchMul10(s: []const u8, pos: usize) ?usize {
     var k = pos;
     while (k < s.len and (s[k] == ' ' or s[k] == '\t')) : (k += 1) {}
@@ -1122,6 +1602,10 @@ fn matchMul10(s: []const u8, pos: usize) ?usize {
         k += 2; // '×'
     } else if (k + 1 < s.len and s[k] == 0xC2 and s[k + 1] == 0xB7) {
         k += 2; // '·'
+    } else if (k + 2 < s.len and s[k] == 0xE2 and s[k + 1] == 0x8B and s[k + 2] == 0x85) {
+        k += 3; // '⋅' (U+22C5 DOT OPERATOR — Typst `$5.17 dot 10^(6)$`)
+    } else if (k + 2 < s.len and s[k] == 0xE2 and s[k + 1] == 0x88 and s[k + 2] == 0x99) {
+        k += 3; // '∙' (U+2219 BULLET OPERATOR)
     } else if (s[k] == '*' or s[k] == 'x' or s[k] == 'X') {
         k += 1;
     } else return null;
@@ -1130,11 +1614,12 @@ fn matchMul10(s: []const u8, pos: usize) ?usize {
     return null;
 }
 
-/// Check if an unsigned bare integer at `tok_start` is immediately preceded by an explicit structural keyword
-/// (e.g. `Page`, `Figure`, `Fig.`, `Table`, `Plate`, `Section`, `Eq.`, `Rule`, `Gate`, `Slide`, `§`).
+/// Check if an unsigned bare integer (`1..99`) at `tok_start` is immediately preceded on the SAME LINE by an
+/// explicit structural keyword (`Page`, `Figure`, `Fig.`, `Table`, `Plate`, `Section`, `Eq.`, `Rule`, `Gate`, `Slide`, `§`).
 fn hasStructuralPrefix(cleaned: []const u8, tok_start: usize) bool {
     var end = tok_start;
-    while (end > 0 and (cleaned[end - 1] == ' ' or cleaned[end - 1] == '\t' or cleaned[end - 1] == '\n' or cleaned[end - 1] == '\r')) : (end -= 1) {}
+    // NEVER cross newlines (`\n` / `\r`) — defeats cross-newline heading smuggling!
+    while (end > 0 and (cleaned[end - 1] == ' ' or cleaned[end - 1] == '\t')) : (end -= 1) {}
     if (end > 0 and (cleaned[end - 1] == '#' or cleaned[end - 1] == '(' or cleaned[end - 1] == '[')) {
         end -= 1;
         while (end > 0 and (cleaned[end - 1] == ' ' or cleaned[end - 1] == '\t')) : (end -= 1) {}
@@ -1142,12 +1627,13 @@ fn hasStructuralPrefix(cleaned: []const u8, tok_start: usize) bool {
     if (end == 0) return false;
     // Check UTF-8 '§' (U+00A7 = 0xC2 0xA7)
     if (end >= 2 and cleaned[end - 2] == 0xC2 and cleaned[end - 1] == 0xA7) return true;
+    // Removed ambiguous lowercase plural nouns ("figures", "tables", "issue") that appear in financial prose!
     const keywords = [_][]const u8{
-        "equations", "equation", "appendix", "sections", "exhibits", "figures", "section", "chapter",
-        "exhibit",   "figure",   "tables",   "plates",   "slides",   "pillar",  "pages",   "table",
-        "plate",     "slide",    "rules",    "gates",    "issue",    "page",    "rule",    "gate",
-        "figs.",     "eqs.",     "refs.",    "fig.",     "tab.",     "sec.",    "vol.",    "ref.",
-        "ch.",       "eq.",      "no.",      "pp.",      "p.",
+        "equations", "equation", "appendix", "sections", "exhibits", "section", "chapter",
+        "exhibit",   "figure",   "plates",   "slides",   "pillar",   "pages",   "table",
+        "plate",     "slide",    "rules",    "gates",    "page",     "rule",    "gate",
+        "figs.",     "eqs.",     "refs.",    "fig.",     "tab.",     "sec.",    "vol.",
+        "ref.",      "ch.",      "eq.",      "no.",      "pp.",      "p.",
     };
     for (keywords) |kw| {
         if (end < kw.len) continue;
@@ -1269,6 +1755,15 @@ pub fn auditProse(
     var total_checked: usize = 0;
 
     for (pages) |pg| {
+        // Surface any /ToUnicode glyph-width spoofing anomalies detected directly on this page
+        for (pg.tounicode_anomalies) |anom| {
+            try ungrounded.append(alloc, .{
+                .page = pg.page_num,
+                .token = "TOUNICODE_SPOOF",
+                .value = 0.0,
+                .context = anom,
+            });
+        }
         const cleaned = try cleanProseText(alloc, pg.prose_text, pg.width, pg.height);
         var i: usize = 0;
         while (i < cleaned.len) {
@@ -1282,25 +1777,13 @@ pub fn auditProse(
                 i += 1;
                 continue;
             }
-            if (cleaned[i] == '+' or cleaned[i] == '-') {
-                if (i + 1 < cleaned.len and cleaned[i + 1] >= '0' and cleaned[i + 1] <= '9') {
-                    has_sign = true;
-                    sign_neg = (cleaned[i] == '-');
-                    num_start = i + 1;
-                } else {
-                    i += 1;
-                    continue;
-                }
-            } else if (i + 3 < cleaned.len and cleaned[i] == 0xE2 and cleaned[i + 1] == 0x88 and cleaned[i + 2] == 0x92) {
-                // UTF-8 Unicode minus '−' (U+2212)
-                if (cleaned[i + 3] >= '0' and cleaned[i + 3] <= '9') {
-                    has_sign = true;
-                    sign_neg = true;
-                    num_start = i + 3;
-                } else {
-                    i += 3;
-                    continue;
-                }
+            if (matchUnarySignAt(cleaned, i)) |sm| {
+                has_sign = true;
+                sign_neg = sm.neg;
+                num_start = sm.next_pos;
+            } else if (cleaned[i] == '.' and i + 1 < cleaned.len and cleaned[i + 1] >= '0' and cleaned[i + 1] <= '9') {
+                // Leading decimal `.05`, `.001` (unsigned)
+                num_start = i;
             } else if (cleaned[i] < '0' or cleaned[i] > '9') {
                 i += 1;
                 continue;
@@ -1312,6 +1795,13 @@ pub fn auditProse(
             var seen_dot = false;
             var seen_comma = false;
             var decs: u8 = 0;
+            if (j < cleaned.len and cleaned[j] == '.' and j + 1 < cleaned.len and cleaned[j + 1] >= '0' and cleaned[j + 1] <= '9') {
+                digits_buf[0] = '0';
+                digits_buf[1] = '.';
+                dlen = 2;
+                seen_dot = true;
+                j += 1;
+            }
             while (j < cleaned.len) {
                 const ch = cleaned[j];
                 if (ch >= '0' and ch <= '9') {
@@ -1343,7 +1833,7 @@ pub fn auditProse(
             }
             const raw_num = cleaned[num_start..j];
 
-            // Branch 1: mantissa × 10^exp (caret or Unicode superscript)
+            // Branch 1: mantissa × 10^exp (caret or Unicode superscript; also checks attached unit suffix!)
             if (matchMul10(cleaned, j)) |after10| {
                 if (parseExponentAt(cleaned, after10, true)) |em| {
                     const tok_end = em.end;
@@ -1384,7 +1874,7 @@ pub fn auditProse(
                 }
             }
 
-            // Branch 3: explicit ASCII caret base^exp (e.g. 2^10)
+            // Branch 3: explicit ASCII caret base^exp (e.g. 2^10, 2^9)
             if (!seen_comma and j < cleaned.len and cleaned[j] == '^') {
                 if (parseExponentAt(cleaned, j, false)) |em| {
                     const tok_end = em.end;
@@ -1405,8 +1895,8 @@ pub fn auditProse(
                 }
             }
 
-            // Branch 4: standard ASCII scientific notation mantissa[eE][+-−]?exp (e.g. 1.25e-15, 1e7)
-            if (!seen_comma and j + 1 < cleaned.len and (cleaned[j] == 'e' or cleaned[j] == 'E')) {
+            // Branch 4: standard ASCII scientific notation mantissa[eE][+-−]?exp (e.g. 1.25e-15, 9.9e9m, 1,000e9J)
+            if (j + 1 < cleaned.len and (cleaned[j] == 'e' or cleaned[j] == 'E')) {
                 var ek = j + 1;
                 var eneg = false;
                 if (ek < cleaned.len and (cleaned[ek] == '+' or cleaned[ek] == '-')) {
@@ -1418,39 +1908,54 @@ pub fn auditProse(
                 }
                 const eds = ek;
                 while (ek < cleaned.len and cleaned[ek] >= '0' and cleaned[ek] <= '9') : (ek += 1) {}
-                if (ek > eds and (ek == cleaned.len or !isIdentFollow(cleaned[ek]))) {
-                    var ev = std.fmt.parseInt(i32, cleaned[eds..ek], 10) catch 9999;
-                    if (eneg) ev = -ev;
-                    if (ev >= -300 and ev <= 300) {
-                        const tok_end = ek;
-                        i = tok_end;
-                        var mv = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
-                        if (sign_neg) mv = -mv;
-                        const val = mv * std.math.pow(f64, 10.0, @floatFromInt(ev));
-                        total_checked += 1;
-                        if (!rule10IsGrounded(val, decs, ev, false, auth_slice)) {
-                            try ungrounded.append(alloc, .{
-                                .page = pg.page_num,
-                                .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
-                                .value = val,
-                                .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
-                            });
+                if (ek > eds) {
+                    if (matchAllowedNumericSuffix(cleaned, ek, num_start, raw_num)) |suf| {
+                        var ev = std.fmt.parseInt(i32, cleaned[eds..ek], 10) catch 9999;
+                        if (eneg) ev = -ev;
+                        if (ev >= -300 and ev <= 300) {
+                            const tok_end = ek + suf.len;
+                            i = tok_end;
+                            var mv = std.fmt.parseFloat(f64, digits_buf[0..dlen]) catch continue;
+                            if (sign_neg) mv = -mv;
+                            const val = mv * std.math.pow(f64, 10.0, @floatFromInt(ev));
+                            total_checked += 1;
+                            const ok = rule10IsGrounded(val, decs, ev, false, auth_slice) or
+                                (suf.scale != 1.0 and rule10IsGrounded(val * suf.scale, decs, ev, false, auth_slice));
+                            if (!ok) {
+                                try ungrounded.append(alloc, .{
+                                    .page = pg.page_num,
+                                    .token = try alloc.dupe(u8, cleaned[tok_start..tok_end]),
+                                    .value = val,
+                                    .context = try utf8ContextSnippet(alloc, cleaned, tok_start, tok_end),
+                                });
+                            }
+                            continue;
                         }
-                        continue;
                     }
                 }
             }
 
-            // Branch 5: plain signed/unsigned number
+            // Branch 5: plain signed/unsigned number (with unit-aware suffix parsing!)
             var tok_end = j;
             var has_pct = false;
+            var suf_scale: f64 = 1.0;
             if (tok_end < cleaned.len and cleaned[tok_end] == '%') {
                 tok_end += 1;
                 has_pct = true;
             }
-            const next_ok = (tok_end == cleaned.len) or !isIdentFollow(cleaned[tok_end]);
-            i = tok_end;
-            if (!next_ok) continue;
+            const suf_opt = if (has_pct) SuffixMatch{ .len = 0, .scale = 1.0 } else matchAllowedNumericSuffix(cleaned, tok_end, num_start, raw_num);
+            if (suf_opt) |suf| {
+                tok_end += suf.len;
+                suf_scale = suf.scale;
+                i = tok_end;
+            } else {
+                i = tok_end;
+                continue;
+            }
+
+            // Skip hyphen-attached identifiers/dates/ISSNs (`1958-03`, `2026-10`, `BY-4.0`, `TOI-700`, `Yoshida-4`, `0031-9007`)
+            // while auditing numeric ranges (`64,896-999999`) and percent targets (`non-99%`)
+            if (!has_sign and isHyphenIdentifierBefore(cleaned, tok_start, j, has_pct)) continue;
 
             // Unicode math-italic variable directly before +/− (e.g. 𝑖−1, 𝑘−1) is binary subtraction, not unary sign
             var disp_start = tok_start;
@@ -1460,13 +1965,13 @@ pub fn auditProse(
                 disp_start = num_start;
             }
 
-            // Leading-zero 2-digit plate/page ordinals "01".."12" (unsigned, no %, no decimal)
-            if (!has_sign and !has_pct and !seen_dot and raw_num.len == 2 and raw_num[0] == '0') continue;
+            // Leading-zero 2-digit plate/card kicker ordinals "01".."12" (ONLY unsigned, no %, no decimal, at line-start / kicker boundary)
+            if (!has_sign and !has_pct and !seen_dot and raw_num.len == 2 and raw_num[0] == '0' and isLineStartKickerPos(cleaned, tok_start)) continue;
 
-            // Contextual structural ordinals: ONLY bare unsigned integers (no %, no decimal, no comma)
-            if (!has_sign and !has_pct and !seen_dot and !seen_comma) {
-                if (hasStructuralPrefix(cleaned, tok_start)) continue;
+            // Contextual structural ordinals: ONLY bare unsigned integers 1..99 on same line after unambiguous structural keyword
+            if (!has_sign and !has_pct and !seen_dot and !seen_comma and suf_scale == 1.0 and tok_end == j) {
                 const iv = std.fmt.parseInt(usize, raw_num, 10) catch 0;
+                if (iv >= 1 and iv <= 99 and hasStructuralPrefix(cleaned, tok_start)) continue;
                 if (iv >= 1 and isPagePagination(cleaned, tok_start, tok_end, iv, pg.page_num, pages.len)) continue;
             }
 
@@ -1474,7 +1979,9 @@ pub fn auditProse(
             if (sign_neg) parsed_v = -parsed_v;
 
             total_checked += 1;
-            if (!rule10IsGrounded(parsed_v, decs, null, false, auth_slice)) {
+            const grounded = rule10IsGrounded(parsed_v, decs, null, false, auth_slice) or
+                (suf_scale != 1.0 and rule10IsGrounded(parsed_v * suf_scale, 0, null, false, auth_slice));
+            if (!grounded) {
                 try ungrounded.append(alloc, .{
                     .page = pg.page_num,
                     .token = try alloc.dupe(u8, cleaned[disp_start..tok_end]),
@@ -1531,7 +2038,8 @@ fn runVeraPdf(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) VeraPd
     return .{ .available = true, .compliant = comp, .passed_rules = pr, .failed_rules = fr };
 }
 
-/// Gate 4: Print Pre-Press & ISO 14289-1 (`PDF/UA-1`) certification audit.
+/// Gate 4: Print Pre-Press & ISO 14289-1 (`PDF/UA-1`) certification audit (true 72-DPI MuPDF CMYK PAM TAC,
+/// checked bounds, fail-closed `--require-ua`, and dereferenced font/bleed enforcement).
 pub fn auditPrepress(
     alloc: std.mem.Allocator,
     io: std.Io,
@@ -1548,7 +2056,8 @@ pub fn auditPrepress(
     var failures: std.ArrayList([]const u8) = .empty;
     var img_count: usize = 0;
     var min_eff_dpi_x10: i64 = 9999999;
-    const min_dpi_x10: i64 = @intFromFloat(@round(min_dpi * 10.0));
+    const min_dpi_x10 = try mupdf.checkedRoundInt(i64, min_dpi * 10.0, 0.0, 1.0e8);
+    const max_tac_x10 = try mupdf.checkedRoundInt(i64, max_tac_pct * 10.0, 0.0, 4000.0);
 
     var peak_tac_x10: i64 = 0;
     var p99_tac_x10: i64 = 0;
@@ -1566,13 +2075,15 @@ pub fn auditPrepress(
                 }));
             }
         }
-        // Simulated CMYK GCR TAC via p2zig kernel at 36 DPI
-        const ppm = try mupdf.renderPagePpm(alloc, io, pdf_path, pg.page_num, 36, tmp_tag);
+        // True DeviceCMYK 4-channel TAC (0..400%) directly from MuPDF CMYK PAM render at 72 DPI
+        const pam = try mupdf.renderPageCmykPam(alloc, io, pdf_path, pg.page_num, 72, tmp_tag);
         tacs.clearRetainingCapacity();
         var off: usize = 0;
-        while (off + 2 < ppm.pixels.len) : (off += 12) {
-            const tac = kernels.cmyk_gcr_tac_x10(ppm.pixels[off], ppm.pixels[off + 1], ppm.pixels[off + 2]);
-            try tacs.append(alloc, tac);
+        while (off + 3 < pam.pixels.len) : (off += 4) {
+            const sum_cmyk: i64 = @as(i64, pam.pixels[off]) + @as(i64, pam.pixels[off + 1]) +
+                @as(i64, pam.pixels[off + 2]) + @as(i64, pam.pixels[off + 3]);
+            const tac_x10: i64 = @divTrunc(sum_cmyk * 1000 + 127, 255);
+            try tacs.append(alloc, tac_x10);
         }
         if (tacs.items.len > 0) {
             std.mem.sort(i64, tacs.items, {}, std.sort.asc(i64));
@@ -1593,17 +2104,23 @@ pub fn auditPrepress(
     if (require_bleed and !cat.bleed_all_pages) {
         try failures.append(alloc, try std.fmt.allocPrint(alloc, "Missing prepress bleed box (min margin {d:.1}pt < 5pt)", .{cat.min_bleed_margin_pt}));
     }
-    const max_tac_x10: i64 = @intFromFloat(@round(max_tac_pct * 10.0));
     if (p99_tac_x10 > max_tac_x10) {
-        try failures.append(alloc, try std.fmt.allocPrint(alloc, "Simulated CMYK p99 TAC {d:.1}% > {d:.0}%", .{
+        try failures.append(alloc, try std.fmt.allocPrint(alloc, "CMYK p99 TAC {d:.1}% > {d:.0}%", .{
             @as(f64, @floatFromInt(p99_tac_x10)) / 10.0,
             max_tac_pct,
         }));
     }
+    // Also reject localized registration-black ink violations (peak > max_tac + 20%, e.g. 400% patches > 320%)
+    if (peak_tac_x10 > max_tac_x10 + 200) {
+        try failures.append(alloc, try std.fmt.allocPrint(alloc, "CMYK peak TAC {d:.1}% > {d:.0}% (+20% spot ceiling)", .{
+            @as(f64, @floatFromInt(peak_tac_x10)) / 10.0,
+            max_tac_pct + 20.0,
+        }));
+    }
 
-    const ua_struct_pass = cat.marked and cat.has_struct_tree and cat.has_lang and cat.has_title;
+    const ua_struct_pass = cat.marked and cat.has_struct_tree and cat.has_lang and cat.has_title and cat.has_pdfua_xmp;
     if (require_ua and !ua_struct_pass) {
-        try failures.append(alloc, "PDF/UA structure incomplete (requires /MarkInfo, /StructTreeRoot, /Lang, Title)");
+        try failures.append(alloc, "PDF/UA structure incomplete (requires /MarkInfo, non-empty /StructTreeRoot /K, /Lang, Title, pdfuaid:part XMP)");
     }
 
     const vp = if (enable_verapdf) runVeraPdf(alloc, io, pdf_path) else VeraPdfResult{
@@ -1612,6 +2129,9 @@ pub fn auditPrepress(
         .passed_rules = 0,
         .failed_rules = 0,
     };
+    if (require_ua and enable_verapdf and !vp.available) {
+        try failures.append(alloc, "PDF/UA-1 certification requires 'verapdf' on PATH (fail-closed; pass --no-verapdf only for structural-only check)");
+    }
     if (require_ua and vp.available and !vp.compliant) {
         try failures.append(alloc, try std.fmt.allocPrint(alloc, "veraPDF ISO 14289-1 non-compliant ({d} failed rules)", .{vp.failed_rules}));
     }
@@ -1646,8 +2166,43 @@ pub fn sha256HexFile(alloc: std.mem.Allocator, io: std.Io, path: []const u8) ![6
     return out;
 }
 
-/// Gate 5 (Pure-Zig Rule 4 + Rule 6 Compilation Latch): verifies SHA-256 manifest of `data/raw/*`
-/// and 1:1 coverage of `data/summary_metrics.json["metrics"]` inside `data/provenance_ledger.json`.
+fn isValidSha256Hex(s: []const u8) bool {
+    if (s.len != 64) return false;
+    for (s) |ch| {
+        if (!isHexDigit(ch)) return false;
+    }
+    return true;
+}
+
+fn hasPathTraversal(rel: []const u8) bool {
+    if (rel.len == 0 or rel[0] == '/' or rel[0] == '\\') return true;
+    var it = std.mem.splitAny(u8, rel, "/\\");
+    while (it.next()) |seg| {
+        if (std.mem.eql(u8, seg, "..")) return true;
+    }
+    return false;
+}
+
+fn lookupManifestSha(manifest_map: *const std.StringHashMap([64]u8), manifest_basenames: *const std.StringHashMap([64]u8), doc_path: []const u8) ?[64]u8 {
+    if (manifest_map.get(doc_path)) |h| return h;
+    if (std.mem.startsWith(u8, doc_path, "data/raw/")) {
+        if (manifest_map.get(doc_path["data/raw/".len..])) |h| return h;
+    }
+    const base = std.fs.path.basename(doc_path);
+    return manifest_basenames.get(base);
+}
+
+fn ledgerValueMatches(lval: ?f64, sval: std.json.Value) bool {
+    const sf = jsonToFloat(sval) orelse return true; // non-numeric summary fields checked by key existence
+    const lf = lval orelse return false;
+    const tol = @max(@as(f64, 1e-6), @abs(sf) * 1e-6);
+    return @abs(lf - sf) <= tol;
+}
+
+/// Gate 5 (Pure-Zig Cryptographic Rule 4 + Rule 6 Compilation Latch):
+/// Verifies non-empty `data/manifest.sha256` + all files under `data/raw/*`, cryptographically binds EVERY
+/// provenance ledger tuple (`source_document`/`source_file`, `source_locator`/`locator`, `raw_file_sha256`/`source_sha256`)
+/// against `manifest_map`, fails closed on corrupt JSON, and enforces 1:1 coverage & value equality against `summary_metrics.json`.
 pub fn auditLatch(alloc: std.mem.Allocator, io: std.Io, project_dir: []const u8) !LatchReport {
     var failures: std.ArrayList([]const u8) = .empty;
     const manifest_path = try std.fmt.allocPrint(alloc, "{s}/data/manifest.sha256", .{project_dir});
@@ -1660,6 +2215,7 @@ pub fn auditLatch(alloc: std.mem.Allocator, io: std.Io, project_dir: []const u8)
     };
 
     var manifest_map = std.StringHashMap([64]u8).init(alloc);
+    var manifest_basenames = std.StringHashMap([64]u8).init(alloc);
     var m_files: usize = 0;
     var m_ok: usize = 0;
     var ln_it = std.mem.splitScalar(u8, manifest_raw, '\n');
@@ -1667,79 +2223,223 @@ pub fn auditLatch(alloc: std.mem.Allocator, io: std.Io, project_dir: []const u8)
         const trimmed = std.mem.trim(u8, ln, " \t\r");
         if (trimmed.len == 0) continue;
         var sp = std.mem.tokenizeAny(u8, trimmed, " \t");
-        const expected_hex = sp.next() orelse continue;
-        const rel_file = sp.next() orelse continue;
-        m_files += 1;
-        const full_path = if (std.mem.startsWith(u8, rel_file, "data/"))
-            try std.fmt.allocPrint(alloc, "{s}/{s}", .{ project_dir, rel_file })
-        else
-            try std.fmt.allocPrint(alloc, "{s}/data/raw/{s}", .{ project_dir, rel_file });
-
-        const actual = sha256HexFile(alloc, io, full_path) catch {
-            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Missing raw file listed in manifest: {s}", .{rel_file}));
+        const expected_hex = sp.next() orelse {
+            try failures.append(alloc, "Malformed line in data/manifest.sha256");
             continue;
         };
-        if (std.mem.eql(u8, expected_hex, &actual)) {
+        const rel_file = sp.next() orelse {
+            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Malformed manifest line missing file path: '{s}'", .{trimmed[0..@min(trimmed.len, 48)]}));
+            continue;
+        };
+        if (!isValidSha256Hex(expected_hex)) {
+            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Invalid 64-hex SHA-256 digest in manifest for '{s}'", .{rel_file}));
+            continue;
+        }
+        if (hasPathTraversal(rel_file)) {
+            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Unsafe path traversal or absolute path in manifest: '{s}'", .{rel_file}));
+            continue;
+        }
+        m_files += 1;
+        // Canonical path resolution: prefer `{project_dir}/{rel_file}` (fixes `report/assets/...` in botanica), fallback to `{project_dir}/data/raw/{rel_file}`
+        const direct_path = try std.fmt.allocPrint(alloc, "{s}/{s}", .{ project_dir, rel_file });
+        const raw_fallback = try std.fmt.allocPrint(alloc, "{s}/data/raw/{s}", .{ project_dir, rel_file });
+        const actual = sha256HexFile(alloc, io, direct_path) catch
+            (sha256HexFile(alloc, io, raw_fallback) catch {
+                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Missing raw file listed in manifest: {s}", .{rel_file}));
+                continue;
+            });
+        if (std.ascii.eqlIgnoreCase(expected_hex, &actual)) {
             m_ok += 1;
-            const key_owned = try alloc.dupe(u8, rel_file);
-            try manifest_map.put(key_owned, actual);
+            try manifest_map.put(try alloc.dupe(u8, rel_file), actual);
+            const base = std.fs.path.basename(rel_file);
+            try manifest_basenames.put(try alloc.dupe(u8, base), actual);
         } else {
             try failures.append(alloc, try std.fmt.allocPrint(alloc, "SHA-256 mismatch on {s}", .{rel_file}));
         }
     }
+    if (m_files == 0) {
+        try failures.append(alloc, "Empty data/manifest.sha256 (0 verified raw files)");
+    }
 
-    // Verify Rule 4 provenance ledger coverage
-    var ledger_keys = std.StringHashMap(void).init(alloc);
+    // Fail closed if any regular file inside `data/raw/` is unmonitored by `manifest.sha256`
+    const raw_dir_path = try std.fmt.allocPrint(alloc, "{s}/data/raw", .{project_dir});
+    if (std.Io.Dir.cwd().openDir(io, raw_dir_path, .{ .iterate = true })) |d| {
+        var rdir = d;
+        defer rdir.close(io);
+        var rit = rdir.iterate();
+        while (try rit.next(io)) |ent| {
+            if (ent.kind != .file or ent.name.len == 0 or ent.name[0] == '.') continue;
+            const rel_cand = try std.fmt.allocPrint(alloc, "data/raw/{s}", .{ent.name});
+            if (lookupManifestSha(&manifest_map, &manifest_basenames, rel_cand) == null) {
+                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Unmonitored raw file in data/raw/ missing from manifest.sha256: {s}", .{ent.name}));
+            }
+        }
+    } else |err| switch (err) {
+        error.FileNotFound => {},
+        else => try failures.append(alloc, try std.fmt.allocPrint(alloc, "Unable to inspect data/raw directory: {s}", .{@errorName(err)})),
+    }
+
+    // Verify Rule 4 provenance ledger: fail closed on corrupt JSON AND verify EVERY record's cryptographic binding to manifest_map
+    var ledger_keys = std.StringHashMap(?f64).init(alloc);
     var ledger_count: usize = 0;
     if (std.Io.Dir.cwd().readFileAlloc(io, ledger_path, alloc, .unlimited)) |lraw| {
-        const lval = std.json.parseFromSliceLeaky(std.json.Value, alloc, lraw, .{}) catch null;
-        if (lval) |lv| {
+        if (std.json.parseFromSliceLeaky(std.json.Value, alloc, lraw, .{})) |lv| {
             switch (lv) {
                 .array => |arr| {
                     ledger_count = arr.items.len;
-                    for (arr.items) |item| {
-                        if (item == .object) {
-                            if (item.object.get("metric_id")) |mk| {
-                                if (mk == .string) try ledger_keys.put(try alloc.dupe(u8, mk.string), {});
-                            }
+                    for (arr.items, 0..) |item, ridx| {
+                        if (item != .object) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger record[{d}] is not a JSON object", .{ridx}));
+                            continue;
                         }
+                        const obj = item.object;
+                        const mid = if (obj.get("metric_id")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        if (mid == null) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger record[{d}] missing metric_id", .{ridx}));
+                            continue;
+                        }
+                        const sdoc = if (obj.get("source_document")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (obj.get("source_file")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        const sloc = if (obj.get("source_locator")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (obj.get("locator")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        const ssha = if (obj.get("raw_file_sha256")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (obj.get("source_sha256")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        if (ssha == null) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' missing raw_file_sha256", .{mid.?}));
+                        } else if (!isValidSha256Hex(ssha.?)) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' has invalid raw_file_sha256 '{s}'", .{ mid.?, ssha.? }));
+                        } else if (sdoc != null) {
+                            if (sloc == null) {
+                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' missing source_locator", .{mid.?}));
+                            } else {
+                                const mf_sha = lookupManifestSha(&manifest_map, &manifest_basenames, sdoc.?);
+                                if (mf_sha == null) {
+                                    try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' references unverified source '{s}' not in manifest.sha256", .{ mid.?, sdoc.? }));
+                                } else if (!std.ascii.eqlIgnoreCase(ssha.?, &mf_sha.?)) {
+                                    try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' SHA-256 mismatch against manifest for '{s}'", .{ mid.?, sdoc.? }));
+                                }
+                            }
+                        } else if (manifest_map.count() == 1) {
+                            var mit_only = manifest_map.valueIterator();
+                            const only_sha = mit_only.next().?.*;
+                            if (!std.ascii.eqlIgnoreCase(ssha.?, &only_sha)) {
+                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' raw_file_sha256 does not match verified manifest digest", .{mid.?}));
+                            }
+                        } else {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' missing source_document and source_locator", .{mid.?}));
+                        }
+                        const fval: ?f64 = if (obj.get("value")) |vv| jsonToFloat(vv) else null;
+                        try ledger_keys.put(try alloc.dupe(u8, mid.?), fval);
                     }
                 },
                 .object => |obj| {
+                    // Object-keyed ledger schema (e.g. botanica-veridica `<slug>.<metric>`)
                     ledger_count = obj.count();
                     var oit = obj.iterator();
                     while (oit.next()) |ent| {
-                        try ledger_keys.put(try alloc.dupe(u8, ent.key_ptr.*), {});
+                        const mid = ent.key_ptr.*;
+                        if (ent.value_ptr.* != .object) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger entry '{s}' is not an object", .{mid}));
+                            continue;
+                        }
+                        const rec = ent.value_ptr.*.object;
+                        const sdoc = if (rec.get("source_file")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (rec.get("source_document")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        const sloc = if (rec.get("locator")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (rec.get("source_locator")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        const ssha = if (rec.get("source_sha256")) |v| (if (v == .string and v.string.len > 0) v.string else null) else if (rec.get("raw_file_sha256")) |v| (if (v == .string and v.string.len > 0) v.string else null) else null;
+                        if (sdoc == null or sloc == null or ssha == null) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' missing source_file, locator, or source_sha256", .{mid}));
+                        } else if (!isValidSha256Hex(ssha.?)) {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' has invalid source_sha256", .{mid}));
+                        } else {
+                            const mf_sha = lookupManifestSha(&manifest_map, &manifest_basenames, sdoc.?);
+                            if (mf_sha == null) {
+                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' references unverified source '{s}'", .{ mid, sdoc.? }));
+                            } else if (!std.ascii.eqlIgnoreCase(ssha.?, &mf_sha.?)) {
+                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: ledger '{s}' SHA-256 mismatch against manifest for '{s}'", .{ mid, sdoc.? }));
+                            }
+                        }
+                        const fval: ?f64 = if (rec.get("value")) |vv| jsonToFloat(vv) else null;
+                        try ledger_keys.put(try alloc.dupe(u8, mid), fval);
                     }
                 },
-                else => {},
+                else => {
+                    try failures.append(alloc, "Invalid data/provenance_ledger.json root type (must be array or object)");
+                },
             }
+        } else |_| {
+            try failures.append(alloc, "Corrupt/unparseable JSON in data/provenance_ledger.json");
         }
     } else |_| {
         try failures.append(alloc, "Missing data/provenance_ledger.json");
     }
+    if (ledger_count == 0) {
+        try failures.append(alloc, "Empty data/provenance_ledger.json (0 provenance records)");
+    }
 
     var metrics_ok: usize = 0;
     if (std.Io.Dir.cwd().readFileAlloc(io, summary_path, alloc, .unlimited)) |sraw| {
-        const sval = std.json.parseFromSliceLeaky(std.json.Value, alloc, sraw, .{}) catch null;
-        if (sval) |sv| {
-            if (sv == .object) {
-                if (sv.object.get("metrics")) |mv| {
-                    if (mv == .object) {
-                        var mit = mv.object.iterator();
-                        while (mit.next()) |ent| {
-                            if (ledger_keys.contains(ent.key_ptr.*)) {
+        if (std.json.parseFromSliceLeaky(std.json.Value, alloc, sraw, .{})) |sv| {
+            if (sv != .object) {
+                try failures.append(alloc, "Invalid data/summary_metrics.json root type (must be JSON object)");
+            } else if (sv.object.get("metrics")) |mv| {
+                // Canonical nested `"metrics": {...}` schema
+                if (mv == .object) {
+                    var mit = mv.object.iterator();
+                    while (mit.next()) |ent| {
+                        if (ledger_keys.get(ent.key_ptr.*)) |lval| {
+                            if (ledgerValueMatches(lval, ent.value_ptr.*)) {
                                 metrics_ok += 1;
                             } else {
-                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: metric '{s}' missing from provenance_ledger.json", .{ent.key_ptr.*}));
+                                try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: metric '{s}' value in summary_metrics.json disagrees with provenance_ledger.json", .{ent.key_ptr.*}));
+                            }
+                        } else {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: metric '{s}' missing from provenance_ledger.json", .{ent.key_ptr.*}));
+                        }
+                    }
+                } else {
+                    try failures.append(alloc, "Invalid 'metrics' field in data/summary_metrics.json (must be object)");
+                }
+            } else if (sv.object.get("species")) |spv| {
+                // Structured species monograph schema (e.g. botanica-veridica: `<slug>.<metric>`)
+                if (spv == .array) {
+                    for (spv.array.items) |sp| {
+                        if (sp != .object) continue;
+                        const slug = if (sp.object.get("slug")) |v| (if (v == .string) v.string else continue) else continue;
+                        var sit = sp.object.iterator();
+                        while (sit.next()) |ent| {
+                            const fkey = try std.fmt.allocPrint(alloc, "{s}.{s}", .{ slug, ent.key_ptr.* });
+                            if (ledger_keys.get(fkey)) |lval| {
+                                if (ledgerValueMatches(lval, ent.value_ptr.*)) {
+                                    metrics_ok += 1;
+                                } else {
+                                    try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: metric '{s}' disagrees with provenance_ledger.json", .{fkey}));
+                                }
                             }
                         }
                     }
                 }
+            } else {
+                // Flat schema (e.g. cosmos-mobile-primer): enforce 1:1 coverage & value match on ALL top-level numeric scalars!
+                var sit = sv.object.iterator();
+                while (sit.next()) |ent| {
+                    if (jsonToFloat(ent.value_ptr.*) == null) continue;
+                    if (ledger_keys.get(ent.key_ptr.*)) |lval| {
+                        if (ledgerValueMatches(lval, ent.value_ptr.*)) {
+                            metrics_ok += 1;
+                        } else {
+                            try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: flat metric '{s}' value disagrees with provenance_ledger.json", .{ent.key_ptr.*}));
+                        }
+                    } else {
+                        try failures.append(alloc, try std.fmt.allocPrint(alloc, "Rule 4: flat metric '{s}' missing from provenance_ledger.json", .{ent.key_ptr.*}));
+                    }
+                }
             }
+        } else |_| {
+            try failures.append(alloc, "Corrupt/unparseable JSON in data/summary_metrics.json");
         }
     } else |_| {
         try failures.append(alloc, "Missing data/summary_metrics.json");
+    }
+
+    if (metrics_ok == 0) {
+        try failures.append(alloc, "Rule 4: 0 metrics verified between summary_metrics.json and provenance_ledger.json (metrics_covered=0 fails closed)");
     }
 
     const flist = try failures.toOwnedSlice(alloc);

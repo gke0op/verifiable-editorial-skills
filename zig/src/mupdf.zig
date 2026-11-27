@@ -59,6 +59,8 @@ pub const PageLink = struct {
     y0: f64,
     x1: f64,
     y1: f64,
+    is_hidden: bool = false,
+    is_extra_action: bool = false,
 };
 
 pub const PageData = struct {
@@ -69,9 +71,11 @@ pub const PageData = struct {
     images: []const PlacedImage,
     graphics: []const FillSample,
     stroke_count: usize,
-    /// Count of visible alphanumeric glyphs sliced by an active `<clip_path>` in `mutool draw -F trace`
+    /// Count of visible printable glyphs sliced by an active `<clip_path>`/`<clip_text>` in `mutool draw -F trace`
     /// (works identically on mutool 1.23 where `stext` ignores W/W* clip paths as well as 1.24+).
     trace_clipped_chars: usize = 0,
+    /// Suspicious glyph/ToUnicode width anomalies detected directly from `mutool draw -F trace`.
+    tounicode_anomalies: []const []const u8 = &.{},
     /// Full page text with whitespace breaks inserted at >=1.5pt font-size (superscript/subscript) boundaries.
     prose_text: []const u8,
 };
@@ -87,6 +91,12 @@ pub const PpmImage = struct {
         const off = (cy * self.width + cx) * 3;
         return .{ .r = self.pixels[off], .g = self.pixels[off + 1], .b = self.pixels[off + 2] };
     }
+};
+
+pub const PamCmykImage = struct {
+    width: usize,
+    height: usize,
+    pixels: []const u8, // CMYKCMYK... len == width * height * 4
 };
 
 pub const CatalogInfo = struct {
@@ -106,6 +116,71 @@ pub const CatalogInfo = struct {
     media_h: f64,
 };
 
+var g_tmp_seq = std.atomic.Value(u64).init(0);
+
+/// Create a private `0700` per-invocation temp directory under `/tmp` with PID + CSPRNG entropy.
+pub fn makePrivateTmpDir(alloc: std.mem.Allocator, io: std.Io) ![]u8 {
+    const pid = std.c.getpid();
+    const seq = g_tmp_seq.fetchAdd(1, .monotonic);
+    var rbytes: [8]u8 = undefined;
+    io.random(&rbytes);
+    const rhex = std.fmt.bytesToHex(rbytes, .lower);
+    const dir_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_{d}_{d}_{s}", .{ pid, seq, rhex });
+    try std.Io.Dir.cwd().createDirPath(io, dir_path);
+    const zpath = try alloc.dupeSentinel(u8, dir_path, 0);
+    defer alloc.free(zpath);
+    _ = std.c.chmod(zpath.ptr, 0o700);
+    return dir_path;
+}
+
+/// Allocate a race-free temp file path inside a private `tmp_tag` directory (if leading `/`) or uniquely suffixed by PID + atomic seq.
+pub fn tmpPath(alloc: std.mem.Allocator, tmp_tag: []const u8, filename: []const u8) ![]u8 {
+    const seq = g_tmp_seq.fetchAdd(1, .monotonic);
+    if (tmp_tag.len > 0 and tmp_tag[0] == '/') {
+        return try std.fmt.allocPrint(alloc, "{s}/{d}_{s}", .{ tmp_tag, seq, filename });
+    }
+    const pid = std.c.getpid();
+    return try std.fmt.allocPrint(alloc, "/tmp/vedit_{d}_{d}_{s}_{s}", .{ pid, seq, tmp_tag, filename });
+}
+
+/// Checked finite & bounded float-to-integer rounding (prevents ReleaseSafe `@intFromFloat` SIGABRT DoS).
+pub fn checkedRoundInt(comptime T: type, v: f64, lo: f64, hi: f64) !T {
+    if (!std.math.isFinite(v)) return error.NonFiniteFloat;
+    const r = @round(v);
+    if (r < lo or r > hi) return error.FloatOutOfRange;
+    return @intFromFloat(r);
+}
+
+/// RFC 8259 JSON string serializer (returns quoted & escaped `"..."` string using `std.json.Stringify`).
+pub fn jsonString(alloc: std.mem.Allocator, s: []const u8) ![]u8 {
+    var w: std.Io.Writer.Allocating = .init(alloc);
+    errdefer w.deinit();
+    try std.json.Stringify.encodeJsonString(s, .{}, &w.writer);
+    return try w.toOwnedSlice();
+}
+
+/// Best-effort temporary file removal: ignores `FileNotFound`, logs unexpected OS errors in debug.
+pub fn removeTmpBestEffort(io: std.Io, path: []const u8) void {
+    std.Io.Dir.cwd().deleteFile(io, path) catch |err| switch (err) {
+        error.FileNotFound => {},
+        else => std.log.debug("tmp cleanup skipped for {s}: {s}", .{ path, @errorName(err) }),
+    };
+}
+
+/// Best-effort private temp directory tree removal.
+pub fn removeTmpDirBestEffort(io: std.Io, path: []const u8) void {
+    std.Io.Dir.cwd().deleteTree(io, path) catch |err| {
+        std.log.debug("tmp dir cleanup skipped for {s}: {s}", .{ path, @errorName(err) });
+    };
+}
+
+/// Best-effort diagnostic write to stderr.
+pub fn writeStderrBestEffort(io: std.Io, s: []const u8) void {
+    std.Io.File.stderr().writeStreamingAll(io, s) catch |err| {
+        std.log.debug("stderr write failed: {s}", .{@errorName(err)});
+    };
+}
+
 pub const RunResult = struct {
     stdout: []u8,
     stderr: []u8,
@@ -120,10 +195,10 @@ pub fn runCmd(alloc: std.mem.Allocator, io: std.Io, argv: []const []const u8, cw
         .stderr_limit = .unlimited,
     }) catch |err| {
         if (err == error.FileNotFound and argv.len > 0 and std.mem.eql(u8, argv[0], "mutool")) {
-            std.Io.File.stderr().writeStreamingAll(
+            writeStderrBestEffort(
                 io,
                 "[vedit] error: 'mutool' not found on PATH — install mupdf-tools (Ubuntu: sudo apt install mupdf-tools | macOS: brew install mupdf-tools)\n",
-            ) catch {};
+            );
             return error.MutoolNotFound;
         }
         return err;
@@ -231,17 +306,108 @@ fn containsFold(haystack: []const u8, needle: []const u8) bool {
 
 const ClipRect = struct { x0: f64, y0: f64, x1: f64, y1: f64 };
 
+const ClipPoly = struct {
+    pts: []const [2]f64,
+};
+
+const ClipShape = struct {
+    rect: ClipRect,
+    is_rect: bool = true,
+    eofill: bool = false,
+    subpaths: []const ClipPoly = &.{},
+};
+
 fn isAsciiAlnum(ch: u8) bool {
     return (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9');
 }
 
-fn isTallGlyph(ch: u8) bool {
+fn isPrintableGlyphCodepoint(cp: u21) bool {
+    if (cp < 0x80) return isAsciiAlnum(@intCast(cp));
+    // Exclude whitespace/control/format/punctuation-only ranges; include Latin Extended, Greek, Cyrillic, CJK, Math Alnum
+    if (cp == 0x00A0 or cp == 0x00AD or (cp >= 0x2000 and cp <= 0x206F)) return false;
+    return cp >= 0x00C0;
+}
+
+fn decodeSingleGlyphCodepoint(raw: []const u8) ?u21 {
+    if (raw.len == 0) return null;
+    if (raw[0] == '&') {
+        if (raw.len > 4 and std.mem.startsWith(u8, raw, "&#x") and raw[raw.len - 1] == ';') {
+            return std.fmt.parseInt(u21, raw[3 .. raw.len - 1], 16) catch null;
+        }
+        if (raw.len > 3 and std.mem.startsWith(u8, raw, "&#") and raw[raw.len - 1] == ';') {
+            return std.fmt.parseInt(u21, raw[2 .. raw.len - 1], 10) catch null;
+        }
+        return null;
+    }
+    const len = std.unicode.utf8ByteSequenceLength(raw[0]) catch return null;
+    if (len != raw.len) return null;
+    return std.unicode.utf8Decode(raw) catch null;
+}
+
+fn isTallGlyph(cp: u21) bool {
+    if (cp >= 0x80) return true;
+    const ch: u8 = @intCast(cp);
     return (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or
         ch == 'b' or ch == 'd' or ch == 'f' or ch == 'h' or ch == 'i' or ch == 'k' or ch == 'l' or ch == 't';
 }
 
-fn isDescGlyph(ch: u8) bool {
+fn isDescGlyph(cp: u21) bool {
+    if (cp >= 0x80) return false;
+    const ch: u8 = @intCast(cp);
     return ch == 'g' or ch == 'j' or ch == 'p' or ch == 'q' or ch == 'y';
+}
+
+fn pointInSubpaths(px: f64, py: f64, subpaths: []const ClipPoly, eofill: bool) bool {
+    if (subpaths.len == 0) return true;
+    if (eofill) {
+        var inside = false;
+        for (subpaths) |sp| {
+            const n = sp.pts.len;
+            if (n < 3) continue;
+            var j: usize = n - 1;
+            for (0..n) |i| {
+                const xi = sp.pts[i][0];
+                const yi = sp.pts[i][1];
+                const xj = sp.pts[j][0];
+                const yj = sp.pts[j][1];
+                if (((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+                    inside = !inside;
+                }
+                j = i;
+            }
+        }
+        return inside;
+    } else {
+        var winding: i32 = 0;
+        for (subpaths) |sp| {
+            const n = sp.pts.len;
+            if (n < 3) continue;
+            for (0..n) |i| {
+                const a = sp.pts[i];
+                const b = sp.pts[(i + 1) % n];
+                if (a[1] <= py) {
+                    if (b[1] > py and ((b[0] - a[0]) * (py - a[1]) - (px - a[0]) * (b[1] - a[1])) > 0.0) {
+                        winding += 1;
+                    }
+                } else {
+                    if (b[1] <= py and ((b[0] - a[0]) * (py - a[1]) - (px - a[0]) * (b[1] - a[1])) < 0.0) {
+                        winding -= 1;
+                    }
+                }
+            }
+        }
+        return winding != 0;
+    }
+}
+
+fn pointInSubpathsTol(px: f64, py: f64, subpaths: []const ClipPoly, eofill: bool, tol: f64) bool {
+    if (pointInSubpaths(px, py, subpaths, eofill)) return true;
+    if (tol <= 0.0) return false;
+    const offsets = [_][2]f64{ .{ tol, 0 }, .{ -tol, 0 }, .{ 0, tol }, .{ 0, -tol } };
+    for (offsets) |d| {
+        if (pointInSubpaths(px + d[0], py + d[1], subpaths, eofill)) return true;
+    }
+    return false;
 }
 
 fn isSignedDigitsTrimmed(raw: []const u8) bool {
@@ -269,17 +435,44 @@ fn proseEndsWithStandalone10(items: []const u8) bool {
     return true;
 }
 
-/// Count alphanumeric glyphs inside `<fill_text>`/`<stroke_text>` whose 4-corner ink core lies inside
-/// the visible page `[0, page_w] x [0, page_h]` yet extends outside the active `<clip_path>`/`<clip_text>` box.
-/// Catches both full glyph disappearance (mutool 1.23 stext escape) AND partial horizontal/vertical slicing
-/// (e.g. top half of every letter cut off while glyph baselines stay inside the clip rectangle).
-pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) usize {
-    var stack: [64]ClipRect = undefined;
-    stack[0] = .{ .x0 = 0.0, .y0 = 0.0, .x1 = page_w, .y1 = page_h };
-    var depth: usize = 1;
+fn proseEndsWithSmallIntBase(items: []const u8) bool {
+    var end = items.len;
+    while (end > 0 and (items[end - 1] == ' ' or items[end - 1] == '\t')) : (end -= 1) {}
+    if (end == 0) return false;
+    const last = items[end - 1];
+    if (last < '2' or last > '9') return false;
+    if (end >= 2 and (isAsciiAlnum(items[end - 2]) or items[end - 2] == '.')) return false;
+    return true;
+}
+
+fn isAxisAlignedRectSubpath(pts: []const [2]f64) bool {
+    if (pts.len < 4 or pts.len > 5) return false;
+    const n = if (pts.len == 5 and @abs(pts[0][0] - pts[4][0]) < 1e-3 and @abs(pts[0][1] - pts[4][1]) < 1e-3) @as(usize, 4) else pts.len;
+    if (n != 4) return false;
+    for (0..4) |i| {
+        const a = pts[i];
+        const b = pts[(i + 1) % 4];
+        const dx = @abs(b[0] - a[0]);
+        const dy = @abs(b[1] - a[1]);
+        if (dx > 0.05 and dy > 0.05) return false;
+    }
+    return true;
+}
+
+/// Count printable glyphs inside `<fill_text>`/`<stroke_text>` whose 4-corner ink core lies inside
+/// the visible page `[0, page_w] x [0, page_h]` yet extends outside ANY active `<clip_path>`/`<clip_text>`
+/// (supporting unbounded dynamic clip stack depth, curved/diagonal/even-odd polygons, and non-ASCII UTF-8 glyphs).
+pub fn countTraceClippedAlnum(alloc: std.mem.Allocator, page_xml: []const u8, page_w: f64, page_h: f64) !usize {
+    var arena = std.heap.ArenaAllocator.init(alloc);
+    defer arena.deinit();
+    const a = arena.allocator();
+
+    var stack: std.ArrayList(ClipShape) = .empty;
+    try stack.append(a, .{ .rect = .{ .x0 = 0.0, .y0 = 0.0, .x1 = page_w, .y1 = page_h } });
 
     var in_clip_path = false;
     var in_clip_text = false;
+    var clip_eofill = false;
     var clip_tf: [6]f64 = .{ 1, 0, 0, 1, 0, 0 };
     var clip_trm: [4]f64 = .{ 10, 0, 0, 10 };
     var cp_x0: f64 = 1e18;
@@ -287,6 +480,10 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
     var cp_x1: f64 = -1e18;
     var cp_y1: f64 = -1e18;
     var cp_has_pts = false;
+    var cp_has_curve = false;
+    var cp_subpaths: std.ArrayList(ClipPoly) = .empty;
+    var cur_sub: std.ArrayList([2]f64) = .empty;
+    var cur_pt: [2]f64 = .{ 0.0, 0.0 };
 
     var in_text = false;
     var txt_tf: [6]f64 = .{ 1, 0, 0, 1, 0, 0 };
@@ -302,6 +499,7 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
 
         if (std.mem.startsWith(u8, tag, "clip_path")) {
             in_clip_path = !self_closing;
+            clip_eofill = if (extractAttr(tag, "winding")) |wv| std.mem.eql(u8, wv, "eofill") else false;
             clip_tf = .{ 1, 0, 0, 1, 0, 0 };
             if (extractAttr(tag, "transform")) |tv| _ = parseFloatSlice(tv, &clip_tf);
             cp_x0 = 1e18;
@@ -309,21 +507,35 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
             cp_x1 = -1e18;
             cp_y1 = -1e18;
             cp_has_pts = false;
-            if (self_closing and depth < stack.len) {
-                stack[depth] = stack[depth - 1];
-                depth += 1;
+            cp_has_curve = false;
+            cp_subpaths = .empty;
+            cur_sub = .empty;
+            if (self_closing) {
+                try stack.append(a, stack.items[stack.items.len - 1]);
             }
         } else if (std.mem.eql(u8, tag, "/clip_path")) {
             in_clip_path = false;
-            if (depth < stack.len) {
-                const prev = stack[depth - 1];
-                stack[depth] = if (cp_has_pts) .{
-                    .x0 = @max(prev.x0, cp_x0),
-                    .y0 = @max(prev.y0, cp_y0),
-                    .x1 = @min(prev.x1, cp_x1),
-                    .y1 = @min(prev.y1, cp_y1),
-                } else prev;
-                depth += 1;
+            if (cur_sub.items.len >= 3) {
+                const pts = try cur_sub.toOwnedSlice(a);
+                if (pts.len >= 3) try cp_subpaths.append(a, .{ .pts = pts });
+            }
+            const prev = stack.items[stack.items.len - 1];
+            if (cp_has_pts) {
+                const subs = try cp_subpaths.toOwnedSlice(a);
+                const is_rect = (!cp_has_curve) and subs.len == 1 and isAxisAlignedRectSubpath(subs[0].pts);
+                try stack.append(a, .{
+                    .rect = .{
+                        .x0 = @max(prev.rect.x0, cp_x0),
+                        .y0 = @max(prev.rect.y0, cp_y0),
+                        .x1 = @min(prev.rect.x1, cp_x1),
+                        .y1 = @min(prev.rect.y1, cp_y1),
+                    },
+                    .is_rect = is_rect,
+                    .eofill = clip_eofill,
+                    .subpaths = if (is_rect) &.{} else subs,
+                });
+            } else {
+                try stack.append(a, prev);
             }
         } else if (std.mem.startsWith(u8, tag, "clip_text")) {
             in_clip_text = !self_closing;
@@ -335,33 +547,33 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
             cp_x1 = -1e18;
             cp_y1 = -1e18;
             cp_has_pts = false;
-            if (self_closing and depth < stack.len) {
-                stack[depth] = stack[depth - 1];
-                depth += 1;
+            if (self_closing) {
+                try stack.append(a, stack.items[stack.items.len - 1]);
             }
         } else if (std.mem.eql(u8, tag, "/clip_text")) {
             in_clip_text = false;
-            if (depth < stack.len) {
-                const prev = stack[depth - 1];
-                stack[depth] = if (cp_has_pts) .{
-                    .x0 = @max(prev.x0, cp_x0),
-                    .y0 = @max(prev.y0, cp_y0),
-                    .x1 = @min(prev.x1, cp_x1),
-                    .y1 = @min(prev.y1, cp_y1),
-                } else prev;
-                depth += 1;
-            }
+            const prev = stack.items[stack.items.len - 1];
+            try stack.append(a, if (cp_has_pts) .{
+                .rect = .{
+                    .x0 = @max(prev.rect.x0, cp_x0),
+                    .y0 = @max(prev.rect.y0, cp_y0),
+                    .x1 = @min(prev.rect.x1, cp_x1),
+                    .y1 = @min(prev.rect.y1, cp_y1),
+                },
+            } else prev);
         } else if (std.mem.startsWith(u8, tag, "clip_stroke_path") or
             std.mem.startsWith(u8, tag, "clip_image_mask"))
         {
-            if (depth < stack.len) {
-                stack[depth] = stack[depth - 1];
-                depth += 1;
-            }
+            try stack.append(a, stack.items[stack.items.len - 1]);
         } else if (std.mem.startsWith(u8, tag, "pop_clip")) {
-            if (depth > 1) depth -= 1;
+            if (stack.items.len > 1) _ = stack.pop();
         } else if (in_clip_path) {
-            if (std.mem.startsWith(u8, tag, "moveto ") or std.mem.startsWith(u8, tag, "lineto ")) {
+            if (std.mem.startsWith(u8, tag, "moveto ")) {
+                if (cur_sub.items.len >= 3) {
+                    const pts = try cur_sub.toOwnedSlice(a);
+                    if (pts.len >= 3) try cp_subpaths.append(a, .{ .pts = pts });
+                }
+                cur_sub = .empty;
                 if (extractAttr(tag, "x")) |xv| {
                     if (extractAttr(tag, "y")) |yv| {
                         const x = std.fmt.parseFloat(f64, xv) catch continue;
@@ -373,26 +585,59 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
                         cp_x1 = @max(cp_x1, tx);
                         cp_y1 = @max(cp_y1, ty);
                         cp_has_pts = true;
+                        cur_pt = .{ tx, ty };
+                        try cur_sub.append(a, cur_pt);
+                    }
+                }
+            } else if (std.mem.startsWith(u8, tag, "lineto ")) {
+                if (extractAttr(tag, "x")) |xv| {
+                    if (extractAttr(tag, "y")) |yv| {
+                        const x = std.fmt.parseFloat(f64, xv) catch continue;
+                        const y = std.fmt.parseFloat(f64, yv) catch continue;
+                        const tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4];
+                        const ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5];
+                        cp_x0 = @min(cp_x0, tx);
+                        cp_y0 = @min(cp_y0, ty);
+                        cp_x1 = @max(cp_x1, tx);
+                        cp_y1 = @max(cp_y1, ty);
+                        cp_has_pts = true;
+                        cur_pt = .{ tx, ty };
+                        try cur_sub.append(a, cur_pt);
                     }
                 }
             } else if (std.mem.startsWith(u8, tag, "curveto ")) {
-                const xkeys = [_][]const u8{ "x1", "x2", "x3" };
-                const ykeys = [_][]const u8{ "y1", "y2", "y3" };
-                for (0..3) |ki| {
-                    if (extractAttr(tag, xkeys[ki])) |xv| {
-                        if (extractAttr(tag, ykeys[ki])) |yv| {
-                            const x = std.fmt.parseFloat(f64, xv) catch continue;
-                            const y = std.fmt.parseFloat(f64, yv) catch continue;
-                            const tx = clip_tf[0] * x + clip_tf[2] * y + clip_tf[4];
-                            const ty = clip_tf[1] * x + clip_tf[3] * y + clip_tf[5];
-                            cp_x0 = @min(cp_x0, tx);
-                            cp_y0 = @min(cp_y0, ty);
-                            cp_x1 = @max(cp_x1, tx);
-                            cp_y1 = @max(cp_y1, ty);
-                            cp_has_pts = true;
-                        }
-                    }
+                cp_has_curve = true;
+                const x1v = extractAttr(tag, "x1") orelse continue;
+                const y1v = extractAttr(tag, "y1") orelse continue;
+                const x2v = extractAttr(tag, "x2") orelse continue;
+                const y2v = extractAttr(tag, "y2") orelse continue;
+                const x3v = extractAttr(tag, "x3") orelse continue;
+                const y3v = extractAttr(tag, "y3") orelse continue;
+                const x1 = std.fmt.parseFloat(f64, x1v) catch continue;
+                const y1 = std.fmt.parseFloat(f64, y1v) catch continue;
+                const x2 = std.fmt.parseFloat(f64, x2v) catch continue;
+                const y2 = std.fmt.parseFloat(f64, y2v) catch continue;
+                const x3 = std.fmt.parseFloat(f64, x3v) catch continue;
+                const y3 = std.fmt.parseFloat(f64, y3v) catch continue;
+                const p0 = cur_pt;
+                const p1 = [2]f64{ clip_tf[0] * x1 + clip_tf[2] * y1 + clip_tf[4], clip_tf[1] * x1 + clip_tf[3] * y1 + clip_tf[5] };
+                const p2 = [2]f64{ clip_tf[0] * x2 + clip_tf[2] * y2 + clip_tf[4], clip_tf[1] * x2 + clip_tf[3] * y2 + clip_tf[5] };
+                const p3 = [2]f64{ clip_tf[0] * x3 + clip_tf[2] * y3 + clip_tf[4], clip_tf[1] * x3 + clip_tf[3] * y3 + clip_tf[5] };
+                // Sample cubic Bezier into 8 segments so circular/rounded clips evaluate accurately
+                const steps: usize = 8;
+                for (1..steps + 1) |si| {
+                    const t = @as(f64, @floatFromInt(si)) / @as(f64, @floatFromInt(steps));
+                    const u = 1.0 - t;
+                    const bx = u * u * u * p0[0] + 3.0 * u * u * t * p1[0] + 3.0 * u * t * t * p2[0] + t * t * t * p3[0];
+                    const by = u * u * u * p0[1] + 3.0 * u * u * t * p1[1] + 3.0 * u * t * t * p2[1] + t * t * t * p3[1];
+                    cp_x0 = @min(cp_x0, bx);
+                    cp_y0 = @min(cp_y0, by);
+                    cp_x1 = @max(cp_x1, bx);
+                    cp_y1 = @max(cp_y1, by);
+                    cp_has_pts = true;
+                    try cur_sub.append(a, .{ bx, by });
                 }
+                cur_pt = p3;
             }
         } else if (in_clip_text) {
             if (std.mem.startsWith(u8, tag, "span ")) {
@@ -434,9 +679,10 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
         } else if (in_text and std.mem.startsWith(u8, tag, "span ")) {
             trm = .{ 10, 0, 0, 10 };
             if (extractAttr(tag, "trm")) |trv| _ = parseFloatSlice(trv, &trm);
-        } else if (in_text and depth > 1 and std.mem.startsWith(u8, tag, "g ")) {
+        } else if (in_text and stack.items.len > 1 and std.mem.startsWith(u8, tag, "g ")) {
             const uval = extractAttr(tag, "unicode") orelse continue;
-            if (uval.len != 1 or !isAsciiAlnum(uval[0])) continue;
+            const cp = decodeSingleGlyphCodepoint(uval) orelse continue;
+            if (!isPrintableGlyphCodepoint(cp)) continue;
             const xv = extractAttr(tag, "x") orelse continue;
             const yv = extractAttr(tag, "y") orelse continue;
             const x = std.fmt.parseFloat(f64, xv) catch continue;
@@ -450,8 +696,8 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
             const ax = txt_tf[0] * trm[2] + txt_tf[2] * trm[3];
             const ay = txt_tf[1] * trm[2] + txt_tf[3] * trm[3];
 
-            const v0: f64 = if (isDescGlyph(uval[0])) -0.14 else 0.05;
-            const v1: f64 = if (isTallGlyph(uval[0])) 0.62 else 0.48;
+            const v0: f64 = if (isDescGlyph(cp)) -0.14 else 0.05;
+            const v1: f64 = if (isTallGlyph(cp)) 0.62 else 0.48;
             const p00_x = ox + 0.15 * dx + v0 * ax;
             const p00_y = oy + 0.15 * dy + v0 * ay;
             const p10_x = ox + 0.85 * dx + v0 * ax;
@@ -468,17 +714,81 @@ pub fn countTraceClippedAlnum(page_xml: []const u8, page_w: f64, page_h: f64) us
             const mx = 0.5 * (gx0 + gx1);
             const my = 0.5 * (gy0 + gy1);
 
-            // Flag any visible-page glyph whose ink core extends outside the active W/W*/clip_text box
+            // Flag any visible-page glyph whose 4-corner ink core extends outside ANY active clip box/polygon
             if (mx >= 0.0 and mx <= page_w and my >= 0.0 and my <= page_h) {
-                const top = stack[depth - 1];
+                const top = stack.items[stack.items.len - 1].rect;
                 const tol: f64 = 1.0;
-                if (gx0 < top.x0 - tol or gx1 > top.x1 + tol or gy0 < top.y0 - tol or gy1 > top.y1 + tol) {
-                    clipped += 1;
+                var is_out = (gx0 < top.x0 - tol or gx1 > top.x1 + tol or gy0 < top.y0 - tol or gy1 > top.y1 + tol);
+                if (!is_out) {
+                    const corners = [_][2]f64{
+                        .{ p00_x, p00_y },
+                        .{ p10_x, p10_y },
+                        .{ p01_x, p01_y },
+                        .{ p11_x, p11_y },
+                    };
+                    for (stack.items[1..]) |cs| {
+                        if (cs.is_rect or cs.subpaths.len == 0) continue;
+                        for (corners) |pt| {
+                            if (!pointInSubpathsTol(pt[0], pt[1], cs.subpaths, cs.eofill, tol)) {
+                                is_out = true;
+                                break;
+                            }
+                        }
+                        if (is_out) break;
+                    }
                 }
+                if (is_out) clipped += 1;
             }
         }
     }
     return clipped;
+}
+
+fn isWideUppercaseLetter(uval: []const u8) bool {
+    if (uval.len != 1) return false;
+    return switch (uval[0]) {
+        'A', 'D', 'G', 'H', 'M', 'N', 'O', 'Q', 'W' => true,
+        else => false,
+    };
+}
+
+fn collectTraceToUnicodeAnomalies(alloc: std.mem.Allocator, page_xml: []const u8, page_num: usize) ![]const []const u8 {
+    var out: std.ArrayList([]const u8) = .empty;
+    var seen_keys = std.StringHashMap(void).init(alloc);
+    var in_text = false;
+    var cur_font: []const u8 = "";
+    var is_condensed = false;
+    var pos: usize = 0;
+    while (std.mem.findScalarPos(u8, page_xml, pos, '<')) |lt| {
+        const gt = std.mem.findScalarPos(u8, page_xml, lt + 1, '>') orelse break;
+        const tag = page_xml[lt + 1 .. gt];
+        pos = gt + 1;
+        const self_closing = (tag.len > 0 and tag[tag.len - 1] == '/');
+        if (std.mem.startsWith(u8, tag, "fill_text") or std.mem.startsWith(u8, tag, "stroke_text")) {
+            in_text = !self_closing;
+        } else if (std.mem.eql(u8, tag, "/fill_text") or std.mem.eql(u8, tag, "/stroke_text")) {
+            in_text = false;
+        } else if (in_text and std.mem.startsWith(u8, tag, "span ")) {
+            cur_font = extractAttr(tag, "font") orelse "";
+            is_condensed = containsFold(cur_font, "cond") or containsFold(cur_font, "narrow") or
+                containsFold(cur_font, "comp") or containsFold(cur_font, "thin");
+        } else if (in_text and !is_condensed and std.mem.startsWith(u8, tag, "g ")) {
+            const uval = extractAttr(tag, "unicode") orelse continue;
+            if (!isWideUppercaseLetter(uval)) continue;
+            const adv_s = extractAttr(tag, "adv") orelse continue;
+            const adv = std.fmt.parseFloat(f64, adv_s) catch continue;
+            // Tabular digits have narrow ~0.44-0.50em advance; wide capitals ('A','M','W','G','D','H','O','Q') are >=0.56em in proportional/mono fonts
+            if (adv > 0.05 and adv < 0.50) {
+                const gid = extractAttr(tag, "glyph") orelse "?";
+                const key = try std.fmt.allocPrint(alloc, "{s}:{s}:{s}", .{ cur_font, gid, uval });
+                if (!seen_keys.contains(key)) {
+                    try seen_keys.put(key, {});
+                    try out.append(alloc, try std.fmt.allocPrint(alloc, "p.{d} font '{s}' glyph {s} mapped to '{s}' has suspicious digit-like advance {d:.3}em (possible /ToUnicode spoof)", .{ page_num, stripSubsetPrefix(cur_font), gid, uval, adv }));
+                }
+            }
+        }
+    }
+    return out.toOwnedSlice(alloc);
 }
 
 /// Extract structured spans, typography, images, and graphics for all pages of a PDF using `mutool`.
@@ -577,6 +887,11 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
             prev_cy = -1e9;
             has_glyph = false;
         } else if (std.mem.startsWith(u8, tag, "char ") and in_font) {
+            const next_col_opt: ?Rgb = if (extractAttr(tag, "color")) |col| parseHexColor(col) else null;
+            const raw_c = extractAttr(tag, "c") orelse "";
+            const is_space_char = (raw_c.len == 1 and raw_c[0] == ' ');
+            const color_changed = has_glyph and !is_space_char and next_col_opt != null and
+                (next_col_opt.?.r != cur_fg.r or next_col_opt.?.g != cur_fg.g or next_col_opt.?.b != cur_fg.b);
             if (extractAttr(tag, "quad")) |qv| {
                 var q: [8]f64 = .{ 0, 0, 0, 0, 0, 0, 0, 0 };
                 if (parseFloatSlice(qv, &q) == 8) {
@@ -594,8 +909,9 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                         }
                     }
                     const qcy = (qy0 + qy1) * 0.5;
-                    // Split into a new span if MuPDF merged spatially distant glyphs (e.g. math fractions / table cols)
-                    if (has_glyph and ((qx0 - prev_cx1) > cur_size * 1.8 or (prev_cx1 - qx1) > cur_size * 1.8 or @abs(qcy - prev_cy) > cur_size * 0.45)) {
+                    const spatial_split = has_glyph and ((qx0 - prev_cx1) > cur_size * 1.8 or (prev_cx1 - qx1) > cur_size * 1.8 or @abs(qcy - prev_cy) > cur_size * 0.45);
+                    // Split into a new span on spatial jump OR foreground color transition (defeats trailing-dot cur_fg overwrite)
+                    if (spatial_split or color_changed) {
                         const prev_trim = std.mem.trim(u8, cur_chars.items, " \t\r\n");
                         if (prev_trim.len > 0 and sx1 > sx0 and sy1 > sy0) {
                             try spans.append(alloc, .{
@@ -618,7 +934,7 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                         }
                         if (cur_chars.items.len > 0) {
                             try prose.appendSlice(alloc, cur_chars.items);
-                            try prose.append(alloc, ' ');
+                            if (spatial_split) try prose.append(alloc, ' ');
                             prev_line_span_size = cur_size;
                             prev_line_span_cy = (sy0 + sy1) * 0.5;
                         }
@@ -640,11 +956,11 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                     }
                 }
             }
-            if (extractAttr(tag, "c")) |cv| {
-                try decodeXmlChar(alloc, cv, &cur_chars);
+            if (raw_c.len > 0) {
+                try decodeXmlChar(alloc, raw_c, &cur_chars);
             }
-            if (extractAttr(tag, "color")) |col| {
-                cur_fg = parseHexColor(col);
+            if (next_col_opt) |nc| {
+                if (!is_space_char or !has_glyph) cur_fg = nc;
             }
             if (extractAttr(tag, "flags")) |fl| {
                 const fval = std.fmt.parseInt(u32, fl, 10) catch 0;
@@ -654,14 +970,19 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
             in_font = false;
             const raw_txt = cur_chars.items;
             const cur_cy: f64 = if (has_glyph) (sy0 + sy1) * 0.5 else prev_line_span_cy;
-            // Preserve raised scientific `10^exp` superscripts while separating other script/footnote transitions
+            // Preserve raised scientific `10^exp` (including sub-1.5pt baseline shifts) and small integer bases `2^9`
             if (raw_txt.len > 0) {
-                const is_raised_exp = prev_line_span_size > 0.0 and
-                    cur_size <= prev_line_span_size - 1.5 and
-                    cur_cy < prev_line_span_cy - prev_line_span_size * 0.10 and
+                const raised_base10 = prev_line_span_size > 0.0 and
+                    cur_size <= prev_line_span_size - 0.5 and
+                    cur_cy < prev_line_span_cy - prev_line_span_size * 0.12 and
                     isSignedDigitsTrimmed(raw_txt) and
                     proseEndsWithStandalone10(prose.items);
-                if (is_raised_exp) {
+                const raised_small_base = prev_line_span_size > 0.0 and
+                    cur_size <= prev_line_span_size - 0.8 and
+                    cur_cy < prev_line_span_cy - prev_line_span_size * 0.15 and
+                    isSignedDigitsTrimmed(raw_txt) and
+                    proseEndsWithSmallIntBase(prose.items);
+                if (raised_base10 or raised_small_base) {
                     while (prose.items.len > 0 and (prose.items[prose.items.len - 1] == ' ' or prose.items[prose.items.len - 1] == '\t')) {
                         _ = prose.pop();
                     }
@@ -727,9 +1048,14 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                 p_ref.images = try imgs.toOwnedSlice(alloc);
                 p_ref.graphics = try gfx.toOwnedSlice(alloc);
                 p_ref.stroke_count = strokes;
-                p_ref.trace_clipped_chars = countTraceClippedAlnum(txml[tpage_body_start..lt], p_ref.width, p_ref.height);
+                const pbody = txml[tpage_body_start..lt];
+                p_ref.trace_clipped_chars = try countTraceClippedAlnum(alloc, pbody, p_ref.width, p_ref.height);
+                p_ref.tounicode_anomalies = try collectTraceToUnicodeAnomalies(alloc, pbody, p_ref.page_num);
             }
-        } else if (std.mem.startsWith(u8, tag, "fill_image ")) {
+        } else if (std.mem.startsWith(u8, tag, "fill_image ") or
+            std.mem.startsWith(u8, tag, "fill_image_mask ") or
+            std.mem.startsWith(u8, tag, "clip_image_mask "))
+        {
             const nw = if (extractAttr(tag, "width")) |v| std.fmt.parseInt(i64, v, 10) catch 0 else 0;
             const nh = if (extractAttr(tag, "height")) |v| std.fmt.parseInt(i64, v, 10) catch 0 else 0;
             const cs = extractAttr(tag, "colorspace") orelse "DeviceRGB";
@@ -740,14 +1066,17 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
             // Transform maps unit square [0,1]x[0,1] via affine matrix [a b c d e f]
             const pw = @sqrt(tf[0] * tf[0] + tf[1] * tf[1]);
             const ph = @sqrt(tf[2] * tf[2] + tf[3] * tf[3]);
-            // Skip tiny synthetic 1px/mask artifacts or zero-size transforms
-            if (nw >= 8 and nh >= 8 and pw >= 8.0 and ph >= 8.0) {
+            if (!std.math.isFinite(pw) or !std.math.isFinite(ph) or pw > 1.0e8 or ph > 1.0e8) {
+                return error.InvalidImageTransform;
+            }
+            // Audit all visibly placed rasters & masks (>= 8x8 pt placed) including stretched sub-8px tiles
+            if (nw >= 1 and nh >= 1 and pw >= 8.0 and ph >= 8.0) {
                 const ix0 = @min(@min(tf[4], tf[4] + tf[0]), @min(tf[4] + tf[2], tf[4] + tf[0] + tf[2]));
                 const ix1 = @max(@max(tf[4], tf[4] + tf[0]), @max(tf[4] + tf[2], tf[4] + tf[0] + tf[2]));
                 const iy0 = @min(@min(tf[5], tf[5] + tf[1]), @min(tf[5] + tf[3], tf[5] + tf[1] + tf[3]));
                 const iy1 = @max(@max(tf[5], tf[5] + tf[1]), @max(tf[5] + tf[3], tf[5] + tf[1] + tf[3]));
-                const pw_x10: i64 = @intFromFloat(@round(pw * 10.0));
-                const ph_x10: i64 = @intFromFloat(@round(ph * 10.0));
+                const pw_x10 = try checkedRoundInt(i64, pw * 10.0, 1.0, 1.0e12);
+                const ph_x10 = try checkedRoundInt(i64, ph * 10.0, 1.0, 1.0e12);
                 const eff = kernels.effective_dpi_x10(nw, nh, pw_x10, ph_x10);
                 try imgs.append(alloc, .{
                     .page = tpage_idx,
@@ -769,7 +1098,7 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                 const cs = extractAttr(tag, "colorspace") orelse "";
                 var comps: [4]f64 = .{ 0, 0, 0, 0 };
                 const n = parseFloatSlice(cv, &comps);
-                if (n == 3 and (std.mem.find(u8, cs, "RGB") != null or cs.len == 0)) {
+                if (n == 3 and std.math.isFinite(comps[0]) and std.math.isFinite(comps[1]) and std.math.isFinite(comps[2]) and (std.mem.find(u8, cs, "RGB") != null or cs.len == 0)) {
                     try gfx.append(alloc, .{
                         .rgb = .{
                             .r = @intFromFloat(@round(std.math.clamp(comps[0], 0.0, 1.0) * 255.0)),
@@ -779,7 +1108,7 @@ pub fn extractPages(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) 
                         .is_stroke = is_st,
                         .linewidth = lw,
                     });
-                } else if (n == 1) {
+                } else if (n == 1 and std.math.isFinite(comps[0])) {
                     const gv: u8 = @intFromFloat(@round(std.math.clamp(comps[0], 0.0, 1.0) * 255.0));
                     try gfx.append(alloc, .{ .rgb = .{ .r = gv, .g = gv, .b = gv }, .is_stroke = is_st, .linewidth = lw });
                 }
@@ -800,53 +1129,257 @@ fn isPdfDelimiter(ch: u8) bool {
         ch == '/' or ch == '<' or ch == '(' or ch == '[' or ch == '{' or ch == '%';
 }
 
-fn isNonContentStream(raw: []const u8, st_idx: usize) bool {
-    const win_start = if (st_idx > 400) st_idx - 400 else 0;
-    const hdr = raw[win_start..st_idx];
-    return std.mem.find(u8, hdr, "/Subtype /Image") != null or
+fn isNonContentStream(raw: []const u8, st_idx: usize, body: []const u8) bool {
+    const win_start = if (st_idx > 600) st_idx - 600 else 0;
+    const win = raw[win_start..st_idx];
+    const hdr = if (std.mem.findLast(u8, win, "<<")) |ds| win[ds..] else win;
+    const dict_non_content =
+        std.mem.find(u8, hdr, "/Subtype /Image") != null or
         std.mem.find(u8, hdr, "/Subtype/Image") != null or
         std.mem.find(u8, hdr, "/FontFile") != null or
+        std.mem.find(u8, hdr, "/Length1") != null or
+        std.mem.find(u8, hdr, "/Subtype /CIDFontType0C") != null or
+        std.mem.find(u8, hdr, "/Subtype/CIDFontType0C") != null or
+        std.mem.find(u8, hdr, "/Subtype /Type1C") != null or
+        std.mem.find(u8, hdr, "/Subtype/Type1C") != null or
+        std.mem.find(u8, hdr, "/Subtype /OpenType") != null or
+        std.mem.find(u8, hdr, "/Subtype/OpenType") != null or
         std.mem.find(u8, hdr, "/Filter /DCTDecode") != null or
         std.mem.find(u8, hdr, "/Filter/DCTDecode") != null or
+        std.mem.find(u8, hdr, "/Filter /JPXDecode") != null or
+        std.mem.find(u8, hdr, "/Filter /JBIG2Decode") != null or
         std.mem.find(u8, hdr, "/Subtype /XML") != null or
-        std.mem.find(u8, hdr, "/Type /Metadata") != null;
+        std.mem.find(u8, hdr, "/Subtype/XML") != null or
+        std.mem.find(u8, hdr, "/Type /Metadata") != null or
+        std.mem.find(u8, hdr, "/Type/Metadata") != null or
+        std.mem.find(u8, hdr, "/Type /ObjStm") != null or
+        std.mem.find(u8, hdr, "/Type /XRef") != null or
+        std.mem.find(u8, hdr, "/N 1") != null or
+        std.mem.find(u8, hdr, "/N 3") != null or
+        std.mem.find(u8, hdr, "/N 4") != null;
+    if (dict_non_content) return true;
+    // Also detect embedded TTF/OTF/CFF/ICC/ToUnicode CMap binaries directly by magic bytes
+    if (body.len >= 4) {
+        const b4 = body[0..4];
+        if (std.mem.eql(u8, b4, &[_]u8{ 0x00, 0x01, 0x00, 0x00 }) or
+            std.mem.eql(u8, b4, "OTTO") or
+            std.mem.eql(u8, b4, "true") or
+            std.mem.eql(u8, b4, "ttcf") or
+            (body[0] == 0x01 and body[1] == 0x00 and body[2] == 0x04))
+        {
+            return true;
+        }
+    }
+    const head_scan = body[0..@min(body.len, 256)];
+    if (std.mem.find(u8, head_scan, "begincmap") != null or std.mem.find(u8, head_scan, "<?xpacket") != null) return true;
+    return false;
 }
 
+fn blankRangeKeepNewlines(buf: []u8, start: usize, end: usize) void {
+    var k = start;
+    while (k < end and k < buf.len) : (k += 1) {
+        if (buf[k] != '\n') buf[k] = ' ';
+    }
+}
+
+fn isGraphicsOrMarkedOp(tok: []const u8) bool {
+    const ops = [_][]const u8{
+        "rg",  "RG",  "g",   "G",  "k",  "K", "gs", "sc", "SC", "scn", "SCN", "cs", "CS", "q", "Q", "cm", "w", "J", "j", "M", "d", "ri", "i",
+        "BDC", "BMC", "EMC", "MP", "DP",
+    };
+    for (ops) |op| {
+        if (std.mem.eql(u8, tok, op)) return true;
+    }
+    return false;
+}
+
+fn isTextOp(tok: []const u8) bool {
+    const ops = [_][]const u8{
+        "BT", "ET", "Tf", "Td", "TD", "Tm", "T*", "Tc", "Tw", "Tz", "TL", "Tr", "Ts", "Tj", "TJ", "'", "\"",
+    };
+    for (ops) |op| {
+        if (std.mem.eql(u8, tok, op)) return true;
+    }
+    return false;
+}
+
+fn isPdfStreamDelim(ch: u8) bool {
+    return ch == ' ' or ch == '\t' or ch == '\r' or ch == '\n' or ch == 0 or ch == 12 or
+        ch == '(' or ch == ')' or ch == '<' or ch == '>' or ch == '[' or ch == ']' or
+        ch == '{' or ch == '}' or ch == '/' or ch == '%';
+}
+
+const TokSpan = struct { start: usize, end: usize };
+
+/// Lexer-accurate PDF BT...ET text blanker: properly skips literal strings `(...)` (including nested parens
+/// and `\` escapes), hex strings `<...>`, and `%...` comments so `(SMITH ET AL. 2024)` never corrupts streams,
+/// while preserving legal graphics-state color/alpha operators (`rg`, `RG`, `g`, `k`, `gs`, `sc`, `scn`, `cs`)
+/// inside `BT...ET` so subsequent background fills keep exact PDF color state.
 fn blankBtEtInPlace(buf: []u8) void {
     var i: usize = 0;
+    var in_bt = false;
+    var pending: [64]TokSpan = undefined;
+    var pending_len: usize = 0;
+
     while (i < buf.len) {
-        if (i + 2 < buf.len and buf[i] == 'B' and buf[i + 1] == 'T') {
-            const prev_ok = (i == 0) or !isPdfIdentChar(buf[i - 1]);
-            const next_ok = isPdfDelimiter(buf[i + 2]);
-            if (prev_ok and next_ok) {
-                var j: usize = i + 2;
-                var found_et: ?usize = null;
-                while (j + 1 < buf.len) : (j += 1) {
-                    if (buf[j] == 'E' and buf[j + 1] == 'T') {
-                        const et_prev_ok = !isPdfIdentChar(buf[j - 1]);
-                        const et_next_ok = (j + 2 == buf.len) or isPdfDelimiter(buf[j + 2]);
-                        if (et_prev_ok and et_next_ok) {
-                            found_et = j + 2;
-                            break;
-                        }
-                    }
-                }
-                if (found_et) |end_pos| {
-                    var k: usize = i;
-                    while (k < end_pos) : (k += 1) {
-                        if (buf[k] != '\n') buf[k] = ' ';
-                    }
-                    i = end_pos;
-                    continue;
+        const ch = buf[i];
+        if (ch == ' ' or ch == '\t' or ch == '\r' or ch == '\n' or ch == 0 or ch == 12) {
+            i += 1;
+            continue;
+        }
+        if (ch == '%') {
+            while (i < buf.len and buf[i] != '\n' and buf[i] != '\r') : (i += 1) {}
+            continue;
+        }
+        // Literal string (...)
+        if (ch == '(') {
+            const start = i;
+            i += 1;
+            var depth: usize = 1;
+            while (i < buf.len and depth > 0) : (i += 1) {
+                if (buf[i] == '\\' and i + 1 < buf.len) {
+                    i += 1;
+                } else if (buf[i] == '(') {
+                    depth += 1;
+                } else if (buf[i] == ')') {
+                    depth -= 1;
                 }
             }
+            if (in_bt and pending_len < pending.len) {
+                pending[pending_len] = .{ .start = start, .end = i };
+                pending_len += 1;
+            }
+            continue;
+        }
+        // Dictionary <<...>> or hex string <...>
+        if (ch == '<') {
+            const start = i;
+            if (i + 1 < buf.len and buf[i + 1] == '<') {
+                i += 2;
+                var ddepth: usize = 1;
+                while (i < buf.len and ddepth > 0) {
+                    if (buf[i] == '(') {
+                        i += 1;
+                        var pdepth: usize = 1;
+                        while (i < buf.len and pdepth > 0) : (i += 1) {
+                            if (buf[i] == '\\' and i + 1 < buf.len) {
+                                i += 1;
+                            } else if (buf[i] == '(') {
+                                pdepth += 1;
+                            } else if (buf[i] == ')') {
+                                pdepth -= 1;
+                            }
+                        }
+                        continue;
+                    }
+                    if (i + 1 < buf.len and buf[i] == '<' and buf[i + 1] == '<') {
+                        ddepth += 1;
+                        i += 2;
+                    } else if (i + 1 < buf.len and buf[i] == '>' and buf[i + 1] == '>') {
+                        ddepth -= 1;
+                        i += 2;
+                    } else {
+                        i += 1;
+                    }
+                }
+            } else {
+                i += 1;
+                while (i < buf.len and buf[i] != '>') : (i += 1) {}
+                if (i < buf.len) i += 1;
+            }
+            if (in_bt and pending_len < pending.len) {
+                pending[pending_len] = .{ .start = start, .end = i };
+                pending_len += 1;
+            }
+            continue;
+        }
+        // Array [...]
+        if (ch == '[') {
+            const start = i;
+            i += 1;
+            var adepth: usize = 1;
+            while (i < buf.len and adepth > 0) {
+                if (buf[i] == '(') {
+                    i += 1;
+                    var pdepth: usize = 1;
+                    while (i < buf.len and pdepth > 0) : (i += 1) {
+                        if (buf[i] == '\\' and i + 1 < buf.len) {
+                            i += 1;
+                        } else if (buf[i] == '(') {
+                            pdepth += 1;
+                        } else if (buf[i] == ')') {
+                            pdepth -= 1;
+                        }
+                    }
+                    continue;
+                }
+                if (buf[i] == '[') {
+                    adepth += 1;
+                } else if (buf[i] == ']') {
+                    adepth -= 1;
+                }
+                i += 1;
+            }
+            if (in_bt and pending_len < pending.len) {
+                pending[pending_len] = .{ .start = start, .end = i };
+                pending_len += 1;
+            }
+            continue;
+        }
+        // Name /Foo
+        if (ch == '/') {
+            const start = i;
+            i += 1;
+            while (i < buf.len and !isPdfStreamDelim(buf[i])) : (i += 1) {}
+            if (in_bt and pending_len < pending.len) {
+                pending[pending_len] = .{ .start = start, .end = i };
+                pending_len += 1;
+            }
+            continue;
+        }
+        // Regular token (number or operator)
+        if (!isPdfStreamDelim(ch)) {
+            const start = i;
+            while (i < buf.len and !isPdfStreamDelim(buf[i])) : (i += 1) {}
+            const tok = buf[start..i];
+            if (!in_bt) {
+                if (std.mem.eql(u8, tok, "BT")) {
+                    in_bt = true;
+                    pending_len = 0;
+                    blankRangeKeepNewlines(buf, start, i);
+                }
+            } else {
+                if (std.mem.eql(u8, tok, "ET")) {
+                    for (pending[0..pending_len]) |sp| blankRangeKeepNewlines(buf, sp.start, sp.end);
+                    blankRangeKeepNewlines(buf, start, i);
+                    pending_len = 0;
+                    in_bt = false;
+                } else if (isGraphicsOrMarkedOp(tok)) {
+                    // Keep graphics-state & PDF/UA-1 marked-content operators and their operands intact!
+                    pending_len = 0;
+                } else if (isTextOp(tok)) {
+                    for (pending[0..pending_len]) |sp| blankRangeKeepNewlines(buf, sp.start, sp.end);
+                    blankRangeKeepNewlines(buf, start, i);
+                    pending_len = 0;
+                } else {
+                    if (pending_len < pending.len) {
+                        pending[pending_len] = .{ .start = start, .end = i };
+                        pending_len += 1;
+                    } else {
+                        blankRangeKeepNewlines(buf, pending[0].start, pending[0].end);
+                        std.mem.copyForwards(TokSpan, pending[0 .. pending.len - 1], pending[1..]);
+                        pending[pending.len - 1] = .{ .start = start, .end = i };
+                    }
+                }
+            }
+            continue;
         }
         i += 1;
     }
 }
 
 /// Pure-Zig ISO 32000 delimiter-safe BT...ET text-block stripper (handles Typst `BT/Span` tagged streams
-/// while skipping binary Image/Font/Metadata streams so photo-heavy PDFs stay 100% intact).
+/// while skipping binary Image/Font/Metadata/ICC/CMap streams so photo-heavy & TTF-embedded PDFs stay 100% intact).
 pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
     const out = try alloc.dupe(u8, raw);
     // If input is a raw content-stream snippet without `stream...endstream` wrapper (e.g. unit test), process directly
@@ -868,12 +1401,9 @@ pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
         }
         body_start += 1;
         const body_end = std.mem.findPos(u8, out, body_start, "endstream") orelse break;
-        if (isNonContentStream(out, st_idx)) {
-            pos = body_end + 9;
-            continue;
-        }
-        if (!isNonContentStream(out, st_idx)) {
-            blankBtEtInPlace(out[body_start..body_end]);
+        const body_slice = out[body_start..body_end];
+        if (!isNonContentStream(out, st_idx, body_slice)) {
+            blankBtEtInPlace(body_slice);
         }
         pos = body_end + 9;
     }
@@ -883,9 +1413,9 @@ pub fn stripBtEtStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
 /// Build a temporary text-free PDF (decompressed via `mutool clean -d`, BT...ET blanked in-place in Zig)
 /// so subsequent `renderPagePpm` calls return true text-free backgrounds for WCAG & texture audits.
 pub fn makeBackgroundOnlyPdf(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, tmp_tag: []const u8) ![]const u8 {
-    const clean_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_clean_{s}.pdf", .{tmp_tag});
-    const bg_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_bg_{s}.pdf", .{tmp_tag});
-    defer std.Io.Dir.cwd().deleteFile(io, clean_path) catch {};
+    const clean_path = try tmpPath(alloc, tmp_tag, "clean.pdf");
+    const bg_path = try tmpPath(alloc, tmp_tag, "bg.pdf");
+    defer removeTmpBestEffort(io, clean_path);
 
     const clean_res = try runCmd(alloc, io, &.{ "mutool", "clean", "-d", pdf_path, clean_path }, null);
     if (clean_res.exit_code != 0) return error.MutoolCleanFailed;
@@ -919,7 +1449,7 @@ pub fn stripClipPathStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
             continue;
         }
         const body_end = std.mem.findPos(u8, out, body_start, "endstream") orelse break;
-        if (isNonContentStream(out, st_idx)) {
+        if (isNonContentStream(out, st_idx, out[body_start..body_end])) {
             pos = body_end + 9;
             continue;
         }
@@ -951,21 +1481,31 @@ pub fn stripClipPathStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
                 in_hex = true;
                 continue;
             }
+            if (ch == '%') {
+                while (i < body_end and out[i] != '\n' and out[i] != '\r') : (i += 1) {}
+                continue;
+            }
             if (ch == 'W') {
                 const prev_ok = (i == body_start) or isWs(out[i - 1]);
                 if (!prev_ok) continue;
                 var op_len: usize = 1;
                 if (i + 1 < body_end and out[i + 1] == '*') op_len = 2;
                 const after = i + op_len;
-                if (after >= body_end or !isWs(out[after])) continue;
-                // Check next non-whitespace operator is a path terminator/painter (`n`, `f`, `F`, `S`, `s`, `B`, `b`)
+                if (after >= body_end or (!isWs(out[after]) and out[after] != '%')) continue;
+                // Check next non-whitespace/non-comment operator is a path terminator/painter (`n`, `f`, `F`, `S`, `s`, `B`, `b`)
                 var k = after;
-                while (k < body_end and isWs(out[k])) : (k += 1) {}
+                while (k < body_end) {
+                    if (isWs(out[k])) {
+                        k += 1;
+                    } else if (out[k] == '%') {
+                        while (k < body_end and out[k] != '\n' and out[k] != '\r') : (k += 1) {}
+                    } else break;
+                }
                 if (k < body_end) {
                     const nxt = out[k];
                     const is_path_op = (nxt == 'n' or nxt == 'f' or nxt == 'F' or nxt == 'S' or nxt == 's' or nxt == 'B' or nxt == 'b');
                     const nxt_after = k + 1;
-                    const nxt_delim = (nxt_after >= body_end) or isWs(out[nxt_after]) or out[nxt_after] == '*';
+                    const nxt_delim = (nxt_after >= body_end) or isWs(out[nxt_after]) or out[nxt_after] == '*' or out[nxt_after] == '%';
                     if (is_path_op and nxt_delim) {
                         out[i] = ' ';
                         if (op_len == 2) out[i + 1] = ' ';
@@ -980,9 +1520,9 @@ pub fn stripClipPathStreams(alloc: std.mem.Allocator, raw: []const u8) ![]u8 {
 
 /// Create a temporary unclipped PDF (with all `W`/`W*` clip operators neutralised) for clip-slicing detection.
 pub fn makeUnclippedPdf(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, tmp_tag: []const u8) ![]const u8 {
-    const clean_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_clipclean_{s}.pdf", .{tmp_tag});
-    const out_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_unclipped_{s}.pdf", .{tmp_tag});
-    defer std.Io.Dir.cwd().deleteFile(io, clean_path) catch {};
+    const clean_path = try tmpPath(alloc, tmp_tag, "clipclean.pdf");
+    const out_path = try tmpPath(alloc, tmp_tag, "unclipped.pdf");
+    defer removeTmpBestEffort(io, clean_path);
 
     const clean_res = try runCmd(alloc, io, &.{ "mutool", "clean", "-d", pdf_path, clean_path }, null);
     if (clean_res.exit_code != 0) return error.MutoolCleanFailed;
@@ -1031,7 +1571,9 @@ pub fn rewriteImagesToSolidKey(alloc: std.mem.Allocator, raw: []const u8, key: R
         if (it.next()) |id_tok| {
             if (std.fmt.parseInt(u64, id_tok, 10)) |oid| {
                 try smask_ids.put(oid, {});
-            } else |_| {}
+            } else |err| switch (err) {
+                error.InvalidCharacter, error.Overflow => {},
+            }
         }
         spos = mpos + 6;
     }
@@ -1118,12 +1660,12 @@ pub const DualKeyPdfs = struct {
 
 /// Build two temporary PDFs where every real raster image is swapped with Magenta (#FF00FF) vs Lime (#00FF00).
 pub fn makeDualKeyPdfs(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, tmp_tag: []const u8) !DualKeyPdfs {
-    const clean_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_covclean_{s}.pdf", .{tmp_tag});
-    const raw_a = try std.fmt.allocPrint(alloc, "/tmp/vedit_cova_raw_{s}.pdf", .{tmp_tag});
-    const raw_b = try std.fmt.allocPrint(alloc, "/tmp/vedit_covb_raw_{s}.pdf", .{tmp_tag});
-    const out_a = try std.fmt.allocPrint(alloc, "/tmp/vedit_cova_{s}.pdf", .{tmp_tag});
-    const out_b = try std.fmt.allocPrint(alloc, "/tmp/vedit_covb_{s}.pdf", .{tmp_tag});
-    defer std.Io.Dir.cwd().deleteFile(io, clean_path) catch {};
+    const clean_path = try tmpPath(alloc, tmp_tag, "covclean.pdf");
+    const raw_a = try tmpPath(alloc, tmp_tag, "cova_raw.pdf");
+    const raw_b = try tmpPath(alloc, tmp_tag, "covb_raw.pdf");
+    const out_a = try tmpPath(alloc, tmp_tag, "cova.pdf");
+    const out_b = try tmpPath(alloc, tmp_tag, "covb.pdf");
+    defer removeTmpBestEffort(io, clean_path);
 
     // Normalize PDF structure (decompress object streams so /Image dicts are plaintext, keeping JPEG streams compact)
     const cl = try runCmd(alloc, io, &.{ "mutool", "clean", pdf_path, clean_path }, null);
@@ -1135,14 +1677,14 @@ pub fn makeDualKeyPdfs(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u
 
     if (ka.needs_xref_repair) {
         try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = raw_a, .data = ka.bytes });
-        defer std.Io.Dir.cwd().deleteFile(io, raw_a) catch {};
+        defer removeTmpBestEffort(io, raw_a);
         _ = try runCmd(alloc, io, &.{ "mutool", "clean", raw_a, out_a }, null);
     } else {
         try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = out_a, .data = ka.bytes });
     }
     if (kb.needs_xref_repair) {
         try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = raw_b, .data = kb.bytes });
-        defer std.Io.Dir.cwd().deleteFile(io, raw_b) catch {};
+        defer removeTmpBestEffort(io, raw_b);
         _ = try runCmd(alloc, io, &.{ "mutool", "clean", raw_b, out_b }, null);
     } else {
         try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = out_b, .data = kb.bytes });
@@ -1182,8 +1724,9 @@ pub fn parsePpm(data: []const u8) !PpmImage {
 }
 
 pub fn renderPagePpm(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, page_num: usize, dpi: u32, tmp_tag: []const u8) !PpmImage {
-    const ppm_path = try std.fmt.allocPrint(alloc, "/tmp/vedit_p{d}_{s}.ppm", .{ page_num, tmp_tag });
-    defer std.Io.Dir.cwd().deleteFile(io, ppm_path) catch {};
+    const fname = try std.fmt.allocPrint(alloc, "p{d}.ppm", .{page_num});
+    const ppm_path = try tmpPath(alloc, tmp_tag, fname);
+    defer removeTmpBestEffort(io, ppm_path);
     const dpi_s = try std.fmt.allocPrint(alloc, "{d}", .{dpi});
     const pg_s = try std.fmt.allocPrint(alloc, "{d}", .{page_num});
     const res = try runCmd(alloc, io, &.{ "mutool", "draw", "-F", "ppm", "-r", dpi_s, "-o", ppm_path, pdf_path, pg_s }, null);
@@ -1192,12 +1735,81 @@ pub fn renderPagePpm(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8,
     return parsePpm(raw);
 }
 
-fn parseBoxArray(obj_txt: []const u8, key: []const u8) ?[4]f64 {
-    const kpos = std.mem.find(u8, obj_txt, key) orelse return null;
-    const lbr = std.mem.findScalarPos(u8, obj_txt, kpos + key.len, '[') orelse return null;
-    const rbr = std.mem.findScalarPos(u8, obj_txt, lbr + 1, ']') orelse return null;
-    var nums: [4]f64 = .{ 0, 0, 0, 0 };
-    if (parseFloatSlice(obj_txt[lbr + 1 .. rbr], &nums) == 4) return nums;
+/// Parse binary Netpbm PAM (`P7`, `DEPTH 4`, `MAXVAL 255`) bytes emitted by `mutool draw -c cmyk -F pam`.
+pub fn parsePamCmyk(data: []const u8) !PamCmykImage {
+    if (data.len < 16 or !std.mem.startsWith(u8, data, "P7\n")) return error.InvalidPam;
+    const endhdr = std.mem.find(u8, data, "ENDHDR\n") orelse return error.InvalidPam;
+    const hdr = data[0..endhdr];
+    var w: usize = 0;
+    var h: usize = 0;
+    var depth: usize = 0;
+    var it = std.mem.splitScalar(u8, hdr, '\n');
+    while (it.next()) |ln| {
+        if (std.mem.startsWith(u8, ln, "WIDTH ")) {
+            w = std.fmt.parseInt(usize, std.mem.trim(u8, ln[6..], " \t\r"), 10) catch return error.InvalidPam;
+        } else if (std.mem.startsWith(u8, ln, "HEIGHT ")) {
+            h = std.fmt.parseInt(usize, std.mem.trim(u8, ln[7..], " \t\r"), 10) catch return error.InvalidPam;
+        } else if (std.mem.startsWith(u8, ln, "DEPTH ")) {
+            depth = std.fmt.parseInt(usize, std.mem.trim(u8, ln[6..], " \t\r"), 10) catch return error.InvalidPam;
+        }
+    }
+    if (w == 0 or h == 0 or depth != 4) return error.InvalidPam;
+    const body_start = endhdr + "ENDHDR\n".len;
+    const need = w * h * 4;
+    if (body_start + need > data.len) return error.TruncatedPam;
+    return .{ .width = w, .height = h, .pixels = data[body_start .. body_start + need] };
+}
+
+pub fn renderPageCmykPam(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, page_num: usize, dpi: u32, tmp_tag: []const u8) !PamCmykImage {
+    const fname = try std.fmt.allocPrint(alloc, "p{d}_cmyk.pam", .{page_num});
+    const pam_path = try tmpPath(alloc, tmp_tag, fname);
+    defer removeTmpBestEffort(io, pam_path);
+    const dpi_s = try std.fmt.allocPrint(alloc, "{d}", .{dpi});
+    const pg_s = try std.fmt.allocPrint(alloc, "{d}", .{page_num});
+    const res = try runCmd(alloc, io, &.{ "mutool", "draw", "-c", "cmyk", "-F", "pam", "-r", dpi_s, "-o", pam_path, pdf_path, pg_s }, null);
+    if (res.exit_code != 0) return error.MutoolDrawPamFailed;
+    const raw = try std.Io.Dir.cwd().readFileAlloc(io, pam_path, alloc, .unlimited);
+    return parsePamCmyk(raw);
+}
+
+fn normalizeBox(b: [4]f64) [4]f64 {
+    return .{ @min(b[0], b[2]), @min(b[1], b[3]), @max(b[0], b[2]), @max(b[1], b[3]) };
+}
+
+fn parseDirectOrIndirectBox(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, obj_txt: []const u8, key: []const u8) ?[4]f64 {
+    var search_pos: usize = 0;
+    while (std.mem.findPos(u8, obj_txt, search_pos, key)) |kpos| {
+        const after = kpos + key.len;
+        if (after < obj_txt.len and isPdfIdentChar(obj_txt[after]) and obj_txt[after] != '/') {
+            search_pos = after;
+            continue;
+        }
+        var k = after;
+        while (k < obj_txt.len and isWs(obj_txt[k])) : (k += 1) {}
+        if (k >= obj_txt.len) return null;
+        if (obj_txt[k] == '[') {
+            const rbr = std.mem.findScalarPos(u8, obj_txt, k + 1, ']') orelse return null;
+            var nums: [4]f64 = .{ 0, 0, 0, 0 };
+            if (parseFloatSlice(obj_txt[k + 1 .. rbr], &nums) == 4) return normalizeBox(nums);
+            return null;
+        }
+        if (obj_txt[k] >= '0' and obj_txt[k] <= '9') {
+            var it = std.mem.tokenizeAny(u8, obj_txt[k..], " \t\r\n");
+            const id_tok = it.next() orelse return null;
+            _ = it.next() orelse return null; // gen
+            const r_tok = it.next() orelse return null;
+            if (std.mem.eql(u8, r_tok, "R")) {
+                const res = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, id_tok }, null) catch return null;
+                if (res.exit_code != 0) return null;
+                const lbr = std.mem.findScalar(u8, res.stdout, '[') orelse return null;
+                const rbr = std.mem.findScalarPos(u8, res.stdout, lbr + 1, ']') orelse return null;
+                var nums: [4]f64 = .{ 0, 0, 0, 0 };
+                if (parseFloatSlice(res.stdout[lbr + 1 .. rbr], &nums) == 4) return normalizeBox(nums);
+            }
+            return null;
+        }
+        search_pos = after;
+    }
     return null;
 }
 
@@ -1289,78 +1901,196 @@ fn parseIndirectActionObj(dict: []const u8) ?[]const u8 {
     return null;
 }
 
-/// Extract all clickable external `/Subtype /Link` `/URI` annotations across every page of a PDF via `mutool show`.
+const MUPDF_LINKS_JS =
+    \\var doc = Document.openDocument(scriptArgs[0]);
+    \\var pdf = doc.isPDF() ? doc.asPDF() : null;
+    \\var n = doc.countPages();
+    \\for (var p = 0; p < n; p++) {
+    \\  var page = doc.loadPage(p);
+    \\  var links = page.getLinks();
+    \\  var hiddenMap = {};
+    \\  if (pdf) {
+    \\    var pobj = pdf.findPage(p);
+    \\    var annots = pobj.get("Annots");
+    \\    if (annots && annots.isArray()) {
+    \\      for (var ai = 0; ai < annots.length; ai++) {
+    \\        var an = annots.get(ai).resolve();
+    \\        if (!an || !an.isDictionary()) continue;
+    \\        var st = an.get("Subtype");
+    \\        if (!st || st.asName() != "Link") continue;
+    \\        var f = an.get("F");
+    \\        var fval = f ? f.valueOf() : 0;
+    \\        var isHid = ((fval & 2) != 0) ? 1 : 0;
+    \\        var act = an.get("A");
+    \\        if (act) act = act.resolve();
+    \\        if (act && act.isDictionary()) {
+    \\          var uobj = act.get("URI");
+    \\          if (uobj) uobj = uobj.resolve();
+    \\          if (uobj && uobj.isString() && isHid) hiddenMap[uobj.asString()] = true;
+    \\        }
+    \\        var aa = an.get("AA");
+    \\        if (aa) aa = aa.resolve();
+    \\        if (aa && aa.isDictionary()) {
+    \\          var rb = an.get("Rect");
+    \\          var rx0 = 0, ry0 = 0, rx1 = 0, ry1 = 0;
+    \\          if (rb && rb.isArray() && rb.length >= 4) {
+    \\            rx0 = rb.get(0).valueOf(); ry0 = rb.get(1).valueOf();
+    \\            rx1 = rb.get(2).valueOf(); ry1 = rb.get(3).valueOf();
+    \\          }
+    \\          aa.forEach(function(k, v) {
+    \\            v = v.resolve();
+    \\            if (v && v.isDictionary()) {
+    \\              var u2 = v.get("URI");
+    \\              if (u2) u2 = u2.resolve();
+    \\              if (u2 && u2.isString() && u2.asString().length > 0) {
+    \\                print("LINK\t" + (p+1) + "\t" + rx0 + "\t" + ry0 + "\t" + rx1 + "\t" + ry1 + "\t" + isHid + "\t1\t" + u2.asString().replace(/[\r\n\t]/g, " "));
+    \\              }
+    \\            }
+    \\          });
+    \\        }
+    \\      }
+    \\    }
+    \\  }
+    \\  for (var i = 0; i < links.length; i++) {
+    \\    var lk = links[i];
+    \\    var uri = lk.getURI();
+    \\    if (!uri || uri.length === 0 || uri.charAt(0) === '#') continue;
+    \\    var b = lk.getBounds();
+    \\    var hid = hiddenMap[uri] ? 1 : 0;
+    \\    print("LINK\t" + (p+1) + "\t" + b[0] + "\t" + b[1] + "\t" + b[2] + "\t" + b[3] + "\t" + hid + "\t0\t" + uri.replace(/[\r\n\t]/g, " "));
+    \\  }
+    \\}
+    \\
+;
+
+/// Extract all resolved external `/Subtype /Link` annotations via libmupdf (`mutool run` `page.getLinks()` + `/F` Hidden & `/AA` audit),
+/// eliminating raw-text decoy `/URI`, indirect `/URI`, inline `/Annots`, and indirect zero-`/Rect` parser differentials.
 pub fn extractPageLinks(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) ![]PageLink {
-    const pages_res = try runCmd(alloc, io, &.{ "mutool", "show", pdf_path, "pages" }, null);
-    if (pages_res.exit_code != 0) return &.{};
+    const js_path = try tmpPath(alloc, "links", "extract_links.js");
+    try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = js_path, .data = MUPDF_LINKS_JS });
+    defer removeTmpBestEffort(io, js_path);
+
+    const res = try runCmd(alloc, io, &.{ "mutool", "run", js_path, pdf_path }, null);
+    if (res.exit_code != 0) return error.MutoolRunLinksFailed;
 
     var out: std.ArrayList(PageLink) = .empty;
-    var pg_num: usize = 0;
-    var pg_it = std.mem.splitScalar(u8, pages_res.stdout, '\n');
-    while (pg_it.next()) |pln| {
-        if (!std.mem.startsWith(u8, pln, "page ")) continue;
-        pg_num += 1;
-        const eq = std.mem.find(u8, pln, "= ") orelse continue;
-        var tok_it = std.mem.tokenizeAny(u8, pln[eq + 2 ..], " \t\r\n");
-        const pobj = tok_it.next() orelse continue;
+    var ln_it = std.mem.splitScalar(u8, res.stdout, '\n');
+    while (ln_it.next()) |raw_ln| {
+        const ln = std.mem.trimEnd(u8, raw_ln, "\r");
+        if (!std.mem.startsWith(u8, ln, "LINK\t")) continue;
+        var f_it = std.mem.splitScalar(u8, ln["LINK\t".len..], '\t');
+        const pg_s = f_it.next() orelse continue;
+        const x0_s = f_it.next() orelse continue;
+        const y0_s = f_it.next() orelse continue;
+        const x1_s = f_it.next() orelse continue;
+        const y1_s = f_it.next() orelse continue;
+        const hid_s = f_it.next() orelse continue;
+        const aa_s = f_it.next() orelse continue;
+        const uri_s = f_it.rest();
+        if (uri_s.len == 0) continue;
 
-        const ann_path = try std.fmt.allocPrint(alloc, "{s}/Annots", .{pobj});
-        const ann_res = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, ann_path }, null) catch continue;
-        if (ann_res.exit_code != 0 or ann_res.stdout.len == 0) continue;
-        if (std.mem.eql(u8, std.mem.trim(u8, ann_res.stdout, " \t\r\n"), "null")) continue;
-
-        // Collect all indirect annotation object IDs `<id> 0 R` for batch `mutool show`
-        var argv: std.ArrayList([]const u8) = .empty;
-        try argv.appendSlice(alloc, &.{ "mutool", "show", pdf_path });
-        var prev2: []const u8 = "";
-        var prev1: []const u8 = "";
-        var ait = std.mem.tokenizeAny(u8, ann_res.stdout, " \t\r\n[]");
-        var ref_cnt: usize = 0;
-        while (ait.next()) |tok| {
-            if (std.mem.eql(u8, tok, "R") and prev2.len > 0 and prev2[0] >= '0' and prev2[0] <= '9') {
-                try argv.append(alloc, prev2);
-                ref_cnt += 1;
-            }
-            prev2 = prev1;
-            prev1 = tok;
-        }
-
-        const blobs: []const u8 = if (ref_cnt > 0) blk: {
-            const bres = runCmd(alloc, io, argv.items, null) catch continue;
-            break :blk bres.stdout;
-        } else ann_res.stdout;
-
-        // Split into individual object blocks (by `endobj` or whole inline array)
-        var obj_it = std.mem.splitSequence(u8, blobs, "endobj");
-        while (obj_it.next()) |chunk| {
-            if (std.mem.find(u8, chunk, "/Subtype /Link") == null and std.mem.find(u8, chunk, "/Subtype/Link") == null) {
-                continue;
-            }
-            var uri_opt = try parsePdfUriField(alloc, chunk);
-            if (uri_opt == null) {
-                if (parseIndirectActionObj(chunk)) |act_id| {
-                    const ares = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, act_id }, null) catch null;
-                    if (ares) |ar| {
-                        uri_opt = try parsePdfUriField(alloc, ar.stdout);
-                    }
-                }
-            }
-            const uri = uri_opt orelse continue;
-            const rect = parseBoxArray(chunk, "/Rect") orelse [4]f64{ 0, 0, 0, 0 };
-            try out.append(alloc, .{
-                .page = pg_num,
-                .uri = std.mem.trim(u8, uri, " \t\r\n"),
-                .x0 = @min(rect[0], rect[2]),
-                .y0 = @min(rect[1], rect[3]),
-                .x1 = @max(rect[0], rect[2]),
-                .y1 = @max(rect[1], rect[3]),
-            });
-        }
+        const pg = std.fmt.parseInt(usize, pg_s, 10) catch continue;
+        const rx0 = std.fmt.parseFloat(f64, x0_s) catch 0.0;
+        const ry0 = std.fmt.parseFloat(f64, y0_s) catch 0.0;
+        const rx1 = std.fmt.parseFloat(f64, x1_s) catch 0.0;
+        const ry1 = std.fmt.parseFloat(f64, y1_s) catch 0.0;
+        try out.append(alloc, .{
+            .page = pg,
+            .uri = try alloc.dupe(u8, std.mem.trim(u8, uri_s, " \t\r\n")),
+            .x0 = @min(rx0, rx1),
+            .y0 = @min(ry0, ry1),
+            .x1 = @max(rx0, rx1),
+            .y1 = @max(ry0, ry1),
+            .is_hidden = std.mem.eql(u8, hid_s, "1"),
+            .is_extra_action = std.mem.eql(u8, aa_s, "1"),
+        });
     }
     return out.toOwnedSlice(alloc);
 }
 
-/// Inspect PDF Catalog, PDF/UA-1 structural tags, embedded fonts, and TrimBox/BleedBox via `mutool`.
+fn findIndirectObjIdAfter(dict: []const u8, key: []const u8) ?[]const u8 {
+    var pos: usize = 0;
+    while (std.mem.findPos(u8, dict, pos, key)) |kpos| {
+        const after = kpos + key.len;
+        if (after < dict.len and isPdfIdentChar(dict[after]) and dict[after] != '/') {
+            pos = after;
+            continue;
+        }
+        const rest = std.mem.trimStart(u8, dict[after..], " \t\r\n");
+        if (rest.len > 0 and rest[0] >= '0' and rest[0] <= '9') {
+            var it = std.mem.tokenizeAny(u8, rest, " \t\r\n[]");
+            const id_tok = it.next() orelse return null;
+            _ = it.next() orelse return null;
+            const r_tok = it.next() orelse return null;
+            if (std.mem.eql(u8, r_tok, "R")) return id_tok;
+        }
+        pos = after;
+    }
+    return null;
+}
+
+fn fontDescriptorHasEmbeddedStream(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, font_dict: []const u8) bool {
+    if (std.mem.find(u8, font_dict, "/FontFile") != null) return true;
+    if (findIndirectObjIdAfter(font_dict, "/FontDescriptor")) |fd_id| {
+        const fd_res = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, fd_id }, null) catch return false;
+        if (fd_res.exit_code == 0 and std.mem.find(u8, fd_res.stdout, "/FontFile") != null) return true;
+    }
+    return false;
+}
+
+fn isPdfFontObjectEmbedded(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8, fobj_id: []const u8) bool {
+    const fshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, fobj_id }, null) catch return false;
+    if (fshow.exit_code != 0) return false;
+    const fdict = fshow.stdout;
+    // Genuine Type3 font has `/Subtype /Type3` on the font dictionary itself (defeats `"Type3"` font-name substring)
+    if (std.mem.find(u8, fdict, "/Subtype /Type3") != null or std.mem.find(u8, fdict, "/Subtype/Type3") != null) {
+        return std.mem.find(u8, fdict, "/CharProcs") != null;
+    }
+    // Type0 composite font: MUST dereference `/DescendantFonts [ <cid_id> 0 R ]` -> `/FontDescriptor` -> `/FontFile*`
+    if (std.mem.find(u8, fdict, "/Subtype /Type0") != null or std.mem.find(u8, fdict, "/Subtype/Type0") != null or
+        std.mem.find(u8, fdict, "/DescendantFonts") != null)
+    {
+        if (std.mem.find(u8, fdict, "/DescendantFonts")) |dpos| {
+            const after = std.mem.trimStart(u8, fdict[dpos + "/DescendantFonts".len ..], " \t\r\n[");
+            var it = std.mem.tokenizeAny(u8, after, " \t\r\n[]");
+            if (it.next()) |cid_id| {
+                const cshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, cid_id }, null) catch return false;
+                if (cshow.exit_code == 0) {
+                    // Handle indirect array `/DescendantFonts 12 0 R` -> `[ 13 0 R ]`
+                    if (std.mem.find(u8, cshow.stdout, "/FontDescriptor") != null or std.mem.find(u8, cshow.stdout, "/FontFile") != null) {
+                        return fontDescriptorHasEmbeddedStream(alloc, io, pdf_path, cshow.stdout);
+                    }
+                    const inner = std.mem.trimStart(u8, cshow.stdout, " \t\r\n[");
+                    var it2 = std.mem.tokenizeAny(u8, inner, " \t\r\n[]");
+                    if (it2.next()) |cid_id2| {
+                        const c2 = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, cid_id2 }, null) catch return false;
+                        if (c2.exit_code == 0) return fontDescriptorHasEmbeddedStream(alloc, io, pdf_path, c2.stdout);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    // Simple Type1 / TrueType / OpenType font: dereference `/FontDescriptor` -> `/FontFile*` (fixes BOTH fake `ABCDEF+` AND indirect `/FontDescriptor` false-FAIL!)
+    return fontDescriptorHasEmbeddedStream(alloc, io, pdf_path, fdict);
+}
+
+fn hasNonEmptyPdfTitle(info_stdout: []const u8) bool {
+    const tpos = std.mem.find(u8, info_stdout, "/Title") orelse return false;
+    const rest = std.mem.trimStart(u8, info_stdout[tpos + 6 ..], " \t\r\n");
+    if (rest.len == 0) return false;
+    if (rest[0] == '(') {
+        const rp = std.mem.findScalarPos(u8, rest, 1, ')') orelse return false;
+        return std.mem.trim(u8, rest[1..rp], " \t\r\n").len > 0;
+    }
+    if (rest[0] == '<') {
+        const rb = std.mem.findScalarPos(u8, rest, 1, '>') orelse return false;
+        return std.mem.trim(u8, rest[1..rb], " \t\r\n").len > 0;
+    }
+    return false;
+}
+
+/// Inspect PDF Catalog, PDF/UA-1 structural tags, dereferenced font embedding, and normalized MediaBox/CropBox-clamped Trim/Bleed boxes.
 fn parseMutoolFontName(ln: []const u8) ?[]const u8 {
     // mutool 1.23 prints single quotes ('Helvetica'), mutool 1.24+ prints double quotes ("Helvetica")
     if (std.mem.findScalar(u8, ln, '\'')) |q1| {
@@ -1379,7 +2109,15 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
 
     const root = root_res.stdout;
     const marked = std.mem.find(u8, root, "/MarkInfo") != null and containsFold(root, "/Marked true");
-    const has_struct = std.mem.find(u8, root, "/StructTreeRoot") != null;
+    var has_struct = false;
+    if (findIndirectObjIdAfter(root, "/StructTreeRoot")) |st_id| {
+        const sres = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, st_id }, null) catch null;
+        if (sres) |sr| {
+            if (sr.exit_code == 0 and std.mem.find(u8, sr.stdout, "/K") != null) has_struct = true;
+        }
+    } else if (std.mem.find(u8, root, "/StructTreeRoot")) |spos| {
+        if (std.mem.find(u8, root[spos..], "/K") != null) has_struct = true;
+    }
     const has_outlines = std.mem.find(u8, root, "/Outlines") != null;
 
     var has_lang = false;
@@ -1387,7 +2125,7 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
     if (std.mem.find(u8, root, "/Lang")) |lpos| {
         if (std.mem.findScalarPos(u8, root, lpos + 5, '(')) |lp| {
             if (std.mem.findScalarPos(u8, root, lp + 1, ')')) |rp| {
-                lang_val = try alloc.dupe(u8, root[lp + 1 .. rp]);
+                lang_val = try alloc.dupe(u8, std.mem.trim(u8, root[lp + 1 .. rp], " \t\r\n"));
                 has_lang = lang_val.len > 0;
             }
         }
@@ -1406,12 +2144,12 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
             }
         }
     }
-    const has_title = xmp_has_title or (std.mem.find(u8, info_res.stdout, "/Title") != null);
+    const has_title = xmp_has_title or hasNonEmptyPdfTitle(info_res.stdout);
 
-    // Parse embedded vs unembedded fonts from `mutool info`
+    // Audit EVERY distinct font PDF object ID (keyed by object ID, NOT font name — defeats Bypass C, fake `ABCDEF+`, unembedded Type0, `"Type3"` substr, AND indirect `/FontDescriptor` false-FAIL!)
     var unemb: std.ArrayList([]const u8) = .empty;
     var emb: std.ArrayList([]const u8) = .empty;
-    var seen_fonts = std.StringHashMap(void).init(alloc);
+    var seen_obj_ids = std.StringHashMap(void).init(alloc);
     var in_fonts_sec = false;
     var lines_it = std.mem.splitScalar(u8, info_res.stdout, '\n');
     while (lines_it.next()) |ln| {
@@ -1426,40 +2164,28 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
             }
             if (parseMutoolFontName(ln)) |raw_fname| {
                 const clean_name = stripSubsetPrefix(raw_fname);
-                const is_subset = raw_fname.len > 7 and raw_fname[6] == '+';
-                const is_type3 = std.mem.find(u8, ln, "Type3") != null;
-                if (!seen_fonts.contains(clean_name)) {
+                var fobj_id: ?[]const u8 = null;
+                if (std.mem.findScalarLast(u8, ln, '(')) |op| {
+                    const obj_tok = std.mem.trim(u8, ln[op + 1 ..], " R)\r");
+                    var sp_it = std.mem.tokenizeScalar(u8, obj_tok, ' ');
+                    fobj_id = sp_it.next();
+                }
+                const dedup_key = fobj_id orelse raw_fname;
+                if (!seen_obj_ids.contains(dedup_key)) {
+                    try seen_obj_ids.put(try alloc.dupe(u8, dedup_key), {});
                     const owned = try alloc.dupe(u8, clean_name);
-                    try seen_fonts.put(owned, {});
-                    if (is_subset or is_type3) {
+                    const embedded_stream = if (fobj_id) |fid| isPdfFontObjectEmbedded(alloc, io, pdf_path, fid) else false;
+                    if (embedded_stream) {
                         try emb.append(alloc, owned);
                     } else {
-                        // Check if this non-subset font actually embeds a /FontFile stream
-                        var embedded_stream = false;
-                        if (std.mem.findScalarLast(u8, ln, '(')) |op| {
-                            const obj_tok = std.mem.trim(u8, ln[op + 1 ..], " R)\r");
-                            var sp_it = std.mem.tokenizeScalar(u8, obj_tok, ' ');
-                            if (sp_it.next()) |fobj| {
-                                const fshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, fobj }, null) catch null;
-                                if (fshow) |fs| {
-                                    if (std.mem.find(u8, fs.stdout, "/FontFile") != null or std.mem.find(u8, fs.stdout, "/DescendantFonts") != null) {
-                                        embedded_stream = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (embedded_stream) {
-                            try emb.append(alloc, owned);
-                        } else {
-                            try unemb.append(alloc, owned);
-                        }
+                        try unemb.append(alloc, owned);
                     }
                 }
             }
         }
     }
 
-    // Parse pages & bleed boxes
+    // Parse pages & normalized BleedBox intersected with MediaBox and CropBox
     var pg_count: usize = 0;
     var all_bleed = true;
     var min_bleed: f64 = 1e9;
@@ -1474,9 +2200,10 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
             var tok_it = std.mem.tokenizeAny(u8, rest, " \t\r\n");
             if (tok_it.next()) |pobj| {
                 const pshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, pobj }, null) catch continue;
-                const mb = parseBoxArray(pshow.stdout, "/MediaBox");
-                const tb = parseBoxArray(pshow.stdout, "/TrimBox");
-                const bb = parseBoxArray(pshow.stdout, "/BleedBox");
+                const mb = parseDirectOrIndirectBox(alloc, io, pdf_path, pshow.stdout, "/MediaBox");
+                const cb = parseDirectOrIndirectBox(alloc, io, pdf_path, pshow.stdout, "/CropBox");
+                const tb = parseDirectOrIndirectBox(alloc, io, pdf_path, pshow.stdout, "/TrimBox");
+                const bb = parseDirectOrIndirectBox(alloc, io, pdf_path, pshow.stdout, "/BleedBox");
                 if (pg_count == 1) {
                     if (mb) |m| {
                         media_w = m[2] - m[0];
@@ -1484,14 +2211,22 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
                     }
                 }
                 var margin: f64 = 0.0;
-                if (tb != null and bb != null) {
-                    const t = tb.?;
-                    const b = bb.?;
-                    margin = @min(@min(t[0] - b[0], t[1] - b[1]), @min(b[2] - t[2], b[3] - t[3]));
-                } else if (tb != null and mb != null) {
-                    const t = tb.?;
-                    const m = mb.?;
-                    margin = @min(@min(t[0] - m[0], t[1] - m[1]), @min(m[2] - t[2], m[3] - t[3]));
+                if (tb) |t| {
+                    // Effective physical bleed region cannot exceed MediaBox or CropBox (defeats ghost BleedBox & CropBox==TrimBox)
+                    var eff: ?[4]f64 = bb orelse mb;
+                    if (eff != null and mb != null) {
+                        const e = eff.?;
+                        const m = mb.?;
+                        eff = .{ @max(e[0], m[0]), @max(e[1], m[1]), @min(e[2], m[2]), @min(e[3], m[3]) };
+                    }
+                    if (eff != null and cb != null) {
+                        const e = eff.?;
+                        const c = cb.?;
+                        eff = .{ @max(e[0], c[0]), @max(e[1], c[1]), @min(e[2], c[2]), @min(e[3], c[3]) };
+                    }
+                    if (eff) |b| {
+                        margin = @min(@min(t[0] - b[0], t[1] - b[1]), @min(b[2] - t[2], b[3] - t[3]));
+                    }
                 }
                 if (margin < 5.0) all_bleed = false;
                 min_bleed = @min(min_bleed, margin);
@@ -1601,7 +2336,7 @@ test "countTraceClippedAlnum catches W/W* clipped glyphs independent of mutool s
         \\</fill_text>
     ;
     // "T" is inside [50, 130], "bark" (4 chars) are outside, "Z" is after pop_clip so unclipped
-    try std.testing.expectEqual(@as(usize, 4), countTraceClippedAlnum(trace_xml, 612.0, 792.0));
+    try std.testing.expectEqual(@as(usize, 4), try countTraceClippedAlnum(std.testing.allocator, trace_xml, 612.0, 792.0));
 }
 
 test "countTraceClippedAlnum catches horizontal top-half glyph slicing while passing generous clips" {
@@ -1623,7 +2358,7 @@ test "countTraceClippedAlnum catches horizontal top-half glyph slicing while pas
         \\</fill_text>
         \\<pop_clip/>
     ;
-    try std.testing.expectEqual(@as(usize, 3), countTraceClippedAlnum(half_sliced, 612.0, 792.0));
+    try std.testing.expectEqual(@as(usize, 3), try countTraceClippedAlnum(std.testing.allocator, half_sliced, 612.0, 792.0));
 
     // Generous control (E_generous_clip_control): clip y in [670, 720] covers full cap-height + descenders
     const generous =
@@ -1642,7 +2377,7 @@ test "countTraceClippedAlnum catches horizontal top-half glyph slicing while pas
         \\</fill_text>
         \\<pop_clip/>
     ;
-    try std.testing.expectEqual(@as(usize, 0), countTraceClippedAlnum(generous, 612.0, 792.0));
+    try std.testing.expectEqual(@as(usize, 0), try countTraceClippedAlnum(std.testing.allocator, generous, 612.0, 792.0));
 }
 
 test "parseMutoolFontName handles both mutool 1.23 single quotes and 1.24+ double quotes" {

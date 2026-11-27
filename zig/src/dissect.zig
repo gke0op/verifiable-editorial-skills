@@ -299,19 +299,23 @@ pub fn dissectPdf(
     var photo_sum: f64 = 0.0;
     var col_x0s: std.ArrayList(i64) = .empty;
     var col_x1s: std.ArrayList(i64) = .empty;
+    const YInterval = struct { y0: f64, y1: f64 };
+    var y_intervals: std.ArrayList(YInterval) = .empty;
 
     for (pages) |pg| {
         col_x0s.clearRetainingCapacity();
         col_x1s.clearRetainingCapacity();
-        var pg_min_y: f64 = pg.height;
-        var pg_max_y: f64 = 0.0;
+        y_intervals.clearRetainingCapacity();
         var pg_max_font: f64 = 0.0;
 
         for (pg.spans) |sp| {
             if (sp.size > pg_max_font) pg_max_font = sp.size;
-            if (sp.y0 >= 18.0 and sp.y1 <= pg.height - 18.0) {
-                pg_min_y = @min(pg_min_y, sp.y0);
-                pg_max_y = @max(pg_max_y, sp.y1);
+            if (sp.y0 >= 18.0 and sp.y1 <= pg.height - 18.0 and sp.y1 > sp.y0) {
+                const pad = @min(6.0, sp.size * 0.35);
+                try y_intervals.append(alloc, .{
+                    .y0 = @max(18.0, sp.y0 - pad),
+                    .y1 = @min(pg.height - 18.0, sp.y1 + pad),
+                });
                 min_left = @min(min_left, sp.x0);
                 max_right = @max(max_right, sp.x1);
                 min_top = @min(min_top, sp.y0);
@@ -328,8 +332,10 @@ pub fn dissectPdf(
                 if (gop.found_existing) gop.value_ptr.* += w else gop.value_ptr.* = w;
                 body_size_sum += sp.size * @as(f64, @floatFromInt(w));
                 body_size_w += @as(f64, @floatFromInt(w));
-                try col_x0s.append(alloc, @intFromFloat(@round(sp.x0)));
-                try col_x1s.append(alloc, @intFromFloat(@round(sp.x1)));
+                const rx0 = mupdf.checkedRoundInt(i64, sp.x0, -1e6, 1e6) catch continue;
+                const rx1 = mupdf.checkedRoundInt(i64, sp.x1, -1e6, 1e6) catch continue;
+                try col_x0s.append(alloc, rx0);
+                try col_x1s.append(alloc, rx1);
             }
             if (!found_mono and (containsFold(sp.font, "mono") or containsFold(sp.font, "courier"))) {
                 found_mono = true;
@@ -343,29 +349,63 @@ pub fn dissectPdf(
             }
         }
 
-        // Photo coverage area (clamped to page trim rect)
-        var photo_area: f64 = 0.0;
+        // Deduplicated union photo coverage on a 100x100 grid (immune to overlapping/stacked image inflation)
+        var photo_grid: [100 * 100]bool = @splat(false);
         for (pg.images) |im| {
             const cx0 = std.math.clamp(im.x0, 0.0, pg.width);
             const cx1 = std.math.clamp(im.x1, 0.0, pg.width);
             const cy0 = std.math.clamp(im.y0, 0.0, pg.height);
             const cy1 = std.math.clamp(im.y1, 0.0, pg.height);
-            if (cx1 > cx0 and cy1 > cy0) {
-                photo_area += (cx1 - cx0) * (cy1 - cy0);
-                pg_min_y = @min(pg_min_y, cy0);
-                pg_max_y = @max(pg_max_y, cy1);
+            if (cx1 > cx0 and cy1 > cy0 and pg.width > 0.0 and pg.height > 0.0) {
+                try y_intervals.append(alloc, .{ .y0 = cy0, .y1 = cy1 });
+                const gx0: usize = @min(@as(usize, 99), @as(usize, @intFromFloat(@floor((cx0 / pg.width) * 100.0))));
+                const gx1: usize = @min(@as(usize, 100), @max(gx0 + 1, @as(usize, @intFromFloat(@ceil((cx1 / pg.width) * 100.0)))));
+                const gy0: usize = @min(@as(usize, 99), @as(usize, @intFromFloat(@floor((cy0 / pg.height) * 100.0))));
+                const gy1: usize = @min(@as(usize, 100), @max(gy0 + 1, @as(usize, @intFromFloat(@ceil((cy1 / pg.height) * 100.0)))));
+                for (gy0..gy1) |gy| {
+                    for (gx0..gx1) |gx| {
+                        photo_grid[gy * 100 + gx] = true;
+                    }
+                }
             }
         }
-        const page_area = @max(1.0, pg.width * pg.height);
-        const photo_pct = @min(100.0, (photo_area / page_area) * 100.0);
-        const live_h = @max(1.0, pg.height - 72.0);
-        const fill_pct = if (pg_max_y > pg_min_y) @min(100.0, ((pg_max_y - pg_min_y) / live_h) * 100.0) else 0.0;
+        var photo_cells: usize = 0;
+        for (photo_grid) |cov| {
+            if (cov) photo_cells += 1;
+        }
+        const photo_pct = (@as(f64, @floatFromInt(photo_cells)) / 10000.0) * 100.0;
 
-        const cols = kernels.detect_grid_columns(col_x0s.items, col_x1s.items, @intFromFloat(@round(pg.width)));
+        // True vertical fill via merged union of occupied vertical bands (immune to top+bottom sparse void spoofing)
+        const live_h = @max(1.0, pg.height - 72.0);
+        var occupied_y: f64 = 0.0;
+        if (y_intervals.items.len > 0) {
+            std.mem.sort(YInterval, y_intervals.items, {}, struct {
+                fn lessThan(_: void, a: YInterval, b: YInterval) bool {
+                    return a.y0 < b.y0;
+                }
+            }.lessThan);
+            var cur_y0 = y_intervals.items[0].y0;
+            var cur_y1 = y_intervals.items[0].y1;
+            for (y_intervals.items[1..]) |iv| {
+                if (iv.y0 <= cur_y1) {
+                    if (iv.y1 > cur_y1) cur_y1 = iv.y1;
+                } else {
+                    occupied_y += (cur_y1 - cur_y0);
+                    cur_y0 = iv.y0;
+                    cur_y1 = iv.y1;
+                }
+            }
+            occupied_y += (cur_y1 - cur_y0);
+        }
+        const fill_pct = @min(100.0, (occupied_y / live_h) * 100.0);
+
+        const pg_w_i = mupdf.checkedRoundInt(i64, pg.width, 1.0, 1e6) catch 612;
+        const max_f_x10 = mupdf.checkedRoundInt(i64, pg_max_font * 10.0, 0.0, 1e6) catch 0;
+        const cols = kernels.detect_grid_columns(col_x0s.items, col_x1s.items, pg_w_i);
         const arch_code = kernels.classify_page_archetype(
             @intFromFloat(@round(photo_pct * 10.0)),
             @intCast(pg.spans.len),
-            @intFromFloat(@round(pg_max_font * 10.0)),
+            max_f_x10,
             cols,
             @intCast(pg.page_num),
             @intCast(pages.len),
@@ -451,15 +491,19 @@ pub fn formatBlueprintJson(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
     var h_a1: [7]u8 = undefined;
     var h_a2: [7]u8 = undefined;
 
+    const j_slug = try mupdf.jsonString(alloc, bp.slug);
+    const j_src = try mupdf.jsonString(alloc, bp.source_pdf);
+    const j_fmt = try mupdf.jsonString(alloc, bp.format_class);
+    const j_pol = try mupdf.jsonString(alloc, bp.polarity);
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\{{
         \\  "schema_version": "vedit.blueprint.v1",
-        \\  "slug": "{s}",
-        \\  "source_pdf": "{s}",
+        \\  "slug": {s},
+        \\  "source_pdf": {s},
         \\  "source_sha256": "{s}",
         \\  "page_count": {d},
-        \\  "format_class": "{s}",
-        \\  "polarity": "{s}",
+        \\  "format_class": {s},
+        \\  "polarity": {s},
         \\  "trim_pt": [{d:.1}, {d:.1}],
         \\  "margins_pt": {{ "top": {d:.1}, "bottom": {d:.1}, "left": {d:.1}, "right": {d:.1} }},
         \\  "palette_60_30_10": {{
@@ -474,12 +518,12 @@ pub fn formatBlueprintJson(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
         \\  }},
         \\
     , .{
-        bp.slug,
-        bp.source_pdf,
+        j_slug,
+        j_src,
         bp.source_sha256[0..64],
         bp.page_count,
-        bp.format_class,
-        bp.polarity,
+        j_fmt,
+        j_pol,
         bp.trim_w_pt,
         bp.trim_h_pt,
         bp.margin_top_pt,
@@ -498,10 +542,10 @@ pub fn formatBlueprintJson(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
 
     try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
         \\  "typography": {{
-        \\    "display": {{ "source": "{s}", "sil_ofl": "{s}", "size_pt": {d:.1} }},
-        \\    "body":    {{ "source": "{s}", "sil_ofl": "{s}", "size_pt": {d:.1} }},
-        \\    "ui_sans": {{ "source": "{s}", "sil_ofl": "{s}", "size_pt": {d:.1} }},
-        \\    "mono":    {{ "source": "{s}", "sil_ofl": "{s}", "size_pt": {d:.1} }}
+        \\    "display": {{ "source": {s}, "sil_ofl": {s}, "size_pt": {d:.1} }},
+        \\    "body":    {{ "source": {s}, "sil_ofl": {s}, "size_pt": {d:.1} }},
+        \\    "ui_sans": {{ "source": {s}, "sil_ofl": {s}, "size_pt": {d:.1} }},
+        \\    "mono":    {{ "source": {s}, "sil_ofl": {s}, "size_pt": {d:.1} }}
         \\  }},
         \\  "cadence_summary": {{
         \\    "avg_vertical_fill_pct": {d:.1},
@@ -510,17 +554,17 @@ pub fn formatBlueprintJson(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
         \\  "pages": [
         \\
     , .{
-        bp.display_font.source_font,
-        bp.display_font.sil_ofl_map,
+        try mupdf.jsonString(alloc, bp.display_font.source_font),
+        try mupdf.jsonString(alloc, bp.display_font.sil_ofl_map),
         bp.display_font.size_pt,
-        bp.body_font.source_font,
-        bp.body_font.sil_ofl_map,
+        try mupdf.jsonString(alloc, bp.body_font.source_font),
+        try mupdf.jsonString(alloc, bp.body_font.sil_ofl_map),
         bp.body_font.size_pt,
-        bp.ui_sans_font.source_font,
-        bp.ui_sans_font.sil_ofl_map,
+        try mupdf.jsonString(alloc, bp.ui_sans_font.source_font),
+        try mupdf.jsonString(alloc, bp.ui_sans_font.sil_ofl_map),
         bp.ui_sans_font.size_pt,
-        bp.mono_font.source_font,
-        bp.mono_font.sil_ofl_map,
+        try mupdf.jsonString(alloc, bp.mono_font.source_font),
+        try mupdf.jsonString(alloc, bp.mono_font.sil_ofl_map),
         bp.mono_font.size_pt,
         bp.avg_fill_pct,
         bp.avg_photo_pct,
@@ -529,11 +573,11 @@ pub fn formatBlueprintJson(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
     for (bp.pages, 0..) |pg, idx| {
         const comma: []const u8 = if (idx + 1 < bp.pages.len) "," else "";
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\    {{ "page": {d}, "archetype": "{s}", "columns": {d}, "fill_pct": {d:.1}, "photo_pct": {d:.1}, "spans": {d}, "images": {d}, "strokes": {d}, "max_font_pt": {d:.1} }}{s}
+            \\    {{ "page": {d}, "archetype": {s}, "columns": {d}, "fill_pct": {d:.1}, "photo_pct": {d:.1}, "spans": {d}, "images": {d}, "strokes": {d}, "max_font_pt": {d:.1} }}{s}
             \\
         , .{
             pg.page_num,
-            pg.archetype_name,
+            try mupdf.jsonString(alloc, pg.archetype_name),
             pg.columns,
             pg.vertical_fill_pct,
             pg.photo_coverage_pct,

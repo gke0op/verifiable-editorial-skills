@@ -2,18 +2,19 @@
 name: verifiable-pdf-pipeline
 description: >-
   Turnkey open-data verification pipeline for publication-grade PDF presentations, institutional reports, and
-  scientific monographs. Enforces 11 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
-  Pydantic domain bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling,
-  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding (half-ULP
-  precision, signed & exponent-aware), Rule 11 clickable PDF resource links & live anti-hallucination URL/DOI
-  verification (`vedit links`), geometric collision/4-corner glyph clip linting, background-sampled WCAG contrast,
-  print pre-press preflight (effective DPI, embedded fonts, bleed/trim boxes, CMYK TAC, live veraPDF ISO 14289-1
-  PDF/UA-1), and cross-platform SIL-OFL font provisioning via the `vedit` CLI.
+  scientific monographs (100% Zero-Python Zig 0.17 + Rust-native Typst PDF/UA-1). Enforces 11 machine-checked
+  anti-cheat rules: zero hardcoded data, SHA-256 raw manifests, Zig domain bounds, cryptographic provenance
+  ledgers, independent raw re-parsing, explicit N/A handling, fail-closed compilation latching (`vedit latch`),
+  scientific taxonomy verification, post-render Rule 10 PDF prose grounding (half-ULP precision, signed,
+  exponent-aware, and ToUnicode-anomaly checked), Rule 11 clickable PDF resource links & live anti-hallucination
+  URL/DOI verification (`vedit links`), geometric OBB/AABB collision & Bezier clip-path linting, composited
+  144-DPI WCAG contrast, print pre-press preflight (effective DPI, embedded fonts, bleed/trim boxes, real CMYK
+  PAM TAC, live veraPDF ISO 14289-1 PDF/UA-1), and SHA-256-pinned SIL-OFL font provisioning via `vedit`.
 ---
 
 # Verifiable Factual PDF & Data Presentation Pipeline (100% Zero-Python Zig 0.17 + Typst)
 
-This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes mobile primers, peer-reviewed journals, institutional whitepapers, and scientific monographs in **pure Zig 0.17.0 + Rust-native Typst `PDF/UA-1`** (`0` Python dependencies). It enforces an absolute **Zero-Mock Data Invariant** backed by the sovereign bare-metal **`vedit` (`v0.6.0-zig`)** 6-gate court and a **33-test pure-Zig adversarial sabotage suite (`zig build test-court`)**.
+This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes mobile primers, peer-reviewed journals, institutional whitepapers, and scientific monographs in **pure Zig 0.17.0 + Rust-native Typst `PDF/UA-1`** (`0` Python dependencies). It enforces an absolute **Zero-Mock Data Invariant** backed by the sovereign bare-metal **`vedit` (`v0.7.0-zig`)** 6-gate court and a **51-test pure-Zig adversarial sabotage suite (`zig build test-court`)**.
 
 Every published number must be streamed from genuine upstream sources into immutable raw files, validated against physical and accounting invariants, registered in an atomic provenance ledger, independently re-parsed from raw inputs without circular assertions, grounded post-render inside final PDF prose (Rule 10), and audited for geometric collisions, clip-path slicing, and background-sampled WCAG 2.1 contrast.
 

@@ -4,8 +4,8 @@
 
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
-**100% Zero-Python bare-metal Zig 0.17.0 editorial harness (`vedit v0.6.0-zig`) + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero Python. Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **33 pure-Zig adversarial sabotage, live-HTTP & flagship tests** (`zig build test-court`) on Ubuntu Linux CI (`Debug` + `--release=safe`).
+**100% Zero-Python bare-metal Zig 0.17.0 editorial harness (`vedit v0.7.0-zig`) + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
+Zero Python. Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `composited 144-DPI WCAG 2.1 pixel contrast` · `OBB/AABB + Bezier W/W* clip geometry + dual-key tonal photo coverage` · `Rule 10 half-ULP signed, exponent-aware & ToUnicode-hardened prose grounding` · `pre-press real CMYK PAM TAC + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **51 pure-Zig adversarial sabotage, live-HTTP & flagship tests** (`zig build test-court`) on Ubuntu Linux CI (`Debug` + `--release=safe`).
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -89,7 +89,7 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-## Sovereign Zig 0.17.0 Harness (`vedit 0.6.0-zig` — 100% Zero-Python)
+## Sovereign Zig 0.17.0 Harness (`vedit 0.7.0-zig` — 100% Zero-Python)
 
 12 mathematical & dissection kernels ([`zig/src/kernels_p2zig.zig`](zig/src/kernels_p2zig.zig), `// uroboros:zig-tir`), pure-Zig PNG & ITU-T T.81 Baseline 4:4:4 JPEG encoders ([`zig/src/media.zig`](zig/src/media.zig)), 6-gate post-render court, and PDF dissector compiled into one standalone binary ([`zig/`](zig/README.md)).
 

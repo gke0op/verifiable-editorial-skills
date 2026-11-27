@@ -5,6 +5,7 @@
 
 const std = @import("std");
 const audit = @import("audit.zig");
+const mupdf = @import("mupdf.zig");
 
 pub const ArchetypeEntry = struct {
     slug: []const u8,
@@ -70,10 +71,25 @@ pub fn writeRegistryIndex(alloc: std.mem.Allocator, io: std.Io, archetypes_dir: 
     try buf.appendSlice(alloc, "{\n  \"schema_version\": \"vedit.registry.v1\",\n  \"archetypes\": [\n");
     for (entries, 0..) |e, idx| {
         const comma: []const u8 = if (idx + 1 < entries.len) "," else "";
+        const bp_rel = try std.fmt.allocPrint(alloc, "{s}/blueprint.json", .{e.slug});
+        const sk_rel = try std.fmt.allocPrint(alloc, "{s}/skeleton.typ", .{e.slug});
+        const ac_rel = try std.fmt.allocPrint(alloc, "{s}/AGENT_CARD.md", .{e.slug});
         try buf.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\    {{ "slug": "{s}", "source_pdf": "{s}", "format_class": "{s}", "polarity": "{s}", "page_count": {d}, "canvas_bg": "{s}", "accent_primary": "{s}", "blueprint": "{s}/blueprint.json", "skeleton": "{s}/skeleton.typ", "agent_card": "{s}/AGENT_CARD.md" }}{s}
+            \\    {{ "slug": {s}, "source_pdf": {s}, "format_class": {s}, "polarity": {s}, "page_count": {d}, "canvas_bg": {s}, "accent_primary": {s}, "blueprint": {s}, "skeleton": {s}, "agent_card": {s} }}{s}
             \\
-        , .{ e.slug, e.source_pdf, e.format_class, e.polarity, e.page_count, e.canvas_bg, e.accent_primary, e.slug, e.slug, e.slug, comma }));
+        , .{
+            try mupdf.jsonString(alloc, e.slug),
+            try mupdf.jsonString(alloc, e.source_pdf),
+            try mupdf.jsonString(alloc, e.format_class),
+            try mupdf.jsonString(alloc, e.polarity),
+            e.page_count,
+            try mupdf.jsonString(alloc, e.canvas_bg),
+            try mupdf.jsonString(alloc, e.accent_primary),
+            try mupdf.jsonString(alloc, bp_rel),
+            try mupdf.jsonString(alloc, sk_rel),
+            try mupdf.jsonString(alloc, ac_rel),
+            comma,
+        }));
     }
     try buf.appendSlice(alloc, "  ]\n}\n");
     const reg_path = try std.fmt.allocPrint(alloc, "{s}/registry.json", .{archetypes_dir});
@@ -102,20 +118,23 @@ pub fn initProjectFromArchetype(
                 if (bp_val.object.get("trim_pt")) |tp| {
                     if (tp == .array and tp.array.items.len >= 2) {
                         trim_w_int = switch (tp.array.items[0]) {
-                            .float => |f| @intFromFloat(@round(f)),
+                            .float => |f| mupdf.checkedRoundInt(i64, f, 36.0, 20000.0) catch trim_w_int,
                             .integer => |i| i,
                             else => trim_w_int,
                         };
                         trim_h_int = switch (tp.array.items[1]) {
-                            .float => |f| @intFromFloat(@round(f)),
+                            .float => |f| mupdf.checkedRoundInt(i64, f, 36.0, 20000.0) catch trim_h_int,
                             .integer => |i| i,
                             else => trim_h_int,
                         };
                     }
                 }
             }
-        } else |_| {}
-    } else |_| {}
+        } else |err| return err;
+    } else |err| switch (err) {
+        error.FileNotFound => {},
+        else => return err,
+    }
 
     const raw_dir = try std.fmt.allocPrint(alloc, "{s}/data/raw", .{target_dir});
     const rep_dir = try std.fmt.allocPrint(alloc, "{s}/report", .{target_dir});
@@ -140,14 +159,19 @@ pub fn initProjectFromArchetype(
         .data = manifest_txt,
     });
 
-    // 2. Sealed summary_metrics.json + 1:1 Rule 4 provenance_ledger.json
+    // 2. Sealed summary_metrics.json + 1:1 Rule 4 provenance_ledger.json (RFC 8259 escaped)
+    const j_title = try mupdf.jsonString(alloc, title);
+    const sub_raw = try std.fmt.allocPrint(alloc, "Synthesized directly from dissected PDF archetype '{s}' via Sovereign Zig vedit harness.", .{archetype_slug});
+    const j_sub = try mupdf.jsonString(alloc, sub_raw);
+    const kick_raw = try std.fmt.allocPrint(alloc, "VERIFIED ARCHETYPE PUBLICATION · {s}", .{archetype_slug});
+    const j_kick = try mupdf.jsonString(alloc, kick_raw);
     const summary_json = try std.fmt.allocPrint(alloc,
         \\{{
         \\  "metadata": {{
-        \\    "title": "{s}",
-        \\    "subtitle": "Synthesized directly from dissected PDF archetype '{s}' via Sovereign Zig vedit harness.",
+        \\    "title": {s},
+        \\    "subtitle": {s},
         \\    "author": "Verifiable Editorial Zig Harness",
-        \\    "kicker": "VERIFIED ARCHETYPE PUBLICATION · {s}"
+        \\    "kicker": {s}
         \\  }},
         \\  "kpis": [
         \\    {{ "label": "Primary Index", "display_value": "142.8 pts", "note": "Audited baseline" }},
@@ -161,7 +185,7 @@ pub fn initProjectFromArchetype(
         \\  }}
         \\}}
         \\
-    , .{ title, archetype_slug, archetype_slug });
+    , .{ j_title, j_sub, j_kick });
     try std.Io.Dir.cwd().writeFile(io, .{
         .sub_path = try std.fmt.allocPrint(alloc, "{s}/data/summary_metrics.json", .{target_dir}),
         .data = summary_json,
@@ -201,22 +225,24 @@ pub fn initProjectFromArchetype(
         .data = ledger_json,
     });
 
+    const ctx_raw = try std.fmt.allocPrint(alloc, "Dissected trim width and height in PostScript points ({d}x{d} pt) from archetype '{s}', plus 12-char SHA-256 ledger digest prefix length.", .{ trim_w_int, trim_h_int, archetype_slug });
+    const src_raw = try std.fmt.allocPrint(alloc, "archetypes/{s}/blueprint.json", .{archetype_slug});
     const citations_json = try std.fmt.allocPrint(alloc,
         \\{{
-        \\  "publication": "{s}",
+        \\  "publication": {s},
         \\  "purpose": "Structural page-trim metadata cloned from archetype blueprint.json for Rule 10 provenance grounding.",
         \\  "citations": [
         \\    {{
         \\      "id": "archetype_trim_dimensions",
         \\      "values": [{d}, {d}, 12],
-        \\      "context": "Dissected trim width and height in PostScript points ({d}x{d} pt) from archetype '{s}', plus 12-char SHA-256 ledger digest prefix length.",
-        \\      "source": "archetypes/{s}/blueprint.json",
+        \\      "context": {s},
+        \\      "source": {s},
         \\      "doi_or_url": "https://github.com/gke0op/verifiable-editorial-skills"
         \\    }}
         \\  ]
         \\}}
         \\
-    , .{ title, trim_w_int, trim_h_int, trim_w_int, trim_h_int, archetype_slug, archetype_slug });
+    , .{ j_title, trim_w_int, trim_h_int, try mupdf.jsonString(alloc, ctx_raw), try mupdf.jsonString(alloc, src_raw) });
     try std.Io.Dir.cwd().writeFile(io, .{
         .sub_path = try std.fmt.allocPrint(alloc, "{s}/data/background_citations.json", .{target_dir}),
         .data = citations_json,
@@ -242,6 +268,7 @@ pub fn initProjectFromArchetype(
         \\  --summary "$DIR/data/summary_metrics.json" \
         \\  --citations "$DIR/data/background_citations.json" \
         \\  --manifest "$DIR/data/manifest.sha256" \
+        \\  --check-links-offline \
         \\  --require-ua
         \\
     ;

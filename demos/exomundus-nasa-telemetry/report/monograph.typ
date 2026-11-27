@@ -518,6 +518,6 @@ Every scalar in this monograph traces 1:1 across *#ledger.len()* atomic tuples i
     #v(4pt)
     #set text(size: 7.7pt)
     #set par(justify: false, leading: 0.50em)
-    *Data & Vector Pipeline:* Pure Zig 0.17.0 (`scripts/pipeline.zig`, zero Python) · *Typesetting:* Rust-native Typst 0.15.1 (`--pdf-standard ua-1`) · *Verification Court:* Sovereign Zig `vedit` harness (`p2zig` kernels + *veraPDF 1.30* ISO 14289-1) · *Typography:* Bundled SIL Open Font License 1.1 stack (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) · *Data Attribution:* NASA Exoplanet Archive, operated by Caltech IPAC under contract with NASA.
+    *Data & Vector Pipeline:* Pure Zig 0.17.0 (`scripts/pipeline.zig`, zero Python) · *Typesetting:* Rust-native Typst 0.15.1 (`--pdf-standard ua-1`) · *Verification Court:* Sovereign Zig `vedit` harness (`p2zig` kernels + *veraPDF 1.30* ISO 14289-1) · *Typography:* Bundled SIL Open Font License 1.1 stack (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) · *Standards & Data Attribution:* #link("https://doi.org/10.3847/0004-6256/152/2/41")[IAU Nominal Constants] and NASA Exoplanet Archive, operated by Caltech IPAC under contract with NASA.
   ],
 )

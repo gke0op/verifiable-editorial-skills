@@ -177,7 +177,7 @@
       #v(4pt)
       #set text(size: 8.1pt)
       #set par(justify: false, leading: 0.55em)
-      This monograph is compiled directly from `summary_metrics.json` in Rust-native *Typst 0.15.1* with bundled SIL-OFL fonts, Knuth-Plass optical justification, native BibTeX citations, pure-vector SVGs (`∞ DPI`), and strict ISO 14289-1 (`PDF/UA-1`) semantic tagging verified by *veraPDF 1.30*.
+      This monograph is compiled directly from `summary_metrics.json` in Rust-native *#link("https://typst.app/docs/reference/pdf/")[Typst 0.15.1]* with bundled SIL-OFL fonts, Knuth-Plass optical justification, native BibTeX citations, pure-vector SVGs (`∞ DPI`), and strict ISO 14289-1 (`PDF/UA-1`) semantic tagging verified by *veraPDF 1.30*.
     ],
   ),
 )
