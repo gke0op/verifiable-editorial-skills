@@ -2,7 +2,7 @@
   "schema_version": "vedit.blueprint.v1",
   "slug": "mobile-primer",
   "source_pdf": "COSMOS_MOBILE_PRIMER_UA1.pdf",
-  "source_sha256": "e188b15d1dba8452acf5a004b24517dd23a24546eb39e1900b4ec3a1d8e70041",
+  "source_sha256": "4421c430357e9f2ab6ef1b04f5d723d058cda07ad8b5f56c19483c91e4dfe2c5",
   "page_count": 12,
   "format_class": "mobile_portrait_9x16",
   "polarity": "dark",
@@ -20,26 +20,26 @@
   },
   "typography": {
     "display": { "source": "SourceSerif4Roman-Regula", "sil_ofl": "Cormorant Garamond", "size_pt": 26.0 },
-    "body":    { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 10.2 },
+    "body":    { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 10.1 },
     "ui_sans": { "source": "Inter-Regular", "sil_ofl": "Inter", "size_pt": 9.0 },
     "mono":    { "source": "IBMPlexMono-Regular", "sil_ofl": "IBM Plex Mono", "size_pt": 7.4 }
   },
   "cadence_summary": {
     "avg_vertical_fill_pct": 96.2,
-    "avg_photo_coverage_pct": 0.0
+    "avg_photo_coverage_pct": 6.5
   },
   "pages": [
     { "page": 1, "archetype": "cover_hero", "columns": 1, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 27, "images": 0, "strokes": 27, "max_font_pt": 26.0 },
     { "page": 2, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 90.7, "photo_pct": 0.0, "spans": 59, "images": 0, "strokes": 10, "max_font_pt": 19.5 },
     { "page": 3, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 95.2, "photo_pct": 0.0, "spans": 78, "images": 0, "strokes": 28, "max_font_pt": 19.5 },
-    { "page": 4, "archetype": "narrative_spread", "columns": 1, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 39, "images": 0, "strokes": 11, "max_font_pt": 19.5 },
-    { "page": 5, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 48, "images": 0, "strokes": 11, "max_font_pt": 19.5 },
-    { "page": 6, "archetype": "narrative_spread", "columns": 1, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 36, "images": 0, "strokes": 11, "max_font_pt": 19.5 },
-    { "page": 7, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 47, "images": 0, "strokes": 12, "max_font_pt": 19.5 },
-    { "page": 8, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 47, "images": 0, "strokes": 10, "max_font_pt": 19.5 },
+    { "page": 4, "archetype": "narrative_spread", "columns": 1, "fill_pct": 100.0, "photo_pct": 15.6, "spans": 39, "images": 1, "strokes": 11, "max_font_pt": 19.5 },
+    { "page": 5, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 15.6, "spans": 48, "images": 1, "strokes": 11, "max_font_pt": 19.5 },
+    { "page": 6, "archetype": "narrative_spread", "columns": 1, "fill_pct": 100.0, "photo_pct": 15.6, "spans": 36, "images": 1, "strokes": 11, "max_font_pt": 19.5 },
+    { "page": 7, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 15.6, "spans": 47, "images": 1, "strokes": 12, "max_font_pt": 19.5 },
+    { "page": 8, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 15.6, "spans": 47, "images": 1, "strokes": 10, "max_font_pt": 19.5 },
     { "page": 9, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 60, "images": 0, "strokes": 37, "max_font_pt": 19.5 },
     { "page": 10, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 88, "images": 0, "strokes": 28, "max_font_pt": 19.5 },
     { "page": 11, "archetype": "data_exhibit_ledger", "columns": 2, "fill_pct": 68.5, "photo_pct": 0.0, "spans": 59, "images": 0, "strokes": 14, "max_font_pt": 19.5 },
-    { "page": 12, "archetype": "colophon_references", "columns": 1, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 70, "images": 0, "strokes": 8, "max_font_pt": 19.5 }
+    { "page": 12, "archetype": "colophon_references", "columns": 1, "fill_pct": 100.0, "photo_pct": 0.0, "spans": 73, "images": 0, "strokes": 8, "max_font_pt": 19.5 }
   ]
 }

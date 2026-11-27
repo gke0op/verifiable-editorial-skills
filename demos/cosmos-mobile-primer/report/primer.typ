@@ -206,6 +206,12 @@
   ]
 }
 
+// Seamless box-free fixed-slot panoramic plate (304 x 118 pt @ 326 DPI, edge-feathered into #07090F void)
+#let void-plate(path, alt-text) = {
+  v(1fr)
+  image(path, width: 304pt, height: 118pt, fit: "cover", alt: alt-text)
+}
+
 #let source-footer(links) = {
   v(1fr)
   line(length: 100%, stroke: 0.45pt + hair-dim)
@@ -351,6 +357,8 @@ ESA's Rosetta orbiter weighed Comet 67P/Churyumov–Gerasimenko from subtle radi
   Measured at *#fmt(d.c67_dens_g_cm3, digits: 3) g/cm³* — roughly half the density of water — most of 67P is empty pore space between loose dust and ice grains. Far from solid frozen glass, it is a fragile rubble pile that would float.
 ], accent: acc-gold, line-col: reticle)
 
+#void-plate("plates/plate_04_67p.jpg", "Panoramic deep-space visual of the dark bi-lobed rubble nucleus of Comet 67P with faint sunlit sublimation gas wisps floating in space void.")
+
 #source-footer((
   bare-link("https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=67P&phys-par=1", "NASA JPL SBDB"),
   bare-link("https://doi.org/10.1038/nature16535", "Rosetta · Nature 2016", accent: acc-gold),
@@ -377,6 +385,8 @@ Accumulate enough rock or gas and gravity crushes crystal lattices into near-per
 #open-note("Scale Shock · Earth's Event Horizon", [
   Plug Earth's mass into #math.equation(alt: "R_s equals 2 G M over c squared", $R_s = (2 G M) / c^2$): our entire planet would have to be crushed to a glass marble just *#fmt(d.earth_rs_mm, digits: 2) mm* in radius to form a black hole. Today Earth rests calmly at #math.equation(alt: "Xi equals 1.39 times 10 to the minus 9", $Xi = 1.39 times 10^(-9)$).
 ], accent: acc-ice, line-col: reticle)
+
+#void-plate("plates/plate_05_earth_jupiter.jpg", "Panoramic deep-space pairing of Earth's thin blue crescent limb on the left and Jupiter's sweeping turbulent amber cloud horizon on the right.")
 
 #source-footer((
   bare-link("https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html", "NASA Earth Fact Sheet"),
@@ -406,6 +416,8 @@ Gather *#comma-int(d.sun_earth_mass_ratio) Earths* of hydrogen and central press
   Thermal pressure lasts only while fuel burns. Once a star exhausts nuclear fusion, heat radiates into space and gravity collects its debt — handing control over to quantum mechanics.
 ], accent: acc-gold, line-col: reticle)
 
+#void-plate("plates/plate_06_sun.jpg", "Panoramic solar horizon showing the Sun's golden chromospheric arc and three translucent magnetic coronal plasma loops rising into black space.")
+
 #source-footer((
   bare-link("https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html", "NASA Sun Fact Sheet", accent: acc-gold),
   bare-link("https://doi.org/10.3847/0004-6256/152/2/41", "IAU 2015 Res. B3", accent: acc-ice),
@@ -434,6 +446,8 @@ When a Sun-like star runs dry, its outer gas drifts off and its carbon-oxygen co
   Hubble measured starlight climbing out of Sirius B redshifted by *#fmt(d.sirius_b_vg_kms, digits: 2) km/s* (Joyce et al. 2018). Our Zig engine solved #math.equation(alt: "R equals G M over c times v_g", $R = (G M) / (c v_g)$) directly from raw arXiv bytes to derive *#comma-int(d.sirius_b_rad_km) km* and *#comma-int(d.sirius_b_v_esc_kms) km/s* escape speed.
 ], accent: acc-ice, line-col: reticle)
 
+#void-plate("plates/plate_07_sirius_b.jpg", "Panoramic deep-space view of the compact blue-white dwarf star Sirius B with crisp four-point diffraction spikes beside the distant warm glow of Sirius A.")
+
 #source-footer((
   bare-link("https://doi.org/10.3847/1538-4357/aa6af8", "Bond 2017 · ApJ"),
   bare-link("https://doi.org/10.1093/mnras/sty2404", "Joyce 2018 · MNRAS", accent: acc-gold),
@@ -461,6 +475,8 @@ Pile too much mass onto a white dwarf and electrons merge with protons into a su
 #open-note("Denser Than an Atomic Nucleus", [
   At *#math.equation(alt: "5.17 times 10 to the 14", $5.17 times 10^(14)$) g/cm³*, a single *#str(int(d.teaspoon_cm3)) cm³* teaspoon weighs *#fmt(d.psr_teaspoon_billion_t, digits: 2) billion metric tons* — a mountain range on a spoon. Push mass slightly higher and the last floor in physics snaps.
 ], accent: acc-ice, line-col: reticle)
+
+#void-plate("plates/plate_08_psr_j0740.jpg", "Panoramic relativistic visualization of neutron star PSR J0740+6620 with faint magnetic dipole loops and slender tilted polar X-ray beams in pure space void.")
 
 #source-footer((
   bare-link("https://doi.org/10.3847/2041-8213/ac0a81", "Riley et al. 2021 · NICER ApJL"),
@@ -612,11 +628,13 @@ Every figure in this primer was parsed live from NASA JPL, NASA NSSDC, arXiv, an
   ]
 ]
 
-#v(12pt)
-#text(font: "IBM Plex Mono", size: 6.9pt, fill: ink-muted, tracking: 0.08em)[6-GATE CERTIFICATION]
+#v(10pt)
+#text(font: "IBM Plex Mono", size: 6.9pt, fill: ink-muted, tracking: 0.08em)[6-GATE CERTIFICATION & VISUAL ATTRIBUTION]
 #v(4pt)
-#text(size: 9.4pt, fill: ink-body)[
-  *1* SHA-256 Latch · *2* Pixel WCAG AA · *3* 4-Corner Clip Geometry · *4* Rule 10 Half-ULP Prose · *5* ISO 14289-1 `PDF/UA-1` (`veraPDF`) · *6* Rule 11 Live-Verified Links.
+#text(size: 9.2pt, fill: ink-body)[
+  *1* SHA-256 Latch · *2* Pixel WCAG AA · *3* 4-Corner Clip Geometry · *4* Rule 10 Half-ULP Prose · *5* ISO 14289-1 `PDF/UA-1` (`veraPDF`) · *6* Rule 11 Live Links.
+  #v(4pt)
+  #text(size: 8.6pt, fill: ink-muted)[Illustrative panoramic cosmic strips on Cards 4–8 are AI-generated bespoke plates (Nano Banana, cropped to exact fixed slot above print DPI); all data curves and numbers are pure Zig vector math.]
 ]
 
 #source-footer((

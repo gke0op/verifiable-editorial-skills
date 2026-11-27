@@ -1,5 +1,5 @@
 // Auto-dissected Typst 0.15.1 PDF/UA-1 Archetype Skeleton
-// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: e188b15d1dba8452)
+// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 4421c430357e9f2a)
 // Archetype Slug: mobile-primer (mobile_portrait_9x16, dark polarity)
 
 #let data = json("../data/summary_metrics.json")
@@ -37,7 +37,7 @@
   },
 )
 
-#set text(font: "Inter", size: 10.2pt, fill: c-ink, lang: "en", region: "US")
+#set text(font: "Inter", size: 10.1pt, fill: c-ink, lang: "en", region: "US")
 #set par(leading: 0.6em, spacing: 0.8em, justify: false)
 // === PAGE 1: COVER HERO (Dissected Archetype: cover_hero) ===
 #line(length: 100%, stroke: 2.2pt + c-acc1)
