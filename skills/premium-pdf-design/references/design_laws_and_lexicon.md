@@ -13,8 +13,8 @@ Derived from Swiss editorial print design and modern data systems, 60-30-10 prev
   - *Swiss Editorial Light Mode (Letter Reports):* Warm Swiss Ivory (`#fcfbf9`), painted full-bleed before flowables.
 - **30% Structural Scaffolding:**
   - Subtle borderless tonal bands (`#111827` dark / `#f1f5f9` light), hairline rules (`#1e293b` dark / `#cbd5e1` light), and disciplined slate typography (`#cbd5e1` dark / `#334155` light).
-- **10% Functional Signal Accent:**
-  - Cobalt (`#38bdf8` dark / `#0284c7` light) for primary data flow and kickers; Emerald (`#34d399` / `#059669`) for positive reductions or target zones; Amber (`#f59e0b` / `#d97706`) for bottlenecks, baselines, and `[N/A]` transparency flags; Crimson (`#f87171` / `#dc2626`) strictly reserved for risks, breaches, or adverse surges.
+- **10% Functional Signal Accent (WCAG 2.1 AA Engineered):**
+  - Cobalt (`#38bdf8` dark / `#035e9e` light) for primary data flow and kickers; Emerald (`#34d399` dark / `#146346` light) for positive reductions or target zones; Amber/Ochre (`#fbbf24` dark / `#8a530b` light) for bottlenecks, baselines, and `[N/A]` transparency flags; Crimson (`#f87171` dark / `#b91c1c` light) strictly reserved for risks, breaches, or adverse surges.
 
 ### Law 2: Gestalt Law of Proximity & Hairline Grouping
 Human vision groups related items by spatial proximity and shared alignment—without needing thick rectangular boxes around every metric:
@@ -42,6 +42,6 @@ Decision-makers scan headlines and exhibits first:
 - **Negative Space as Authority:** Generous `42–54 pt` margins that frame high-density charts without claustrophobia.
 
 ### Visual & Typographic
-- **Monospaced Cryptographic Telemetry:** SHA-256 digests, dataset identifiers, and build receipts rendered in monospace (`Courier` / `JetBrains Mono`) at `6.8–7.2 pt`.
+- **Monospaced Cryptographic Telemetry:** SHA-256 digests, dataset identifiers, and build receipts rendered in bundled SIL-OFL `IBM Plex Mono` at `6.8–7.2 pt`.
 - **Small-Caps Narrative Lead-in:** Colored bold uppercase opening phrase snapping cleanly to the body baseline without drop-cap table glitches.
 - **Sacred `[N/A]` Honesty:** Distinct amber italic styling for genuinely unreported upstream observations so data gaps are immediately transparent to auditors.

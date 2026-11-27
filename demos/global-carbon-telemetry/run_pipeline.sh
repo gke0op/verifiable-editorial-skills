@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
+# Zero-Python Sovereign Zig Archival Verification Runner — Global Carbon Telemetry (Raw Data Hub + Letter Archive)
+# Note: This directory serves as the SHA-256-sealed raw NOAA + World Bank telemetry hub for
+# demos/typst-carbon-monograph/run_pipeline.sh (live Zig 0.17 + Typst PDF/UA-1 build).
 set -euo pipefail
 
-cd "$(dirname "$0")"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$DIR/../.." && pwd)"
+VEDIT_BIN="${VEDIT_BIN:-$REPO/zig/zig-out/bin/vedit}"
+ZIG_BIN="${ZIG_BIN:-$( [ -x "$HOME/zig-toolchains/zig-0.17.0/zig" ] && echo "$HOME/zig-toolchains/zig-0.17.0/zig" || command -v zig )}"
 
-echo "=== Phase 1: Live Open-Data Ingestion & SHA-256 Manifest ==="
-python3 scripts/fetch_data.py
+if [ ! -x "$VEDIT_BIN" ]; then
+  (cd "$REPO/zig" && "$ZIG_BIN" build --release=safe)
+fi
 
-echo "=== Phase 2: Reality & Accounting Invariant Validation ==="
-python3 scripts/validate_reality.py
-
-echo "=== Phase 3: Synthesis & Atomic Provenance Registration ==="
-python3 scripts/process_data.py
-
-echo "=== Phase 4: Independent Verification Veto Gate ==="
-python3 scripts/verify_integrity.py
-
-echo "=== Phase 5a: 300-DPI Vector Chart Generation (Dark & Light) ==="
-python3 scripts/generate_charts.py
-
-echo "=== Phase 5b: Latched PDF Compilation (16:9 Deck + Letter Report) ==="
-python3 report/compile_deck_16x9.py
-python3 report/compile_report_letter.py
-
-echo "=== Phase 5c: PyMuPDF Visual Bounding-Box QA Audit & Preview Export ==="
-python3 scripts/audit_pdf.py report/EXECUTIVE_DECK_16x9.pdf --pages 6 --min-fill 72 --previews previews --prefix deck_slide
-python3 scripts/audit_pdf.py report/INSTITUTIONAL_REPORT_LETTER.pdf --pages 4 --min-fill 82 --previews previews --prefix report_page
-
-echo "[OK] Full 5-phase verifiable editorial pipeline succeeded."
+echo "=== [1/3] Pure-Zig Rule 4 + Rule 6 SHA-256 Compilation Latch (6 raw files, 129 tuples) ==="
+"$VEDIT_BIN" latch "$DIR"
+echo "=== [2/3] Archival Executive 16:9 Deck Geometry Court ==="
+"$VEDIT_BIN" geometry "$DIR/report/EXECUTIVE_DECK_16x9.pdf"
+echo "=== [3/3] Archival Letter Report Geometry Court ==="
+"$VEDIT_BIN" geometry "$DIR/report/INSTITUTIONAL_REPORT_LETTER.pdf"
+echo "[note] Archival Letter PDF retains legacy #0284c7 sky-blue accents (3.95:1); use #035E9E in new Typst builds."
+echo "[note] For the live zero-Python Zig 0.17 + Typst PDF/UA-1 rebuild of this dataset, run:"
+echo "       bash $REPO/demos/typst-carbon-monograph/run_pipeline.sh"
+echo "[OK] Global Carbon Telemetry data hub verified."

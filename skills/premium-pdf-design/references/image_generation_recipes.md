@@ -57,7 +57,7 @@ Prepend this block verbatim to every editorial illustration prompt in the same p
 When your image generation tool supports reference-image conditioning:
 1. Generate the **Cover Hero** first and inspect it visually.
 2. Pass the approved Cover Hero image as the style/palette reference when generating subsequent conceptual illustrations.
-3. Keep all quantitative labels and titles inside ReportLab/SVG typography—never ask an image generator to render data labels or numbers.
+3. Keep all quantitative labels and titles inside Typst/SVG typography—never ask an image generator to render data labels or numbers.
 
 ---
 
@@ -89,4 +89,4 @@ Design every full-bleed plate with intentional **quiet negative-space pockets** 
 | Panoramic diptych top band (`612×364 pt`) | `16:9` (`1376×768`) | `~6%` |
 
 ### Transparency & SHA-256 Asset Sealing
-Always credit AI-generated stock photography openly in both the page credits and colophon (`Photograph by Nano Banana Studio · AI Editorial Photography`), and seal every plate in `data/manifest.sha256` and `data/photo_credits.json` with exact pixel dimensions, aspect ratio, and SHA-256 digest (see `demos/felis-mundi-magazine/scripts/seal_assets.py`).
+Always credit AI-generated stock photography openly in both the page credits and colophon (`Photograph by Nano Banana Studio · AI Editorial Photography`), and seal every plate in `data/manifest.sha256` and `data/photo_credits.json` with exact pixel dimensions, aspect ratio, and SHA-256 digest (via Zig 0.17 `std.crypto.hash.sha2.Sha256` and `vedit latch`).

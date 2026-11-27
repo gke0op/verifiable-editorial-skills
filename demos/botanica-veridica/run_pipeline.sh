@@ -1,34 +1,33 @@
 #!/usr/bin/env bash
+# Zero-Python Sovereign Zig Archival Verification Runner — BOTANICA VERIDICA
+# Note: BOTANICA_VERIDICA_MONOGRAPH.pdf is a preserved archival visual showcase;
+# for live end-to-end Zig 0.17 + Typst PDF/UA-1 rebuilds, see demos/{cosmos-mobile-primer,prl-yang-mills-chaos,caie-flowshop-journal,exomundus-nasa-telemetry,typst-carbon-monograph}/.
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export DYLD_FALLBACK_LIBRARY_PATH="/opt/homebrew/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
+REPO="$(cd "$DIR/../.." && pwd)"
+VEDIT_BIN="${VEDIT_BIN:-$REPO/zig/zig-out/bin/vedit}"
+ZIG_BIN="${ZIG_BIN:-$( [ -x "$HOME/zig-toolchains/zig-0.17.0/zig" ] && echo "$HOME/zig-toolchains/zig-0.17.0/zig" || command -v zig )}"
 
-if [[ "${FETCH_LIVE:-0}" == "1" ]]; then
-  echo "=== [0/6] Fetching live GBIF, iNaturalist, and Open Tree of Life payloads ==="
-  python3 "$DIR/scripts/fetch_botanical_data.py"
+if [ ! -x "$VEDIT_BIN" ]; then
+  (cd "$REPO/zig" && "$ZIG_BIN" build --release=safe)
 fi
 
-echo "=== [1/6] Validating live botanical taxonomy, phylogeny & accounting invariants (Rule 2 + Rule 9) ==="
-python3 "$DIR/scripts/validate_botany.py"
-
-echo "=== [2/6] Running AST anti-circular, SHA-256 & 1:1 provenance integrity gate (Rule 3/4/6/9) ==="
-python3 "$DIR/scripts/verify_integrity.py"
-
-echo "=== [3/6] Compiling digital interactive PDF/UA-1 monograph ==="
-python3 "$DIR/report/compile_monograph.py"
-
-echo "=== [4/6] Compiling print-shop prepress PDF (3mm bleed + crop/registration marks) ==="
-python3 "$DIR/report/compile_monograph.py" --prepress
-
-echo "=== [5/6] Compiling Dual-Target Interactive Living Web Edition (zero CDN deps) ==="
-python3 "$DIR/report/compile_living_web.py"
-
-echo "=== [6/6] Auditing WCAG 2.1 contrast, geometry, Rule 10 prose grounding, clip-aware coverage & spreads ==="
-python3 "$DIR/scripts/audit_monograph.py"
-python3 -m verifiable_editorial.cli audit-all "$DIR/report/BOTANICA_VERIDICA_MONOGRAPH.pdf" \
+PDF="$DIR/report/BOTANICA_VERIDICA_MONOGRAPH.pdf"
+echo "=== [1/6] Pure-Zig Rule 4 + Rule 6 SHA-256 Compilation Latch (52 raw files) ==="
+"$VEDIT_BIN" latch "$DIR"
+echo "=== [2/6] Composited 144/360-DPI WCAG 2.1 AA Contrast Gate ==="
+"$VEDIT_BIN" contrast "$PDF"
+echo "=== [3/6] Geometry (OBB/AABB collisions, Bezier W/W* clip, overflow, orphans) ==="
+"$VEDIT_BIN" geometry "$PDF"
+echo "=== [4/6] Clip-Aware Dual-Key Visible Photo Coverage (pages 1,4-9 >= 50%) ==="
+"$VEDIT_BIN" coverage "$PDF" --min-pct 50 --pages "1,4-9"
+echo "=== [5/6] Rule 10 Post-Render Prose Grounding ==="
+"$VEDIT_BIN" prose "$PDF" \
   --ledger "$DIR/data/provenance_ledger.json" \
   --summary "$DIR/data/summary_metrics.json" \
   --citations "$DIR/data/background_citations.json" \
-  --manifest "$DIR/data/manifest.sha256" \
-  --plate-pages "1,4-9"
+  --manifest "$DIR/data/manifest.sha256"
+echo "=== [6/6] Rule 11 Offline Clickable Link Integrity ==="
+"$VEDIT_BIN" links "$PDF" --offline
+echo "[OK] BOTANICA VERIDICA archival monograph passed all 6 sovereign Zig verification gates."

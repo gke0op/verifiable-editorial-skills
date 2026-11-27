@@ -6,7 +6,7 @@ A 4-page astrophysics monograph demonstrating a **100% zero-Python bare-metal pu
 - **Pure-Zig 0.17.0 Reality Compiler, SHA-256 Sealer & Vector SVG Engine ([`scripts/pipeline.zig`](scripts/pipeline.zig)):** Validates astrophysical domain invariants, reconciles cross-table census totals, seals `data/manifest.sha256` via `std.crypto.hash.sha2.Sha256`, emits `37` atomic Rule 4 tuples into `data/provenance_ledger.json`, and draws two pure-vector SVG exhibits (`∞ DPI`: Annual Discovery Cadence + Live Fulton Radius Valley, and Log–Log Mass–Radius Population of `1,595` observed worlds + Rule 5 completeness bars).
 - **Pure-Zig Rule 6 Compilation Latch (`vedit latch`):** Cryptographically verifies `5/5` raw files and `37/37` provenance tuples before Typst runs.
 - **Rust-Native Typst 0.15.1 (`--pdf-standard ua-1`):** Optical astrophysics equations (`Kepler III`, `Transit Depth`, `Bulk Density`, `Radiative Equilibrium`) with accessible ISO 14289-1 `alt` text, native IEEE BibTeX, and bundled SIL-OFL fonts.
-- **Sovereign Zig 0.17.0 5-Gate Court (`vedit audit-all --require-ua`):** Passes WCAG 2.1 AA contrast (`630` spans, worst `4.93:1`, `0` violations), geometry (`0/0/0/0`), Rule 10 prose grounding (`299/299` verified, `0` ungrounded), and print pre-press + live **`veraPDF` ISO 14289-1 (`106` passed rules, `0` failed)**.
+- **Sovereign Zig 0.17.0 6-Gate Court (`vedit audit-all --require-ua`):** Passes WCAG 2.1 AA contrast (`630` spans, worst `4.93:1`, `0` violations), geometry (`0/0/0/0`), Rule 10 prose grounding (`299/299` verified, `0` ungrounded), print pre-press + live **`veraPDF` ISO 14289-1 (`106` passed rules, `0` failed)**, and Rule 11 clickable link integrity.
 
 ---
 

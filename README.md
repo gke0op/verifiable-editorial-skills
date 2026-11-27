@@ -1,6 +1,6 @@
 # verifiable-editorial-skills
 
-![Verifiable Editorial — Zig 0.17 + Typst PDF/UA-1 Engine & 5-Gate Court](assets/social_preview.png)
+![Verifiable Editorial — Zig 0.17 + Typst PDF/UA-1 Engine & 6-Gate Court](assets/social_preview.png)
 
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
@@ -162,17 +162,17 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # System deps: Zig 0.17.0, Typst 0.15.1, mupdf-tools (`mutool`), optional veraPDF
 # Ubuntu: sudo apt install mupdf-tools   |   macOS: brew install mupdf-tools typst
 
-# Build Zig 0.17.0 harness + run unit tests & full 33-test adversarial sabotage court (Debug & ReleaseSafe, Zero Python)
+# Build Zig 0.17.0 harness + run unit tests & full 51-test adversarial sabotage court (Debug & ReleaseSafe, Zero Python)
 (cd zig && zig build test && zig build test --release=safe && zig build test-court && zig build test-court --release=safe)
 ```
 
 ### Repo Map
 
 ```
-zig/                     100% Zero-Python Zig 0.17.0 CLI (`vedit v0.6.0-zig`), 12 p2zig kernels, PNG/JPEG encoders (`plate`/`spreads`/`fetch-fonts`), PDF dissector, 6-gate court & 33-test adversarial court (`court_tests.zig`)
+zig/                     100% Zero-Python Zig 0.17.0 CLI (`vedit v0.7.0-zig`), 12 p2zig kernels, PNG/JPEG encoders (`plate`/`spreads`/`fetch-fonts`), PDF dissector, 6-gate court & 51-test adversarial court (`court_tests.zig`)
 archetypes/              9 dissected PDF Design DNAs (incl. `mobile-primer`, `aps-prl-letter`, `elsevier-caie-journal`)
-skills/                  3 composable Agent Skills + Zig/Typst templates (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
-demos/                   5 live zero-Python Zig 0.17 + Typst PDF/UA-1 publications (Cosmos Mobile Primer, PRL, CAIE, EXOMUNDUS, Global Carbon) + 5 certified visual reference archives
+skills/                  3 composable Zero-Python Agent Skills + Zig/Typst templates (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
+demos/                   5 live zero-Python Zig 0.17 + Typst PDF/UA-1 publications (Cosmos Mobile Primer, PRL, CAIE, EXOMUNDUS, Global Carbon) + 5 certified archival showcases
 tests/                   Pointers to the pure-Zig `zig build test-court` adversarial sabotage & regression suite
 ```
 

@@ -40,8 +40,8 @@ Single-column prose spanning the full `504 pt` width produces 85–100+ characte
 ### Law 4: Bold Tracked Small-Caps Lead-ins (No Drop-Cap Tables)
 Two-cell table drop caps frequently duplicate letters, misalign baselines, or collide in programmatic PDF compilers. Lead every major narrative section with inline bold uppercase small-caps:
 
-```html
-<font color="#0284c7"><b>ATMOSPHERIC ACCUMULATION HAS ACCELERATED THREEFOLD</b></font> since systematic instrumental measurements began...
+```typst
+#text(fill: rgb("#035E9E"), weight: "bold")[#upper[Atmospheric accumulation has accelerated threefold]] since systematic instrumental measurements began...
 ```
 
 ---
@@ -66,7 +66,7 @@ Keep slide headlines to **one single crisp assertive line** (avoid 1–2 word wi
 2. **Slide Archetype 2 — Dual-Panel Visual + 3-Column Synthesis:** Kicker + single-line `15 pt` Action Title + full-width (`876 × 315 pt`) side-by-side chart exhibit + 3-column structured synthesis rail below hairline (`~85–91%` fill).
 3. **Slide Archetype 3 — Executive Tufte Ledger Slide:** Kicker + Action Title + full-width Tufte table (`10` columns with inline sparklines and explicit amber `[N/A]` cells) + Rule 5 methodological caption + 3-column bottom insight strip (`~85–90%` fill).
 4. **Slide Archetype 4 — Visual + Cryptographic Audit Close:** Kicker + Action Title + compact full-width exhibit (`876 × 238 pt`, e.g. Stephen Few bullet graphs) + bottom 2-column split: SHA-256 raw file manifest (left) and 5-Phase Audit Receipt (right) (`~84–89%` fill).
-5. **Slide Archetype 5 — Consulting Flagship Polarity Sequence (WeasyPrint + SVG):** Alternate `#051C2C` Dark Midnight Cover & Executive Summary → `48%/52%` Split Chapter Divider (`120 pt` white serif numeral) → Pure `#FFFFFF` Exhibit Slides featuring a `19.5 pt` bold serif action title above a `1.1 pt` navy rule, optional `#EFEFEF` right-hand implications sidebar with a straddling circular `#051C2C` `»` badge, and a bottom-right `#9AE6FF` section progress pill.
+5. **Slide Archetype 5 — Consulting Flagship Polarity Sequence (Typst + SVG):** Alternate `#051C2C` Dark Midnight Cover & Executive Summary → `48%/52%` Split Chapter Divider (`120 pt` white serif numeral) → Pure `#FFFFFF` Exhibit Slides featuring a `19.5 pt` bold serif action title above a `1.1 pt` navy rule, optional `#EFEFEF` right-hand implications sidebar with a straddling circular `#051C2C` `»` badge, and a bottom-right `#9AE6FF` section progress pill.
 
 ---
 
@@ -87,7 +87,7 @@ For photography-first editorial magazines (*Kinfolk* × *Cereal* × *Condé Nast
 
 ## 3C. Scientific Monograph × Learning Magazine Crossover Archetypes (`612 × 792 pt`)
 
-Choreographed across true facing spreads (`[2|3]`, `[4|5]`, `[6|7]`, `[8|9]`, verified via `render_spreads.py` and `audit_contrast.py`), pairing full-bleed botanical/scientific photography with live audited vector exhibits and learning scaffolding (`demos/botanica-veridica/`):
+Choreographed across true facing spreads (`[2|3]`, `[4|5]`, `[6|7]`, `[8|9]`, verified via `vedit spreads` and `vedit contrast`), pairing full-bleed botanical/scientific photography with live audited vector exhibits and learning scaffolding (`demos/botanica-veridica/`):
 
 - **S1. Evolutionary & Telemetry Facing Opener (`[2|3]`):** Left page pairs a live phylogenetic cladogram (parsed from OpenTree Newick) + *DK*-style 6-column comparative morphology silhouette strip + *NatGeo*-style logarithmic scale lineup; right page pairs a live equirectangular GBIF world dot-map + herbarium-vs-citizen-science ratio bars + 12-month flowering phenology matrix. Keep both facing page display headlines on matching single lines.
 - **S2. Studio Specimen + 90° SVG Anatomy Spread (`[4]`, `[8]`):** Top `~56%` edge-to-edge studio specimen plate on `#F7F3E8` archival ground overlaid with pure-vector SVG 90° elbow callouts and a metric scale bar; lower `~44%` `#FBF9F4` monograph bed containing italic binomial + Roman authority, IUCN status badge, clickable registry link, drop-cap essay or numbered 1-2-3 mechanism steps, live monthly sparkline chart, and a tinted `#F1ECE1` **"Field Check"** learning box.
@@ -158,7 +158,7 @@ Designed natively for phone screens so a single `< 1 MB` (`~234–613 KB`) PDF o
 
 | Token | Size / Leading | Weight | Light Mode | Dark Mode | Role |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `Kicker` | `8.0 / 10.5 pt` | Bold | `#0284c7` | `#38bdf8` | Section / slide classification |
+| `Kicker` | `8.0 / 10.5 pt` | Bold | `#035E9E` | `#38bdf8` | Section / slide classification |
 | `CoverTitle` | `27.0 / 33.0 pt` | Bold | `#0f172a` | `#f8fafc` | 16:9 cover display headline |
 | `Headline` | `19.5 / 23.5 pt` | Bold | `#0f172a` | `#f8fafc` | Letter cover / primary claim |
 | `ActionTitle` | `14.5–15.0 / 19.0 pt` | Bold | `#0f172a` | `#f8fafc` | Minto Pyramid slide/section claim |
@@ -166,7 +166,7 @@ Designed natively for phone screens so a single `< 1 MB` (`~234–613 KB`) PDF o
 | `Body` | `8.5–9.0 / 13.0 pt` | Regular | `#334155` | `#cbd5e1` | Narrative prose (ragged right) |
 | `PullQuote` | `10.8–13.0 / 15–18 pt` | Bold Italic | `#0f2b48` | `#f8fafc` | Floating synthesis anchor |
 | `KpiNumber` | `21.0–23.0 / 24–26 pt` | Bold | `#0f2b48` | `#f8fafc` | Primary audited metric |
-| `KpiLabel` | `7.2–7.5 / 9.5 pt` | Bold | `#0284c7` | `#38bdf8` | Uppercase KPI header |
+| `KpiLabel` | `7.2–7.5 / 9.5 pt` | Bold | `#035E9E` | `#38bdf8` | Uppercase KPI header |
 | `TableHeader` | `7.0–7.5 / 9.5 pt` | Bold | `#0f2b48` | `#38bdf8` | Tufte ledger header |
 | `TableCell` | `7.5–8.0 / 10.5 pt` | Regular | `#0f172a` | `#f8fafc` | Tabular data (right-aligned nums) |
 | `Caption` | `7.3 / 10.0 pt` | Italic | `#64748b` | `#94a3b8` | Source, sample size (`N`), & Rule 5 notes |

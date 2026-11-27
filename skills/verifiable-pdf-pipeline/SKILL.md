@@ -168,7 +168,7 @@ Every scalar published in `data/summary_metrics.json["metrics"]` must map to a m
   "source_locator": "row 2026-10 (deseasonalized)",
   "exact_extracted_quote": "2026,10,2026.7917,426.69,429.98",
   "raw_file_sha256": "163cadae3baa6dec7d3ae066108b50d1018a...",
-  "parser_script": "scripts/process_data.py"
+  "parser_script": "scripts/pipeline.zig"
 }
 ```
 
@@ -176,24 +176,24 @@ Any metric in `summary_metrics.json` lacking a verified ledger tuple—or whose 
 
 ---
 
-## Runnable Zero-Python Templates (`templates/`) & Sovereign Zig CLI (`vedit v0.6.0-zig`)
+## Runnable Zero-Python Templates (`templates/`) & Sovereign Zig CLI (`vedit v0.7.0-zig`)
 
 Adapt the pure Zig 0.17.0 + Typst starter files in `templates/`:
 
 - **`templates/pipeline_template.zig`**: Zero-Python Zig 0.17.0 starter reading immutable `data/raw/` files, enforcing Rule 2 physical/accounting invariants, sealing `data/manifest.sha256`, and emitting 1:1 `data/provenance_ledger.json` + `data/summary_metrics.json`.
 - **`templates/build.sh`**: Fail-closed build script executing `zig run scripts/pipeline.zig` → `vedit latch` (Rule 4/6) → `vedit fetch-fonts` → `typst compile --pdf-standard ua-1` → `vedit audit-all --require-ua --verify-links` → `mutool draw` PNG previews.
-- **Sovereign Bare-Metal Zig 0.17.0 CLI (`zig/zig-out/bin/vedit`, `v0.6.0-zig`, Zero Python):**
-  - `vedit latch <dir>` — pure-Zig SHA-256 manifest + Rule 4 provenance ledger compilation latch.
-  - `vedit contrast <pdf>` — background-sampled WCAG 2.1 AA contrast (strips `BT..ET` streams recursively, samples real rendered pixels).
-  - `vedit geometry <pdf>` — AABB text collisions, 4-corner glyph ink-core `W`/`W*` clip-path slicing, trim overflow, headline orphan wraps, and photo-overlay texture energy.
-  - `vedit coverage <pdf>` — clip-aware dual-key Image XObject visible photography coverage (`>= 50%`).
-  - `vedit prose <pdf>` — Rule 10 post-render half-ULP `f64` prose grounding (sign-aware `-45%` vs `+45%`, scientific exponents `10^7`/`10⁷`/`9.7×10⁹`, fullwidth digit normalization).
-  - `vedit links <pdf>` — Rule 11 clickable PDF `/URI` coverage + live anti-hallucination verification (DOI Handle Registry `doi.org/api/handles/<doi>`, open-science APIs, live HTTP `GET` rejecting 404/410/403/5xx, Soft-404s, and HTTP-200 bot challenges).
-  - `vedit prepress <pdf>` — effective placed DPI (`>= 300`), font embedding, Trim/BleedBox, CMYK GCR TAC (`<= 300%`), PDF/UA-1 tag-tree inspection, and live `veraPDF` ISO 14289-1 certification.
-  - `vedit fetch-fonts` — provisions & SHA-256-verifies all 8 SIL-OFL open-source editorial fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*).
+- **Sovereign Bare-Metal Zig 0.17.0 CLI (`vedit v0.7.0-zig`, Zero Python):**
+  - `vedit latch <dir>` — pure-Zig cryptographic SHA-256 manifest + Rule 4 provenance ledger binding (verifying `raw_file_sha256`, `source_document`, `source_locator`, flat/nested scalar coverage, and unmonitored `data/raw/*`).
+  - `vedit contrast <pdf>` — composited 144-DPI (with lazy 360-DPI Nyquist supersampling) WCAG 2.1 AA contrast defeating alpha ghosts, Z-order occlusion, `3 Tr`, `/BM /Screen`, split backgrounds, and RGB-stripe phantom medians.
+  - `vedit geometry <pdf>` — cross-angle OBB/AABB text collisions, Bezier/polygon `W`/`W*` clip-path glyph slicing, trim overflow, centered/left orphan headlines, and photo-overlay texture energy.
+  - `vedit coverage <pdf>` — clip-aware dual-key Image XObject visible photography coverage (`>= 50%`), tonal-variance flat-plate rejection, and strict 1-px physical perimeter bleed.
+  - `vedit prose <pdf>` — Rule 10 post-render half-ULP `f64` prose grounding (unit-aware `500M`/`99x`/`450ppm`, sign-aware, Math-Alnum/ZWS normalized, scientific exponents `10^7`/`10⁷`/`9.7×10⁹`, and `/ToUnicode` glyph-advance spoof detection).
+  - `vedit links <pdf>` — Rule 11 libmupdf `mutool run` link parser (`/F` Hidden, `/AA`, clipped on-page rect), canonical IPv4/IPv6 CIDR SSRF guard, same-page Rule 11A, Rule 11B declared coverage, and live anti-hallucination verification (DOI Handle Registry, open-science APIs, hardened `curl` + pure-Zig `std.http.Client` fallback).
+  - `vedit prepress <pdf>` — effective placed DPI (`>= 300`, incl. `/ImageMask`), dereferenced `/FontDescriptor` embedding, normalized `Trim`/`BleedBox`, real 72-DPI MuPDF CMYK PAM TAC (`0–400%`, `<= 300%`), PDF/UA-1 tag-tree inspection, and fail-closed live `veraPDF` ISO 14289-1 certification.
+  - `vedit fetch-fonts` — provisions & SHA-256-pin-verifies all 8 SIL-OFL open-source editorial fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*).
   - `vedit plate <in> <out>` — pure-Zig panoramic center-crop, 10th-percentile black-point alignment to exact canvas RGB (`#07090F`), and raised-cosine edge feathering into Baseline 4:4:4 JPEG or compressed PNG at `>= 300 DPI`.
   - `vedit spreads <pdf> <out_dir>` — pure-Zig facing-spread contact-sheet composer (`[2|3]`, `[4|5]`) with central spine shadow.
-  - `vedit inject` / `vedit init` / `vedit audit-all` — dissect any reference PDF into `archetypes/<slug>/`, scaffold a zero-Python Typst PDF/UA-1 project, and execute the full 6-gate court in one call (verified by `zig build test && zig build test-court` in `Debug` and `--release=safe`).
+  - `vedit inject` / `vedit init` / `vedit audit-all` — dissect any reference PDF into `archetypes/<slug>/`, scaffold a zero-Python Typst PDF/UA-1 project, and execute the full 6-gate court in one call (Gate 6 offline links enabled by default; verified by `51/51` `zig build test-court` in `Debug` and `--release=safe`).
 
 ## Rule 11 Pre-Finalization Agent Protocol (Zero Hallucinated Links)
 
@@ -201,8 +201,7 @@ Before delivering ANY compiled PDF report to the user, the authoring agent MUST 
 
 1. **Every resource must be a clickable link:**
    - **Typst:** `#link("https://doi.org/10.1038/nature02417")[Koch et al. (2004)]` (and use a bibliography style that renders clickable DOIs/URLs, e.g. `style: "ieee"`, or explicit `#link(...)` references).
-   - **HTML / WeasyPrint:** `<a href="https://doi.org/...">Source Label</a>`.
-   - **ReportLab:** `canvas.linkURL("https://...", (x0, y0, x1, y1), relative=0)` on every citation/source label.
+   - **HTML / SVG:** `<a href="https://doi.org/...">Source Label</a>`.
 2. **Visit and verify EVERY link live before finalizing:**
    ```bash
    vedit links report/OUTPUT.pdf --citations data/background_citations.json --ledger data/provenance_ledger.json
