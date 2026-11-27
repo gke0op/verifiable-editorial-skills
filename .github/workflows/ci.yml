@@ -84,15 +84,19 @@ jobs:
         run: |
           bash demos/cosmos-mobile-primer/run_pipeline.sh
 
-      - name: Verify Sovereign Zig CLI Surface (`audit-all`, `coverage`, `spreads`, `plate`, `archetypes`)
+      - name: Verify Sovereign Zig CLI Surface (`contrast`, `geometry`, `coverage`, `prose`, `links`, `spreads`, `plate`, `archetypes`)
         run: |
           ./zig/zig-out/bin/vedit archetypes
-          ./zig/zig-out/bin/vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
+          ./zig/zig-out/bin/vedit contrast demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf
+          ./zig/zig-out/bin/vedit geometry demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf
+          ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
+          ./zig/zig-out/bin/vedit prose demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
             --ledger demos/botanica-veridica/data/provenance_ledger.json \
             --summary demos/botanica-veridica/data/summary_metrics.json \
             --citations demos/botanica-veridica/data/background_citations.json \
-            --manifest demos/botanica-veridica/data/manifest.sha256 \
-            --plate-pages "1,4-9"
+            --manifest demos/botanica-veridica/data/manifest.sha256
+          ./zig/zig-out/bin/vedit links demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --offline
+          ./zig/zig-out/bin/vedit coverage demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf --min-pct 50
           ./zig/zig-out/bin/vedit spreads demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf /tmp/ci_spreads --dpi 120 --width 1200
           test -s /tmp/ci_spreads/spread_02_03.png
           ./zig/zig-out/bin/vedit plate demos/cosmos-mobile-primer/report/plates/plate_04_67p.jpg /tmp/ci_plate.jpg --width-pt 304 --height-pt 118 --bg "#07090F"
