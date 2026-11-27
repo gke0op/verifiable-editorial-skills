@@ -39,9 +39,11 @@
 }
 
 // Restrained Observatory Palette — continuous void, whisper-thin reticles, >= 7:1 WCAG ink
+// Bold ink (#B6C0CE) is subtly darker than regular body (#D6DCE6) to neutralize OLED stroke glare.
 #let bg-void    = rgb("#07090F")
-#let ink-bright = rgb("#F2F4F8")
+#let ink-bright = rgb("#E2E7EF")
 #let ink-body   = rgb("#D6DCE6")
+#let ink-bold   = rgb("#B6C0CE")
 #let ink-muted  = rgb("#9AA8BC")
 #let acc-gold   = rgb("#E8C078")
 #let acc-ice    = rgb("#8CC8F0")
@@ -63,6 +65,8 @@
   lang: "en",
   hyphenate: false,
 )
+
+#show strong: set text(weight: "semibold", fill: ink-bold)
 
 #set par(
   leading: 0.68em,
@@ -195,30 +199,37 @@
   line(length: 100%, stroke: 0.45pt + hair-dim)
 }
 
-// Box-free minimalist tappable link (>= 22pt vertical hitbox via transparent padding!)
+// Box-free minimalist tappable link (>= 18pt vertical hitbox via transparent padding!)
 #let bare-link(url, label, accent: acc-ice) = {
   link(url)[
-    #box(inset: (x: 2pt, y: 6pt))[
+    #box(inset: (x: 2pt, y: 4.5pt))[
       #underline(offset: 2.5pt, stroke: 0.45pt + reticle)[
-        #text(font: "IBM Plex Mono", size: 7.4pt, fill: accent)[#label ↗]
+        #text(font: "IBM Plex Mono", size: 7.3pt, fill: accent)[#label ↗]
       ]
     ]
   ]
 }
 
-// Seamless box-free fixed-slot panoramic plate (304 x 118 pt @ 326 DPI, edge-feathered into #07090F void)
-#let void-plate(path, alt-text) = {
+// Seamless box-free fixed-slot panoramic plate (304 x h pt @ 326 DPI, edge-feathered into #07090F void)
+#let void-plate-h(path, h, alt-text) = {
   v(1fr)
-  image(path, width: 304pt, height: 118pt, fit: "cover", alt: alt-text)
+  image(path, width: 304pt, height: h, fit: "cover", alt: alt-text)
 }
 
+#let void-plate(path, alt-text) = void-plate-h(path, 118pt, alt-text)
+
+// Crisp 2-line bottom bar (Line 1: inline SOURCES + tappable links; Line 2: running folio footer)
 #let source-footer(links) = {
   v(1fr)
   line(length: 100%, stroke: 0.45pt + hair-dim)
-  v(4pt)
-  text(font: "IBM Plex Mono", size: 6.4pt, fill: ink-muted, tracking: 0.1em)[PRIMARY SOURCES · TAP TO VERIFY]
-  v(1pt)
-  stack(dir: ltr, spacing: 14pt, ..links)
+  v(2pt)
+  grid(
+    columns: (auto, 1fr),
+    column-gutter: 10pt,
+    align: (left + horizon, left + horizon),
+    text(font: "IBM Plex Mono", size: 6.4pt, fill: ink-muted, tracking: 0.1em)[SOURCES],
+    stack(dir: ltr, spacing: 11pt, ..links),
+  )
 }
 
 // ============================================================================
@@ -278,10 +289,10 @@ Track one dimensionless ratio called *compactness* — how close an object sits 
   #v(2pt)
   #align(center)[#text(size: 8.3pt, fill: ink-muted)[Tiny #math.equation(alt: "Xi", $Xi$): loose rock  ·  #math.equation(alt: "Xi equals 1", $Xi = 1$): escape hits light speed #math.equation(alt: "c", $c$).]]
 ]
-#v(10pt)
+#v(6pt)
 
 #text(font: "IBM Plex Mono", size: 7.2pt, fill: ink-muted, tracking: 0.1em)[THE FOUR COSMIC FLOORS STOPPING COLLAPSE]
-#v(6pt)
+#v(4pt)
 
 #let floor-row(num, title, desc, accent: ink-muted) = {
   grid(
@@ -289,14 +300,14 @@ Track one dimensionless ratio called *compactness* — how close an object sits 
     column-gutter: 6pt,
     text(font: "IBM Plex Mono", size: 8.2pt, weight: "semibold", fill: accent)[#num],
     [
-      #text(size: 9.8pt, weight: "semibold", fill: ink-bright)[#title]
+      #text(size: 9.8pt, weight: "semibold", fill: ink-bold)[#title]
       #v(1.5pt)
       #text(size: 9.4pt, fill: ink-body)[#desc]
     ],
   )
-  v(7pt)
+  v(4.2pt)
   line(length: 100%, stroke: 0.35pt + hair-dim)
-  v(7pt)
+  v(4.2pt)
 }
 
 #floor-row("01", "Chemical Rock & Ice Bonds", [Small comets stay lumpy because electromagnetic bonds easily beat weak self-gravity.], accent: ink-muted)
@@ -307,11 +318,14 @@ Track one dimensionless ratio called *compactness* — how close an object sits 
   column-gutter: 6pt,
   text(font: "IBM Plex Mono", size: 8.2pt, weight: "semibold", fill: acc-rose)[04],
   [
-    #text(size: 9.8pt, weight: "semibold", fill: ink-bright)[None — The Event Horizon]
+    #text(size: 9.8pt, weight: "semibold", fill: ink-bold)[None — The Event Horizon]
     #v(1.5pt)
     #text(size: 9.4pt, fill: ink-body)[Beyond the neutron limit, no known force holds. Radius crosses #math.equation(alt: "R_s", $R_s$), compactness locks at #math.equation(alt: "Xi equals 1", $Xi = 1$), and a black hole forms.]
   ],
 )
+
+#void-plate-h("plates/plate_02_einstein_lens.jpg", 76pt, "Minimalist deep-space Einstein ring gravitational lens showing two razor-fine warm-gold and ice-blue arcs of bent starlight framing a dark gravity well.")
+#v(2pt)
 
 // ============================================================================
 // CARD 3 — THE GRAND PHASE MAP
@@ -551,19 +565,19 @@ Scale up to galactic cores — Milky Way *Sgr A\** (*#fmt(d.sgra_mass_million_ms
     text(font: "IBM Plex Mono", size: 6.9pt, fill: ink-muted)[RADIUS / R_s],
     text(font: "IBM Plex Mono", size: 6.9pt, fill: ink-muted)[ESCAPE SPEED],
   ),
-  text(size: 8.6pt, weight: "semibold", fill: ink-bright)[Comet 67P],
+  text(size: 8.6pt, weight: "semibold", fill: ink-bold)[Comet 67P],
   text(font: "IBM Plex Mono", size: 8.1pt)[#fmt(d.comet_67p_radius_km, digits: 1) km],
   text(font: "IBM Plex Mono", size: 8.1pt)[#fmt(d.c67_v_esc_ms, digits: 2) m/s],
 
-  text(size: 8.6pt, weight: "semibold", fill: ink-bright)[Earth],
+  text(size: 8.6pt, weight: "semibold", fill: ink-bold)[Earth],
   text(font: "IBM Plex Mono", size: 8.1pt)[#comma-int(d.earth_radius_km) km],
   text(font: "IBM Plex Mono", size: 8.1pt)[#fmt(d.earth_v_esc_kms, digits: 2) km/s],
 
-  text(size: 8.6pt, weight: "semibold", fill: ink-bright)[Jupiter],
+  text(size: 8.6pt, weight: "semibold", fill: ink-bold)[Jupiter],
   text(font: "IBM Plex Mono", size: 8.1pt)[#comma-int(d.jupiter_radius_km) km],
   text(font: "IBM Plex Mono", size: 8.1pt)[#fmt(d.jupiter_v_esc_kms, digits: 2) km/s],
 
-  text(size: 8.6pt, weight: "semibold", fill: ink-bright)[The Sun],
+  text(size: 8.6pt, weight: "semibold", fill: ink-bold)[The Sun],
   text(font: "IBM Plex Mono", size: 8.1pt)[#comma-int(d.sun_radius_km) km],
   text(font: "IBM Plex Mono", size: 8.1pt)[#fmt(d.sun_v_esc_kms, digits: 1) km/s],
 
@@ -588,7 +602,7 @@ Scale up to galactic cores — Milky Way *Sgr A\** (*#fmt(d.sgra_mass_million_ms
   text(font: "IBM Plex Mono", size: 8.1pt, fill: acc-rose)[100% c],
 )
 
-#v(14pt)
+#v(10pt)
 #open-note("Active Recall · Test Your Intuition", [
   *Which is denser — M87\* or the air in your room?*
   #linebreak()
@@ -602,6 +616,9 @@ Scale up to galactic cores — Milky Way *Sgr A\** (*#fmt(d.sgra_mass_million_ms
   #linebreak()
   #text(fill: acc-gold)[M87\*:] *#fmt(d.m87_tidal_picog, digits: 1) pico-g* vs *#fmt(d.cyg_tidal_million_g, digits: 2) million g* at Cygnus X-1.
 ], accent: acc-sage, line-col: reticle)
+
+#void-plate-h("plates/plate_11_black_hole.jpg", 132pt, "Relativistic panoramic visualization of a supermassive black hole event horizon shadow ringed by a golden-amber Doppler-beamed accretion disk fading into deep space.")
+#v(6pt)
 
 // ============================================================================
 // CARD 12 — CRYPTOGRAPHIC PROVENANCE SEAL & VERIFICATION LIBRARY
@@ -628,14 +645,16 @@ Every figure in this primer was parsed live from NASA JPL, NASA NSSDC, arXiv, an
   ]
 ]
 
-#v(10pt)
+#v(8pt)
 #text(font: "IBM Plex Mono", size: 6.9pt, fill: ink-muted, tracking: 0.08em)[6-GATE CERTIFICATION & VISUAL ATTRIBUTION]
-#v(4pt)
-#text(size: 9.2pt, fill: ink-body)[
+#v(3pt)
+#text(size: 9.0pt, fill: ink-body)[
   *1* SHA-256 Latch · *2* Pixel WCAG AA · *3* 4-Corner Clip Geometry · *4* Rule 10 Half-ULP Prose · *5* ISO 14289-1 `PDF/UA-1` (`veraPDF`) · *6* Rule 11 Live Links.
-  #v(4pt)
-  #text(size: 8.6pt, fill: ink-muted)[Illustrative panoramic cosmic strips on Cards 4–8 are AI-generated bespoke plates (Nano Banana, cropped to exact fixed slot above print DPI); all data curves and numbers are pure Zig vector math.]
+  #v(3pt)
+  #text(size: 8.4pt, fill: ink-muted)[Cosmic plates on Cards 2, 4–8 & 11–12 are bespoke Nano Banana renders cropped above print DPI; data exhibits on Cards 1, 3, 9 & 10 are pure Zig vector math.]
 ]
+
+#void-plate-h("plates/plate_12_deep_field.jpg", 94pt, "Serene JWST-style deep-space panoramic horizon of tiny distant warm-gold and ice-blue spiral galaxies drifting across obsidian void.")
 
 #source-footer((
   bare-link("https://doi.org/10.1103/RevModPhys.93.025010", "CODATA 2018", accent: acc-gold),

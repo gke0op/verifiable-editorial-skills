@@ -108,37 +108,39 @@ Demonstrated in `demos/typst-carbon-monograph/` (sub-second `~415 ms` compilatio
 
 ## 3E. Mobile-Native Subject-Understanding Primer (`360 × 640 pt`, `9:16` WhatsApp PDF/UA-1)
 
-Designed natively for phone screens so a single `< 1 MB` (`~234–486 KB`) PDF opens instantaneously inside WhatsApp, iOS Quick Look, Android Drive, or any mobile PDF viewer with **zero pinch-zoom, zero horizontal panning, ZERO filled boxes, and open architectural corner brackets (`┌ ... ┘`)** (demonstrated in `demos/cosmos-mobile-primer/` and registered as `archetypes/mobile-primer/`):
+Designed natively for phone screens so a single `< 1 MB` (`~234–613 KB`) PDF opens instantaneously inside WhatsApp, iOS Quick Look, Android Drive, or any mobile PDF viewer with **zero pinch-zoom, zero horizontal panning, ZERO filled boxes, and open architectural corner brackets (`┌ ... ┘`)** (demonstrated in `demos/cosmos-mobile-primer/` and registered as `archetypes/mobile-primer/`):
 
 - **Zero-Box Minimalist Philosophy (Strict):**
   - **ZERO filled rectangular boxes, zero rounded SaaS card fills, zero button pill borders.** Every headline, stat, equation, SVG chart, and note floats directly on one continuous, calm canvas (`#07090F` OLED Void Dark OR `#FAF8F4` Warm Paper Daylight).
   - **Open Opposite-Corner Brackets (`┌` top-left + `┘` bottom-right ONLY):** When framing a key equation, intuition check, active-recall block, or SHA-256 manifest, draw only two whisper-thin (`0.55–0.60 pt`) L-brackets at opposite corners (`~36–44 pt` horizontal × `~22–28 pt` vertical) leaving the other two corners completely open — creating an invisible box held by pure negative space.
   - **Naked Typographic KPIs:** Set 2–3 large `IBM Plex Mono` figures directly on the canvas bounded only by a `0.45 pt` top/bottom hairline and ultra-thin `0.4 pt` vertical dividers (no tiles or borders).
   - **Box-Free Tufte SVGs (`304 pt` wide, `∞ DPI`):** Seamless canvas background (no outer `<rect stroke=...>` card frame), open L-axes (top/right spines stripped), and precision hairline lollipop stems instead of chunky progress bars.
-- **Fixed-Slot Panoramic Plates (`Nano Banana` / Generative AI, `>= 300 DPI`, Zero Visible Seam):**
-  - Generative image models (`generate_image` / Nano Banana) output discrete native aspect ratios up to **`16:9` (`1376 × 768 px`)** — not arbitrary custom pixel dimensions or ultra-wide `2.6:1` ribbons natively.
-  - When a card archetype leaves a uniform fixed horizontal row (e.g., `304 × 118 pt`, `2.576:1`) between the `┌ ... ┘` insight block and the `PRIMARY SOURCES` hairline, populate it cleanly without breaking the zero-box aesthetic, print DPI (`>= 300`), or `< 1 MB` WhatsApp budget:
-    1. **Center-Band `16:9` Prompting:** Generate at `16:9` (`1376 × 768`) under one locked photographic/observatory visual identity, explicitly composing the entire subject inside the **central horizontal band** (`~65%` vertical span) surrounded by pure canvas void (`#07090F` or `#FAF8F4`) on all four edges — zero embedded text, zero frames, zero borders.
-    2. **Deterministic Slot Crop (`>= 300 DPI`):** Center-crop to the exact target slot aspect (`1376 × 534 px` for `304 × 118 pt` → **`325.8 DPI`**, passing `vedit prepress --min-dpi 300` with headroom).
+- **Zero Bare Text-Only Cards & Fixed-Slot Panoramic Plates (`Nano Banana`, `>= 300 DPI`, Zero Visible Seam):**
+  - Every card carries either a **code-generated pure-vector exhibit** (e.g., cover reticle, log-log phase map, compactness ladder, scaling plot) OR a **seamless fixed-slot panoramic plate** — leaving zero bare text-only pages.
+  - Generative image models (`generate_image` / Nano Banana) output discrete native aspect ratios up to **`16:9` (`1376 × 768 px`)** — not arbitrary custom pixel dimensions or ultra-wide `2.3:1–4.0:1` ribbons natively.
+  - To populate any fixed horizontal card slot (`304 × 76–132 pt`) cleanly without breaking zero-box minimalism, print DPI (`>= 300`), or `< 1 MB` WhatsApp delivery:
+    1. **Center-Band `16:9` Prompting:** Generate at `16:9` (`1376 × 768`) under one locked photographic/observatory visual identity, explicitly composing the entire subject inside the **central horizontal band** (`~42%–65%` vertical span) surrounded by pure canvas void (`#07090F` or `#FAF8F4`) on all four edges — zero embedded text, zero frames, zero borders.
+    2. **Deterministic Slot Crop (`>= 300 DPI`):** Center-crop full `1376 px` width to exact target slot height (`round(1376 * h_pt / 304)` → **`325.5–325.9 DPI`** across every height `h_pt <= 169 pt`, passing `vedit prepress --min-dpi 300` with headroom).
     3. **Black-Point Alignment + Raised-Cosine Edge Feather:** Never drop a raw `#000000` image onto a `#07090F` OLED canvas (it creates a visible dark box seam). Map the 10th-percentile dark floor to exact canvas RGB (`RGB(7, 9, 15)`) and apply a raised-cosine edge feather (`14–16%` Y, `7–8%` X) into exact canvas RGB so every border melts invisibly into the void.
-    4. **Compression, Placement & Attribution:** Encode JPEG `quality=88, subsampling=0` (`~32–77 KB/plate`; `~248 KB` for 5 cosmic plates → `486 KB` total PDF), embed via `image(path, width: 304pt, height: 118pt, fit: "cover", alt: "...")` vertically centered with `#v(1fr)`, and state AI-illustrative attribution transparently on the closing colophon card.
+    4. **Compression, Placement & Attribution:** Encode JPEG `quality=88, subsampling=0` (`~15–77 KB/plate`; `~371 KB` across 8 cosmic plates → `613 KB` total 12-card PDF), embed via `image(path, width: 304pt, height: h, fit: "cover", alt: "...")` vertically centered with `#v(1fr)`, and state AI-illustrative attribution transparently on the closing colophon card.
 - **Phone Canvas & Safe Area (`360 × 640 pt`, `28 pt` L/R, `28 pt` top, `30 pt` bottom):**
   - Live content width = **`304 pt`** (`~40–45 ch` single-column measure — NEVER two-column body prose!).
-  - Top `1.5 pt` whisper-thin reading progress hairline (`page / total`) + quiet bottom folio (`04 / 12`).
-- **Thumb-Scale Typography & Restrained Palette:**
+  - Top `1.5 pt` whisper-thin reading progress hairline (`page / total`) + compact **2-line bottom bar** (Line 1: inline `SOURCES` + bare underlined tappable links; Line 2: running title + folio `08 / 12` — never 3 stacked bottom lines).
+- **Thumb-Scale Typography & OLED Optical-Glare Compensation:**
   - **Body prose:** `10.6–11.2 pt` (`Inter`, leading `1.50×`, ragged-right `justify: false`, `hyphenate: false`). Never drop body prose below `10 pt`.
+  - **Subtle Darker-Grey Bold Ink on OLED (`#B6C0CE` vs `#D6DCE6` body):** On `#07090F` OLED dark mode, bold/semibold strokes emit more light per character and halate if set at the same brightness as thin regular prose. Set `#show strong: set text(weight: "semibold", fill: rgb("#B6C0CE"))` (`10.7:1` WCAG AAA) one subtle grey step deeper than `#D6DCE6` regular prose (`13.7:1`), and soften headlines from glaring white to `#E2E7EF` (`15.1:1`) so extended phone reading stays calm and fatigue-free.
   - **Card headline:** `19–20 pt` semibold (`Source Serif 4` lining figures), balanced across at most 2 lines (never a 1-word hanging wrap).
   - **Tables:** Max **3 columns** (`0.35 pt` row hairlines, zero vertical rules); right-aligned `IBM Plex Mono` figures.
-  - **Restrained Observatory Palette (Zero Neon Rainbow):** Continuous `#07090F` OLED void, `#F2F4F8`/`#D6DCE6` ink, `#9AA8BC` muted metadata (`>= 7.5:1` WCAG AAA!), `#2B384E` whisper-thin reticles, and muted editorial accents (`#E8C078` warm gold, `#8CC8F0` ice blue, `#E58A8A` rose, `#7AD1B8` sage).
+  - **Restrained Observatory Palette (Zero Neon Rainbow):** Continuous `#07090F` OLED void, `#E2E7EF` titles, `#D6DCE6` body, `#B6C0CE` matte bold, `#9AA8BC` muted metadata (`>= 7.5:1` WCAG AAA!), `#2B384E` whisper-thin reticles, and muted editorial accents (`#E8C078` warm gold, `#8CC8F0` ice blue, `#E58A8A` rose, `#7AD1B8` sage).
 - **Pedagogical Card Cadence (Built for Genuine Understanding):**
   1. **Poster Cover (Card 1):** WhatsApp thumbnail hero — title + deck + box-free `304 pt` vector reticle + naked 3-stat strip + subtle swipe cue.
-  2. **The One Mental Model (Card 2):** Intuition-first unifying principle + `#math.equation(alt: ...)` inside subtle gold `┌ ... ┘` corners + numbered hairline-separated floors.
+  2. **The One Mental Model (Card 2):** Intuition-first unifying principle + `#math.equation(alt: ...)` inside subtle gold `┌ ... ┘` corners + numbered hairline-separated floors + seamless `76 pt` visual plate.
   3. **Grand Visual Map (Card 3):** Full-width `304 pt` open-axis pure-vector map + `┌ ... ┘` reading guide.
-  4. **One-Concept-Per-Card Deep Dives (Cards 4–10):** `Kicker -> Balanced Headline -> Naked Stat Strip -> Intuition Prose -> Open ┌ ... ┘ Insight Note -> Optional Fixed-Slot Seamless 326-DPI Panoramic Plate (304 × 118 pt) -> Bare Underlined Tappable Sources`.
-  5. **Complete Field Ledger + Active Recall (Card 11):** Compact 3-column Tufte table + `┌ ... ┘` rapid intuition Q&A.
-  6. **Cryptographic Seal & Source Library (Card 12):** Live SHA-256 raw manifest inside `┌ ... ┘` corners + 6-Gate seal + visual attribution + bare tappable DOI/repository links.
-- **Box-Free Mobile Touch Links (Rule 11 Extension):** Render primary links as clean `IBM Plex Mono` text with a thin underline and `↗` arrow (`NASA JPL SBDB ↗`), using transparent vertical padding (`inset: (x: 2pt, y: 6pt)`) for a comfortable `>= 22 pt` thumb hitbox with zero pill box clutter — verified live via `vedit links`.
-- **WhatsApp Delivery Budget:** Pure-vector SVGs (`∞ DPI`) + optional feathered panoramic plates (`~32–77 KB` each, `>= 300 DPI`) + subset SIL-OFL fonts keep total file size **`< 1 MB` (`~234–486 KB`)**, strictly certified `PDF/UA-1` (`veraPDF 106/106`) and passing all 6 VES gates.
+  4. **One-Concept-Per-Card Deep Dives (Cards 4–10):** `Kicker -> Balanced Headline -> Naked Stat Strip -> Intuition Prose -> Open ┌ ... ┘ Insight Note -> Fixed-Slot Seamless 326-DPI Panoramic Plate OR Pure-Vector Plot -> 2-Line Source & Folio Bar`.
+  5. **Complete Field Ledger + Active Recall (Card 11):** Compact 3-column Tufte table + `┌ ... ┘` rapid intuition Q&A + seamless panoramic climax plate.
+  6. **Cryptographic Seal & Source Library (Card 12):** Live SHA-256 raw manifest inside `┌ ... ┘` corners + 6-Gate seal + visual attribution + serene deep-field closing plate + 2-line source bar.
+- **Box-Free 2-Line Mobile Touch Bar (Rule 11 Extension):** Place `SOURCES` inline on the same row as the bare underlined `IBM Plex Mono` links (`NASA JPL SBDB ↗`, transparent `y: 4.5pt` touch padding) directly above the quiet folio line — keeping the entire footer strictly **2 lines** while every link is verified live via `vedit links`.
+- **WhatsApp Delivery Budget:** Pure-vector SVGs (`∞ DPI`) + feathered panoramic plates (`~15–77 KB` each, `>= 300 DPI`) + subset SIL-OFL fonts keep total file size **`< 1 MB` (`~234–613 KB`)**, strictly certified `PDF/UA-1` (`veraPDF 106/106`) and passing all 6 VES gates.
 
 ---
 

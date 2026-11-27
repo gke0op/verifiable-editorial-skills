@@ -55,21 +55,21 @@
 <text x="152.0" y="118.0" text-anchor="middle" font-family="Inter, sans-serif" font-size="5.8" fill="#B8C4D4">HORIZON</text>
 <line x1="75.7" y1="62.3" x2="67.7" y2="57.3" stroke="#9AA8BC" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="75.7" cy="62.3" r="3.1" fill="#9AA8BC" stroke="#07090F" stroke-width="1.0" />
-<text x="67.7" y="59.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Comet 67P</text>
+<text x="67.7" y="59.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">Comet 67P</text>
 <line x1="213.5" y1="62.0" x2="221.5" y2="57.0" stroke="#8CC8F0" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="213.5" cy="62.0" r="3.1" fill="#8CC8F0" stroke="#07090F" stroke-width="1.0" />
-<text x="221.5" y="59.0" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Earth</text>
+<text x="221.5" y="59.0" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">Earth</text>
 <line x1="212.3" y1="134.3" x2="220.3" y2="135.3" stroke="#F0D08A" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="212.3" cy="134.3" r="3.1" fill="#F0D08A" stroke="#07090F" stroke-width="1.0" />
-<text x="220.3" y="137.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Sun</text>
+<text x="220.3" y="137.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">Sun</text>
 <line x1="107.1" y1="138.1" x2="99.1" y2="139.1" stroke="#8CC8F0" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="107.1" cy="138.1" r="3.1" fill="#8CC8F0" stroke="#07090F" stroke-width="1.0" />
-<text x="99.1" y="141.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">Sirius B</text>
+<text x="99.1" y="141.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">Sirius B</text>
 <line x1="141.8" y1="69.2" x2="133.8" y2="62.2" stroke="#70B8E8" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="141.8" cy="69.2" r="3.1" fill="#70B8E8" stroke="#07090F" stroke-width="1.0" />
-<text x="133.8" y="64.2" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">PSR J0740</text>
+<text x="133.8" y="64.2" text-anchor="end" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">PSR J0740</text>
 <line x1="159.1" y1="143.3" x2="167.1" y2="152.3" stroke="#E58A8A" stroke-width="0.5" stroke-opacity="0.6" />
 <circle cx="159.1" cy="143.3" r="3.1" fill="#E58A8A" stroke="#07090F" stroke-width="1.0" />
-<text x="167.1" y="154.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">M87*</text>
+<text x="167.1" y="154.3" text-anchor="start" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">M87*</text>
 <text x="152" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="6.1" fill="#A6B4C8">COMPACTNESS RETICLE · RUBBLE PILE TO EVENT HORIZON</text>
 </svg>

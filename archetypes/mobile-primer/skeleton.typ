@@ -1,5 +1,5 @@
 // Auto-dissected Typst 0.15.1 PDF/UA-1 Archetype Skeleton
-// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 4421c430357e9f2a)
+// Source Sample: COSMOS_MOBILE_PRIMER_UA1.pdf (SHA-256: 645eb09bf66e1229)
 // Archetype Slug: mobile-primer (mobile_portrait_9x16, dark polarity)
 
 #let data = json("../data/summary_metrics.json")
@@ -22,7 +22,7 @@
   width: 360.0pt,
   height: 640.0pt,
   fill: c-bg,
-  margin: (top: 28.0pt, bottom: 34.4pt, left: 28.0pt, right: 28.0pt),
+  margin: (top: 28.0pt, bottom: 33.0pt, left: 28.0pt, right: 28.0pt),
   footer: context {
     let pg = counter(page).get().first()
     let tot = counter(page).final().first()

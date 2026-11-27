@@ -341,7 +341,7 @@ fn renderCoverSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
             \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="{s}" stroke-width="0.5" stroke-opacity="0.6" />
             \\<circle cx="{d:.1}" cy="{d:.1}" r="3.1" fill="{s}" stroke="#07090F" stroke-width="1.0" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#EAEEF5">{s}</text>
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.4" font-weight="600" fill="#B8C3D1">{s}</text>
             \\
         , .{ px, py, lx, ly - 2.0, b.color_hex, px, py, b.color_hex, lx, ly, lm.anchor, b.short_label }));
     }
@@ -471,7 +471,7 @@ fn renderMassRadiusSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
         const off = offsets[i];
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
             \\<circle cx="{d:.1}" cy="{d:.1}" r="3.2" fill="{s}" stroke="#07090F" stroke-width="1.0" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.0" font-weight="600" fill="#EAEEF5">{s}</text>
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.0" font-weight="600" fill="#B8C3D1">{s}</text>
             \\
         , .{ px, py, b.color_hex, px + off.dx, py + off.dy, off.anchor, b.short_label }));
     }
@@ -522,7 +522,7 @@ fn renderCompactnessSvg(alloc: std.mem.Allocator, bodies: []const Body) ![]u8 {
             try std.fmt.allocPrint(alloc, "{d:.2} m/s", .{b.v_esc_ms});
 
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
-            \\<text x="68" y="{d:.1}" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">{s}</text>
+            \\<text x="68" y="{d:.1}" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">{s}</text>
             \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="#192336" stroke-width="0.6" />
             \\<line x1="{d:.1}" y1="{d:.1}" x2="{d:.1}" y2="{d:.1}" stroke="{s}" stroke-width="1.9" stroke-linecap="round" />
             \\<circle cx="{d:.1}" cy="{d:.1}" r="2.8" fill="{s}" stroke="#07090F" stroke-width="0.8" />
@@ -636,7 +636,7 @@ fn renderSpaghettificationSvg(alloc: std.mem.Allocator, cyg: Body, sgra: Body, m
         const py = mapY(@log10(item.b.tidal_human_g));
         try out.appendSlice(alloc, try std.fmt.allocPrint(alloc,
             \\<circle cx="{d:.1}" cy="{d:.1}" r="3.6" fill="{s}" stroke="#07090F" stroke-width="1.0" />
-            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.1" font-weight="600" fill="#EAEEF5">{s}</text>
+            \\<text x="{d:.1}" y="{d:.1}" text-anchor="{s}" font-family="Inter, sans-serif" font-size="7.1" font-weight="600" fill="#B8C3D1">{s}</text>
             \\
         , .{ px, py, item.col, px + item.dx, py + item.dy, item.anchor, item.b.short_label }));
     }

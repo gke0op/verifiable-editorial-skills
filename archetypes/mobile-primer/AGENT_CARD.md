@@ -1,9 +1,9 @@
 # Archetype Harness Card: `mobile-primer`
 
-- **Dissected From:** `COSMOS_MOBILE_PRIMER_UA1.pdf` (`SHA-256: 4421c430357e9f2a`)
+- **Dissected From:** `COSMOS_MOBILE_PRIMER_UA1.pdf` (`SHA-256: 645eb09bf66e1229`)
 - **Format:** `mobile_portrait_9x16` (`360.0 × 640.0 pt`), **dark** polarity, `12` pages
-- **Margins (T/B/L/R):** `28.0 / 34.4 / 28.0 / 28.0 pt`
-- **Measured Density:** avg vertical fill `96.2%` · avg photography coverage `6.5%`
+- **Margins (T/B/L/R):** `28.0 / 33.0 / 28.0 / 28.0 pt`
+- **Measured Density:** avg vertical fill `99.6%` · avg photography coverage `9.8%`
 
 ## 60-30-10 Chromatic DNA (WCAG Verified)
 - Canvas (`60%`): `#000808` · Surface Tint: `#0e1a20`
@@ -17,7 +17,7 @@
 
 ## Dissected Page Archetype Sequence
 - **Page 1:** `cover_hero` (1-col, fill `100%`, photo `0%`, max font `26.0 pt`, spans `27`, strokes `27`)
-- **Page 2:** `data_exhibit_ledger` (2-col, fill `91%`, photo `0%`, max font `19.5 pt`, spans `59`, strokes `10`)
+- **Page 2:** `data_exhibit_ledger` (2-col, fill `100%`, photo `10%`, max font `19.5 pt`, spans `59`, strokes `10`)
 - **Page 3:** `data_exhibit_ledger` (2-col, fill `95%`, photo `0%`, max font `19.5 pt`, spans `78`, strokes `28`)
 - **Page 4:** `narrative_spread` (1-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `39`, strokes `11`)
 - **Page 5:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `48`, strokes `11`)
@@ -26,8 +26,8 @@
 - **Page 8:** `data_exhibit_ledger` (2-col, fill `100%`, photo `16%`, max font `19.5 pt`, spans `47`, strokes `10`)
 - **Page 9:** `data_exhibit_ledger` (2-col, fill `100%`, photo `0%`, max font `19.5 pt`, spans `60`, strokes `37`)
 - **Page 10:** `data_exhibit_ledger` (2-col, fill `100%`, photo `0%`, max font `19.5 pt`, spans `88`, strokes `28`)
-- **Page 11:** `data_exhibit_ledger` (2-col, fill `69%`, photo `0%`, max font `19.5 pt`, spans `59`, strokes `14`)
-- **Page 12:** `colophon_references` (1-col, fill `100%`, photo `0%`, max font `19.5 pt`, spans `73`, strokes `8`)
+- **Page 11:** `data_exhibit_ledger` (2-col, fill `100%`, photo `17%`, max font `19.5 pt`, spans `59`, strokes `14`)
+- **Page 12:** `colophon_references` (1-col, fill `100%`, photo `12%`, max font `19.5 pt`, spans `73`, strokes `8`)
 
 ## Instant Reuse (Zero Python)
 ```bash

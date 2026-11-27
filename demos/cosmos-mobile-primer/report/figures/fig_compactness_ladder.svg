@@ -7,47 +7,47 @@
 <text x="232" y="28" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="6.0" fill="#F2B8B8">Xi = 1 (c)</text>
 <line x1="74.0" y1="33" x2="74.0" y2="204" stroke="#263348" stroke-width="0.5" />
 <line x1="232.0" y1="33" x2="232.0" y2="204" stroke="#E58A8A" stroke-width="0.85" stroke-dasharray="2,2.5" />
-<text x="68" y="44.5" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Comet 67P</text>
+<text x="68" y="44.5" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Comet 67P</text>
 <line x1="74.0" y1="42.0" x2="232.0" y2="42.0" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="42.0" x2="90.1" y2="42.0" stroke="#9AA8BC" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="90.1" cy="42.0" r="2.8" fill="#9AA8BC" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="44.5" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">0.88 m/s</text>
-<text x="68" y="63.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Earth</text>
+<text x="68" y="63.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Earth</text>
 <line x1="74.0" y1="60.8" x2="232.0" y2="60.8" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="60.8" x2="158.4" y2="60.8" stroke="#8CC8F0" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="158.4" cy="60.8" r="2.8" fill="#8CC8F0" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="63.3" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">11.2 km/s</text>
-<text x="68" y="82.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Jupiter</text>
+<text x="68" y="82.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Jupiter</text>
 <line x1="74.0" y1="79.6" x2="232.0" y2="79.6" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="79.6" x2="170.5" y2="79.6" stroke="#E8C078" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="170.5" cy="79.6" r="2.8" fill="#E8C078" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="82.1" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">60.2 km/s</text>
-<text x="68" y="100.9" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Sun</text>
+<text x="68" y="100.9" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Sun</text>
 <line x1="74.0" y1="98.4" x2="232.0" y2="98.4" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="98.4" x2="187.3" y2="98.4" stroke="#F0D08A" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="187.3" cy="98.4" r="2.8" fill="#F0D08A" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="100.9" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">617.7 km/s</text>
-<text x="68" y="119.7" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Sirius B</text>
+<text x="68" y="119.7" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Sirius B</text>
 <line x1="74.0" y1="117.2" x2="232.0" y2="117.2" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="117.2" x2="204.8" y2="117.2" stroke="#8CC8F0" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="204.8" cy="117.2" r="2.8" fill="#8CC8F0" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="119.7" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">6953.9 km/s</text>
-<text x="68" y="138.5" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">PSR J0740</text>
+<text x="68" y="138.5" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">PSR J0740</text>
 <line x1="74.0" y1="136.0" x2="232.0" y2="136.0" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="136.0" x2="229.5" y2="136.0" stroke="#70B8E8" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="229.5" cy="136.0" r="2.8" fill="#70B8E8" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="138.5" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">70.3% c</text>
-<text x="68" y="157.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Cygnus X-1</text>
+<text x="68" y="157.3" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Cygnus X-1</text>
 <line x1="74.0" y1="154.8" x2="232.0" y2="154.8" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="154.8" x2="232.0" y2="154.8" stroke="#E58A8A" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="232.0" cy="154.8" r="2.8" fill="#E58A8A" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="157.3" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">100% c</text>
-<text x="68" y="176.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">Sgr A*</text>
+<text x="68" y="176.1" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">Sgr A*</text>
 <line x1="74.0" y1="173.6" x2="232.0" y2="173.6" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="173.6" x2="232.0" y2="173.6" stroke="#E58A8A" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="232.0" cy="173.6" r="2.8" fill="#E58A8A" stroke="#07090F" stroke-width="0.8" />
 <text x="238.0" y="176.1" font-family="IBM Plex Mono, monospace" font-size="6.7" fill="#D6DCE6">100% c</text>
-<text x="68" y="194.9" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#EAEEF5">M87*</text>
+<text x="68" y="194.9" text-anchor="end" font-family="Inter, sans-serif" font-size="7.2" font-weight="600" fill="#B8C3D1">M87*</text>
 <line x1="74.0" y1="192.4" x2="232.0" y2="192.4" stroke="#192336" stroke-width="0.6" />
 <line x1="74.0" y1="192.4" x2="232.0" y2="192.4" stroke="#E58A8A" stroke-width="1.9" stroke-linecap="round" />
 <circle cx="232.0" cy="192.4" r="2.8" fill="#E58A8A" stroke="#07090F" stroke-width="0.8" />
