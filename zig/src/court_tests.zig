@@ -432,7 +432,22 @@ test "sabotage 07: Rule 10 rejects forged caret, layout-raised, Unicode superscr
     const sup_rep = try audit.auditProse(alloc, io, sup_pages, sup_led, null, null, null);
     try std.testing.expect(!sup_rep.passed);
 
-    // Real Unicode superscript (10⁷ vs 10⁶) & fullwidth digits (９９) via Typst if available
+    // Unconditional fullwidth digit (９９ -> 99) Rule 10 audit across all OSes (even without CJK fonts)
+    const fw_led = try std.fmt.allocPrint(alloc, "{s}/fw.json", .{tmp});
+    try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = fw_led, .data = "{\"k0\":{\"value\":45.0}}" });
+    const synthetic_fw = [_]mupdf.PageData{.{
+        .page_num = 1,
+        .width = 612.0,
+        .height = 792.0,
+        .spans = &.{},
+        .images = &.{},
+        .graphics = &.{},
+        .stroke_count = 0,
+        .prose_text = "The count was \xef\xbc\x99\xef\xbc\x99 units.",
+    }};
+    try std.testing.expect(!(try audit.auditProse(alloc, io, &synthetic_fw, fw_led, null, null, null)).passed);
+
+    // Real Unicode superscript (10⁷ vs 10⁶) & fullwidth digits (when host CJK font covers U+FF19) via Typst
     if (mupdf.whichTool(alloc, io, "typst") != null) {
         const u7_pdf = try compileTypstSnippet(alloc, io, tmp, "uni_sup_7", "#set page(width: 612pt, height: 792pt)\nWe sampled 10\xe2\x81\xb7 points.");
         const u7_pages = try mupdf.extractPages(alloc, io, u7_pdf);
@@ -442,11 +457,11 @@ test "sabotage 07: Rule 10 rejects forged caret, layout-raised, Unicode superscr
         const u6_pages = try mupdf.extractPages(alloc, io, u6_pdf);
         try std.testing.expect((try audit.auditProse(alloc, io, u6_pages, sup_led, null, null, null)).passed);
 
-        const fw_led = try std.fmt.allocPrint(alloc, "{s}/fw.json", .{tmp});
-        try std.Io.Dir.cwd().writeFile(io, .{ .sub_path = fw_led, .data = "{\"k0\":{\"value\":45.0}}" });
         const fw_pdf = try compileTypstSnippet(alloc, io, tmp, "uni_fw_99", "#set page(width: 612pt, height: 792pt)\nThe count was \xef\xbc\x99\xef\xbc\x99 units.");
         const fw_pages = try mupdf.extractPages(alloc, io, fw_pdf);
-        try std.testing.expect(!(try audit.auditProse(alloc, io, fw_pages, fw_led, null, null, null)).passed);
+        if (fw_pages.len > 0 and std.mem.find(u8, fw_pages[0].prose_text, "\xef\xbc\x99") != null) {
+            try std.testing.expect(!(try audit.auditProse(alloc, io, fw_pages, fw_led, null, null, null)).passed);
+        }
     }
 }
 

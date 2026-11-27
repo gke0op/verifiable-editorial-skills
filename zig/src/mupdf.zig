@@ -1361,6 +1361,17 @@ pub fn extractPageLinks(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const 
 }
 
 /// Inspect PDF Catalog, PDF/UA-1 structural tags, embedded fonts, and TrimBox/BleedBox via `mutool`.
+fn parseMutoolFontName(ln: []const u8) ?[]const u8 {
+    // mutool 1.23 prints single quotes ('Helvetica'), mutool 1.24+ prints double quotes ("Helvetica")
+    if (std.mem.findScalar(u8, ln, '\'')) |q1| {
+        if (std.mem.findScalarPos(u8, ln, q1 + 1, '\'')) |q2| return ln[q1 + 1 .. q2];
+    }
+    if (std.mem.findScalar(u8, ln, '"')) |q1| {
+        if (std.mem.findScalarPos(u8, ln, q1 + 1, '"')) |q2| return ln[q1 + 1 .. q2];
+    }
+    return null;
+}
+
 pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) !CatalogInfo {
     const root_res = try runCmd(alloc, io, &.{ "mutool", "show", pdf_path, "trailer/Root" }, null);
     const info_res = try runCmd(alloc, io, &.{ "mutool", "info", pdf_path }, null);
@@ -1413,37 +1424,34 @@ pub fn inspectCatalog(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8
                 in_fonts_sec = false;
                 continue;
             }
-            if (std.mem.findScalar(u8, ln, '"')) |q1| {
-                if (std.mem.findScalarPos(u8, ln, q1 + 1, '"')) |q2| {
-                    const raw_fname = ln[q1 + 1 .. q2];
-                    const clean_name = stripSubsetPrefix(raw_fname);
-                    const is_subset = raw_fname.len > 7 and raw_fname[6] == '+';
-                    const is_type3 = std.mem.find(u8, ln, "Type3") != null;
-                    if (!seen_fonts.contains(clean_name)) {
-                        const owned = try alloc.dupe(u8, clean_name);
-                        try seen_fonts.put(owned, {});
-                        if (is_subset or is_type3) {
-                            try emb.append(alloc, owned);
-                        } else {
-                            // Check if this non-subset font actually embeds a /FontFile stream
-                            var embedded_stream = false;
-                            if (std.mem.findScalarLast(u8, ln, '(')) |op| {
-                                const obj_tok = std.mem.trim(u8, ln[op + 1 ..], " R)\r");
-                                var sp_it = std.mem.tokenizeScalar(u8, obj_tok, ' ');
-                                if (sp_it.next()) |fobj| {
-                                    const fshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, fobj }, null) catch null;
-                                    if (fshow) |fs| {
-                                        if (std.mem.find(u8, fs.stdout, "/FontFile") != null or std.mem.find(u8, fs.stdout, "/DescendantFonts") != null) {
-                                            embedded_stream = true;
-                                        }
+            if (parseMutoolFontName(ln)) |raw_fname| {
+                const clean_name = stripSubsetPrefix(raw_fname);
+                const is_subset = raw_fname.len > 7 and raw_fname[6] == '+';
+                const is_type3 = std.mem.find(u8, ln, "Type3") != null;
+                if (!seen_fonts.contains(clean_name)) {
+                    const owned = try alloc.dupe(u8, clean_name);
+                    try seen_fonts.put(owned, {});
+                    if (is_subset or is_type3) {
+                        try emb.append(alloc, owned);
+                    } else {
+                        // Check if this non-subset font actually embeds a /FontFile stream
+                        var embedded_stream = false;
+                        if (std.mem.findScalarLast(u8, ln, '(')) |op| {
+                            const obj_tok = std.mem.trim(u8, ln[op + 1 ..], " R)\r");
+                            var sp_it = std.mem.tokenizeScalar(u8, obj_tok, ' ');
+                            if (sp_it.next()) |fobj| {
+                                const fshow = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, fobj }, null) catch null;
+                                if (fshow) |fs| {
+                                    if (std.mem.find(u8, fs.stdout, "/FontFile") != null or std.mem.find(u8, fs.stdout, "/DescendantFonts") != null) {
+                                        embedded_stream = true;
                                     }
                                 }
                             }
-                            if (embedded_stream) {
-                                try emb.append(alloc, owned);
-                            } else {
-                                try unemb.append(alloc, owned);
-                            }
+                        }
+                        if (embedded_stream) {
+                            try emb.append(alloc, owned);
+                        } else {
+                            try unemb.append(alloc, owned);
                         }
                     }
                 }
@@ -1635,4 +1643,9 @@ test "countTraceClippedAlnum catches horizontal top-half glyph slicing while pas
         \\<pop_clip/>
     ;
     try std.testing.expectEqual(@as(usize, 0), countTraceClippedAlnum(generous, 612.0, 792.0));
+}
+
+test "parseMutoolFontName handles both mutool 1.23 single quotes and 1.24+ double quotes" {
+    try std.testing.expectEqualStrings("Helvetica", parseMutoolFontName("\t1\t(5 0 R):\tType1 'Helvetica' WinAnsiEncoding (5 0 R)").?);
+    try std.testing.expectEqualStrings("ABCDEF+Inter", parseMutoolFontName("\t1\t(7 0 R):\tCIDFontType0 \"ABCDEF+Inter\" Identity-H (7 0 R)").?);
 }
