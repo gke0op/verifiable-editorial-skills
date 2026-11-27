@@ -1,4 +1,4 @@
-name: Verifiable Editorial CI
+name: Verifiable Editorial CI (100% Zero-Python Zig 0.17)
 
 on:
   push:
@@ -13,18 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Enforce Absolute Zero-Python Invariant (0 .py files)
+        run: |
+          PY_COUNT=$(find . -name "*.py" -not -path "./.git/*" | wc -l | tr -d ' ')
+          echo "Python file count: $PY_COUNT"
+          test "$PY_COUNT" -eq 0
 
-      - name: Install package + test dependencies + pure-C mupdf-tools
+      - name: Install pure-C mupdf-tools
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq mupdf-tools
           mutool -v || true
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -e ".[dev]"
 
       - name: Install Zig 0.17.0 (Linux x86_64)
         run: |
@@ -49,16 +48,23 @@ jobs:
           echo "$HOME/verapdf" >> "$GITHUB_PATH"
           "$HOME/verapdf/verapdf" --version
 
-      - name: Build & Test Sovereign Zig 0.17.0 Agent Harness (Debug + ReleaseSafe + fmt)
+      - name: Build, Format-Check & Unit-Test Sovereign Zig 0.17.0 Harness (Debug + ReleaseSafe)
         run: |
           cd zig
-          zig fmt --check build.zig src/mupdf.zig src/audit.zig src/links.zig src/dissect.zig src/scaffold.zig src/main.zig
+          zig fmt --check build.zig src/mupdf.zig src/audit.zig src/links.zig src/dissect.zig src/scaffold.zig src/media.zig src/court_tests.zig src/main.zig
           zig build test
           zig build test --release=safe
           zig build --release=safe
           ./zig-out/bin/vedit version
+          ./zig-out/bin/vedit fetch-fonts
 
-      - name: Compile Typst PDF/UA-1 Monograph LIVE on Ubuntu Linux + 5-Gate & veraPDF Audit
+      - name: Run Full Zero-Python Zig Adversarial Sabotage, Flagship & Closed-Loop Court (Debug + ReleaseSafe)
+        run: |
+          cd zig
+          zig build test-court
+          zig build test-court --release=safe
+
+      - name: Build & Certify Typst Carbon Monograph (100% Zero-Python Zig 0.17 + Typst PDF/UA-1) LIVE on Linux
         run: |
           bash demos/typst-carbon-monograph/run_pipeline.sh
 
@@ -78,42 +84,20 @@ jobs:
         run: |
           bash demos/cosmos-mobile-primer/run_pipeline.sh
 
-      - name: Run Sovereign Zig `vedit` 5-Gate Court, Latch, Coverage & Archetype Dissector LIVE on Ubuntu Linux
+      - name: Verify Sovereign Zig CLI Surface (`audit-all`, `coverage`, `spreads`, `plate`, `archetypes`)
         run: |
-          ./zig/zig-out/bin/vedit latch demos/global-carbon-telemetry
-          ./zig/zig-out/bin/vedit audit-all demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf \
-            --ledger demos/global-carbon-telemetry/data/provenance_ledger.json \
-            --summary demos/global-carbon-telemetry/data/summary_metrics.json \
-            --citations demos/typst-carbon-monograph/data/background_citations.json \
-            --manifest demos/global-carbon-telemetry/data/manifest.sha256 \
-            --require-ua
-          ./zig/zig-out/bin/vedit coverage demos/felis-mundi-magazine/report/FELIS_MUNDI_MAGAZINE.pdf --min-pct 50
-          ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
           ./zig/zig-out/bin/vedit archetypes
-
-      - name: Run Full Adversarial Sabotage, p2zig, Rule 10/11 & Closed-Loop Harness Suite (pytest)
-        run: pytest -v
-
-      - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos
-        run: |
-          python3 demos/botanica-veridica/scripts/verify_integrity.py
-          python3 demos/global-carbon-telemetry/scripts/verify_integrity.py
-          python3 demos/carbon-keynote-9slide/scripts/verify_integrity.py
-
-      - name: Run unified `vedit audit-all` CLI on BOTANICA VERIDICA
-        run: |
-          vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
+          ./zig/zig-out/bin/vedit audit-all demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf \
             --ledger demos/botanica-veridica/data/provenance_ledger.json \
             --summary demos/botanica-veridica/data/summary_metrics.json \
             --citations demos/botanica-veridica/data/background_citations.json \
             --manifest demos/botanica-veridica/data/manifest.sha256 \
             --plate-pages "1,4-9"
-
-      - name: Verify Living Web Edition compiles cleanly under Rule 6 latch
-        run: |
-          python3 demos/botanica-veridica/report/compile_living_web.py
-          test -s demos/botanica-veridica/report/BOTANICA_VERIDICA_LIVING.html
+          ./zig/zig-out/bin/vedit spreads demos/typst-carbon-monograph/report/TYPST_CARBON_MONOGRAPH_UA1.pdf /tmp/ci_spreads --dpi 120 --width 1200
+          test -s /tmp/ci_spreads/spread_02_03.png
+          ./zig/zig-out/bin/vedit plate demos/cosmos-mobile-primer/report/plates/plate_04_67p.jpg /tmp/ci_plate.jpg --width-pt 304 --height-pt 118 --bg "#07090F"
+          test -s /tmp/ci_plate.jpg
 
       - name: Privacy & host-path hygiene scan
         run: |
-          ! git grep -InE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" -- README.md skills/ verifiable_editorial/ zig/ archetypes/ tests/ demos/
+          ! git grep -InE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" -- README.md skills/ zig/ archetypes/ tests/ demos/

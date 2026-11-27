@@ -9,8 +9,9 @@ const audit = @import("audit.zig");
 const links = @import("links.zig");
 const dissect = @import("dissect.zig");
 const scaffold = @import("scaffold.zig");
+const media = @import("media.zig");
 
-const VERSION = "0.5.0-zig";
+const VERSION = "0.6.0-zig";
 
 fn writeOut(io: std.Io, s: []const u8) !void {
     try std.Io.File.stdout().writeStreamingAll(io, s);
@@ -22,9 +23,15 @@ fn writeErr(io: std.Io, s: []const u8) void {
 
 fn printUsage(io: std.Io) !void {
     try writeOut(io,
-        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.5.0-zig)
+        \\vedit (Sovereign Zig 0.17.0 Editorial Harness v0.6.0-zig — 100% Zero-Python)
         \\
         \\Commands:
+        \\  vedit fetch-fonts [--dir PATH] [--force] [--json]
+        \\      Provision & SHA-256 verify the 8 cross-platform SIL-OFL open-source editorial fonts
+        \\  vedit plate <in.(jpg|png)> <out.(jpg|png)> [--width-pt 304] [--height-pt 118] [--bg "#07090F"] [--feather-y 0.15] [--feather-x 0.08] [--quality 88] [--no-lift] [--json]
+        \\      Pure-Zig panoramic center-crop, black-point alignment & raised-cosine void feathering (>=300 DPI)
+        \\  vedit spreads <pdf> <out_dir> [--dpi 150] [--width 1600] [--json]
+        \\      Render interior facing spreads ([2|3], [4|5], ...) onto an archival desk mat with spine shadow
         \\  vedit inject <sample.pdf> --name <slug> [--out-dir archetypes] [--json]
         \\      Dissect any reference PDF into Design DNA (blueprint.json + skeleton.typ + AGENT_CARD.md)
         \\  vedit inspect <pdf> [--json]
@@ -104,6 +111,75 @@ pub fn main(init: std.process.Init) !void {
     }
     if (std.mem.eql(u8, cmd, "-h") or std.mem.eql(u8, cmd, "--help") or std.mem.eql(u8, cmd, "help")) {
         try printUsage(io);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // FETCH-FONTS / PLATE / SPREADS (Pure-Zig Media & Font Provisioning)
+    // -------------------------------------------------------------------------
+    if (std.mem.eql(u8, cmd, "fetch-fonts")) {
+        const home = init.environ_map.get("HOME") orelse ".";
+        const default_dir = try std.fs.path.join(alloc, &.{ home, ".cache", "verifiable-editorial", "fonts" });
+        const target_dir = getOpt(sub_args, "--dir") orelse default_dir;
+        const rep = try media.fetchFonts(alloc, io, target_dir, hasFlag(sub_args, "--force"));
+        if (as_json) {
+            try writeOut(io, try std.fmt.allocPrint(alloc,
+                \\{{ "command": "fetch-fonts", "font_dir": "{s}", "count": {d} }}
+                \\
+            , .{ rep.font_dir, rep.fonts.len }));
+        } else {
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:fetch-fonts] Ready ({d} SIL-OFL fonts) -> {s}\n", .{ rep.fonts.len, rep.font_dir }));
+            for (rep.fonts) |f| {
+                try writeOut(io, try std.fmt.allocPrint(alloc, "  - {s:<32} [{s}] {d} B  sha256={s}\n", .{ f.file, f.status, f.bytes, f.sha256_hex[0..16] }));
+            }
+        }
+        return;
+    }
+
+    if (std.mem.eql(u8, cmd, "plate")) {
+        if (sub_args.len < 2) {
+            writeErr(io, "usage: vedit plate <in.(jpg|png)> <out.(jpg|png)> [--width-pt 304] [--height-pt 118] [--bg \"#07090F\"] [--feather-y 0.15] [--feather-x 0.08] [--quality 88] [--no-lift] [--json]\n");
+            std.process.exit(2);
+        }
+        const width_pt: f64 = if (getOpt(sub_args, "--width-pt")) |v| std.fmt.parseFloat(f64, v) catch 304.0 else 304.0;
+        const height_pt: f64 = if (getOpt(sub_args, "--height-pt")) |v| std.fmt.parseFloat(f64, v) catch 118.0 else 118.0;
+        const bg_hex = getOpt(sub_args, "--bg") orelse "#07090F";
+        const bg_rgb = media.parseHexRgb(bg_hex) orelse mupdf.Rgb{ .r = 7, .g = 9, .b = 15 };
+        const fy: f64 = if (getOpt(sub_args, "--feather-y")) |v| std.fmt.parseFloat(f64, v) catch 0.15 else 0.15;
+        const fx: f64 = if (getOpt(sub_args, "--feather-x")) |v| std.fmt.parseFloat(f64, v) catch 0.08 else 0.08;
+        const qual: u8 = if (getOpt(sub_args, "--quality")) |v| std.fmt.parseInt(u8, v, 10) catch 88 else 88;
+        const do_lift = !hasFlag(sub_args, "--no-lift");
+
+        const rep = try media.processPlate(alloc, io, sub_args[0], sub_args[1], width_pt, height_pt, bg_rgb, fy, fx, qual, do_lift, tmp_tag);
+        if (as_json) {
+            try writeOut(io, try std.fmt.allocPrint(alloc,
+                \\{{ "command": "plate", "out_w": {d}, "out_h": {d}, "bytes": {d}, "dpi_x": {d:.1}, "dpi_y": {d:.1}, "corner": [{d},{d},{d}] }}
+                \\
+            , .{ rep.out_w, rep.out_h, rep.out_bytes, rep.dpi_x, rep.dpi_y, rep.corner.r, rep.corner.g, rep.corner.b }));
+        } else {
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:plate] {s} -> {s} ({d}x{d}, {d} B, DPI={d:.1}x{d:.1}, corner=({d},{d},{d}))\n", .{
+                sub_args[0], sub_args[1], rep.out_w, rep.out_h, rep.out_bytes, rep.dpi_x, rep.dpi_y, rep.corner.r, rep.corner.g, rep.corner.b,
+            }));
+        }
+        return;
+    }
+
+    if (std.mem.eql(u8, cmd, "spreads")) {
+        if (sub_args.len < 2) {
+            writeErr(io, "usage: vedit spreads <pdf> <out_dir> [--dpi 150] [--width 1600] [--json]\n");
+            std.process.exit(2);
+        }
+        const dpi: u32 = if (getOpt(sub_args, "--dpi")) |v| std.fmt.parseInt(u32, v, 10) catch 150 else 150;
+        const width: usize = if (getOpt(sub_args, "--width")) |v| std.fmt.parseInt(usize, v, 10) catch 1600 else 1600;
+        const rep = try media.renderSpreads(alloc, io, sub_args[0], sub_args[1], dpi, width, tmp_tag);
+        if (as_json) {
+            try writeOut(io, try std.fmt.allocPrint(alloc,
+                \\{{ "command": "spreads", "count": {d}, "out_dir": "{s}" }}
+                \\
+            , .{ rep.written.len, sub_args[1] }));
+        } else {
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:spreads] Exported {d} facing spread(s) -> {s}\n", .{ rep.written.len, sub_args[1] }));
+        }
         return;
     }
 
@@ -602,4 +678,5 @@ test {
     std.testing.refAllDecls(links);
     std.testing.refAllDecls(dissect);
     std.testing.refAllDecls(scaffold);
+    std.testing.refAllDecls(media);
 }

@@ -4,8 +4,8 @@
 
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
-**Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **30 adversarial sabotage tests** on Ubuntu Linux CI.
+**100% Zero-Python bare-metal Zig 0.17.0 editorial harness (`vedit v0.6.0-zig`) + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
+Zero Python. Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **33 pure-Zig adversarial sabotage, live-HTTP & flagship tests** (`zig build test-court`) on Ubuntu Linux CI (`Debug` + `--release=safe`).
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -89,31 +89,37 @@ Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10
 
 ---
 
-## Sovereign Zig 0.17.0 Harness (`vedit 0.5.0-zig`)
+## Sovereign Zig 0.17.0 Harness (`vedit 0.6.0-zig` — 100% Zero-Python)
 
-12 mathematical & dissection kernels transpiled from [`kernels_p2zig_src.py`](verifiable_editorial/kernels_p2zig_src.py) via `p2zig --strict` (`0` unsupported, `WRONG = 0`) into [`zig/src/kernels_p2zig.zig`](zig/src/kernels_p2zig.zig), compiled into one zero-Python binary ([`zig/`](zig/README.md)).
+12 mathematical & dissection kernels ([`zig/src/kernels_p2zig.zig`](zig/src/kernels_p2zig.zig), `// uroboros:zig-tir`), pure-Zig PNG & ITU-T T.81 Baseline 4:4:4 JPEG encoders ([`zig/src/media.zig`](zig/src/media.zig)), 6-gate post-render court, and PDF dissector compiled into one standalone binary ([`zig/`](zig/README.md)).
 
 ```bash
 cd zig && zig build --release=safe && cd ..
+
+# Provision 8 SHA-256 verified SIL-OFL open-source fonts (zero Python)
+./zig/zig-out/bin/vedit fetch-fonts
+
+# Prepare a seamless >=300-DPI panoramic cosmic/editorial plate (pure-Zig crop + black-point lift + raised-cosine feather)
+./zig/zig-out/bin/vedit plate raw_16x9.jpg out_plate.jpg --width-pt 304 --height-pt 118 --bg "#07090F"
+
+# Render facing-spread contact sheets ([2|3], [4|5], ...) with central spine shadow
+./zig/zig-out/bin/vedit spreads path/to/monograph.pdf previews/spreads
 
 # Dissect ANY external reference PDF -> archetypes/<slug>/{blueprint.json, skeleton.typ, AGENT_CARD.md}
 ./zig/zig-out/bin/vedit inject path/to/sample.pdf --name my-style
 
 # Clone an injected archetype into a SHA-256-sealed, Typst PDF/UA-1 project (zero Python)
-./zig/zig-out/bin/vedit init ./new-report --archetype dark-obsidian-keynote --title "Q4 Telemetry"
+./zig/zig-out/bin/vedit init ./new-report --archetype mobile-primer --title "Field Primer"
 VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
 # Run the full 6-gate court on any PDF (--json for direct agent consumption; --verify-links visits every URL/DOI live)
-./zig/zig-out/bin/vedit audit-all demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf \
-  --ledger demos/exomundus-nasa-telemetry/data/provenance_ledger.json \
-  --summary demos/exomundus-nasa-telemetry/data/summary_metrics.json \
-  --citations demos/exomundus-nasa-telemetry/data/background_citations.json \
-  --manifest demos/exomundus-nasa-telemetry/data/manifest.sha256 \
+./zig/zig-out/bin/vedit audit-all demos/cosmos-mobile-primer/report/COSMOS_MOBILE_PRIMER_UA1.pdf \
+  --ledger demos/cosmos-mobile-primer/data/provenance_ledger.json \
+  --summary demos/cosmos-mobile-primer/data/summary_metrics.json \
+  --citations demos/cosmos-mobile-primer/data/background_citations.json \
+  --manifest demos/cosmos-mobile-primer/data/manifest.sha256 \
   --require-ua \
   --verify-links
-
-# Standalone Rule 11 clickable link & live anti-hallucination audit
-./zig/zig-out/bin/vedit links demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf
 ```
 
 ### The 6-Gate Court
@@ -156,22 +162,18 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # System deps: Zig 0.17.0, Typst 0.15.1, mupdf-tools (`mutool`), optional veraPDF
 # Ubuntu: sudo apt install mupdf-tools   |   macOS: brew install mupdf-tools typst
 
-# Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
-(cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
-
-# Optional: Python CLI + 30-test adversarial sabotage & parity suite
-pip install -e ".[dev]" && pytest
+# Build Zig 0.17.0 harness + run unit tests & full 33-test adversarial sabotage court (Debug & ReleaseSafe, Zero Python)
+(cd zig && zig build test && zig build test --release=safe && zig build test-court && zig build test-court --release=safe)
 ```
 
 ### Repo Map
 
 ```
-zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 6-gate court
+zig/                     100% Zero-Python Zig 0.17.0 CLI (`vedit v0.6.0-zig`), 12 p2zig kernels, PNG/JPEG encoders (`plate`/`spreads`/`fetch-fonts`), PDF dissector, 6-gate court & 33-test adversarial court (`court_tests.zig`)
 archetypes/              9 dissected PDF Design DNAs (incl. `mobile-primer`, `aps-prl-letter`, `elsevier-caie-journal`)
-skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
-demos/                   10 live open-data & physics publications (Mobile Cosmos Primer, PRL, CAIE, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
-verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   30-test adversarial sabotage, mobile 9:16, live link anti-hallucination, p2zig parity & zero-Python closed-loop suite
+skills/                  3 composable Agent Skills + Zig/Typst templates (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
+demos/                   5 live zero-Python Zig 0.17 + Typst PDF/UA-1 publications (Cosmos Mobile Primer, PRL, CAIE, EXOMUNDUS, Global Carbon) + 5 certified visual reference archives
+tests/                   Pointers to the pure-Zig `zig build test-court` adversarial sabotage & regression suite
 ```
 
 ### The 11 Anti-Cheat Rules

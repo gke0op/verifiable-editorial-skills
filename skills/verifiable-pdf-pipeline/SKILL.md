@@ -11,9 +11,9 @@ description: >-
   PDF/UA-1), and cross-platform SIL-OFL font provisioning via the `vedit` CLI.
 ---
 
-# Verifiable Factual PDF & Data Presentation Pipeline
+# Verifiable Factual PDF & Data Presentation Pipeline (100% Zero-Python Zig 0.17 + Typst)
 
-This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes data presentations, institutional whitepapers, scientific natural-history monographs, and dual-target interactive web essays. It enforces an absolute **Zero-Mock Data Invariant** backed by automated verification gates (`verifiable-editorial` / `vedit` CLI) and an adversarial sabotage `pytest` suite.
+This skill defines a domain-agnostic, fail-closed engineering pipeline for producing high-stakes mobile primers, peer-reviewed journals, institutional whitepapers, and scientific monographs in **pure Zig 0.17.0 + Rust-native Typst `PDF/UA-1`** (`0` Python dependencies). It enforces an absolute **Zero-Mock Data Invariant** backed by the sovereign bare-metal **`vedit` (`v0.6.0-zig`)** 6-gate court and a **33-test pure-Zig adversarial sabotage suite (`zig build test-court`)**.
 
 Every published number must be streamed from genuine upstream sources into immutable raw files, validated against physical and accounting invariants, registered in an atomic provenance ledger, independently re-parsed from raw inputs without circular assertions, grounded post-render inside final PDF prose (Rule 10), and audited for geometric collisions, clip-path slicing, and background-sampled WCAG 2.1 contrast.
 
@@ -32,11 +32,11 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 │         Every number must be parsed by code from data/raw/.            │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 2: Reality & Invariant Compiler (Domain Bounds)                   │
-│         Strict Pydantic bounds (physics, accounting, time).            │
+│         Strict Zig 0.17 bounds (physics, accounting, time).            │
 │         Out-of-bounds values fail closed immediately (exit 1).         │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 3: Anti-Circular Verification Law                                 │
-│         AST linter bans asserting variables against numeric literals.  │
+│         Ban asserting domain variables against hardcoded literals.     │
 │         Verifiers must independently re-parse data/raw/.               │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 4: Atomic Provenance Tuple per Data Point                         │
@@ -49,7 +49,7 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 6: Substance Precedence (Compilation Latch)                       │
 │         Layout aesthetics are subordinate to data veracity.            │
-│         PDF compilers invoke verify_integrity.py and abort on failure. │
+│         Build scripts invoke `vedit latch` and abort on failure.       │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 7: Category & Unit Incommensurability Guard                       │
 │         Never fuse distinct product grades, scopes, or test standards  │
@@ -92,12 +92,12 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 
 ---
 
-## The 5-Phase Fail-Closed Workflow
+## The 5-Phase Fail-Closed Workflow (100% Zero-Python Zig 0.17 + Typst)
 
 ```
 [ Primary Open Sources / REST APIs / Official Datasets ]
                         │
-                        ▼  (scripts/fetch_data.py)
+                        ▼  (curl / scripts/pipeline.zig)
 ┌────────────────────────────────────────────────────────┐
 │ PHASE 1: Raw Ingestion & Deduplicated SHA-256 Sealing  │
 │ - Stream verbatim upstream bytes into data/raw/        │
@@ -105,37 +105,28 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 │ - Zero manual numeric dictionaries or hand-edited CSVs │
 └────────────────────────────────────────────────────────┘
                         │
-                        ▼  (scripts/validate_reality.py)
+                        ▼  (scripts/pipeline.zig — Zig 0.17)
 ┌────────────────────────────────────────────────────────┐
-│ PHASE 2: Reality & Invariant Compiler                  │
-│ - Pydantic v2 models enforcing domain physics bounds   │
-│ - Accounting identities (e.g. total / pop == per_cap)  │
-│ - Explicit sentinel-to-null mapping (e.g. -9.99 -> NA) │
-└────────────────────────────────────────────────────────┘
-                        │
-                        ▼  (scripts/process_data.py)
-┌────────────────────────────────────────────────────────┐
-│ PHASE 3: Synthesis & Atomic Provenance Registration    │
-│ - Compute aggregates strictly from validated raw rows  │
+│ PHASE 2–3: Invariants, Synthesis & Provenance Sealing  │
+│ - Typed Zig structs enforcing domain physics bounds    │
 │ - Register 100% of metrics in provenance_ledger.json   │
-│ - Emit sealed data/summary_metrics.json                │
+│ - Emit sealed summary_metrics.json + pure-vector SVGs  │
 └────────────────────────────────────────────────────────┘
                         │
-                        ▼  (scripts/verify_integrity.py)
+                        ▼  (vedit latch — Pure-Zig Gate 1)
 ┌────────────────────────────────────────────────────────┐
-│ PHASE 4: Independent External Verification (Veto Gate) │
+│ PHASE 4: Cryptographic Compilation Latch (Veto Gate)   │
 │ - Re-hash every file in data/raw/ vs manifest.sha256   │
-│ - Python AST check banning hardcoded literal asserts   │
-│ - Confirm 100% provenance coverage + independent parse │
-│ - Must exit 0 before Phase 5 compilation unlocks       │
+│ - Confirm 100% Rule 4 provenance ledger coverage       │
+│ - Must exit 0 before Phase 5 Typst compilation unlocks │
 └────────────────────────────────────────────────────────┘
                         │
-                        ▼  (report/compile_*.py + audit_pdf.py)
+                        ▼  (typst compile --pdf-standard ua-1 + vedit audit-all)
 ┌────────────────────────────────────────────────────────┐
-│ PHASE 5: Vector Visualization, Typesetting & Visual QA │
-│ - Compilation script mechanically latched to Phase 4   │
-│ - Render 300-DPI transparent vector charts             │
-│ - PyMuPDF bounding-box fill & overflow audit + PNGs    │
+│ PHASE 5: Typst PDF/UA-1 Typesetting & 6-Gate Court     │
+│ - Load JSON natively via `#json(...)` + `vedit plate`  │
+│ - Pass WCAG, Geometry, Rule 10, Prepress/veraPDF,      │
+│   and Rule 11 Live Links + inspect `mutool` PNGs       │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -146,22 +137,19 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 ```
 <project_root>/
 ├── data/
-│   ├── raw/                       # Immutable upstream files (.json, .csv, .pdf, .parquet)
+│   ├── raw/                       # Immutable upstream files (.json, .csv, .xml, .txt)
 │   ├── manifest.sha256            # Sorted, deduplicated SHA-256 manifest of data/raw/
 │   ├── provenance_ledger.json     # Atomic provenance records for every published metric
-│   ├── processed_panel.csv        # Cleaned, parser-extracted analytical table
+│   ├── background_citations.json  # DOI/URL-backed contextual constants for Rule 10 & Rule 11
 │   └── summary_metrics.json       # Audited aggregates backed 1:1 by provenance_ledger.json
 ├── scripts/
-│   ├── fetch_data.py              # Phase 1: stream upstream -> data/raw/ + manifest.sha256
-│   ├── validate_reality.py        # Phase 2: Pydantic domain bounds + accounting identities
-│   ├── process_data.py            # Phase 3: compute metrics + register provenance tuples
-│   ├── verify_integrity.py        # Phase 4: independent raw re-parse + AST Rule 3 linter
-│   ├── generate_charts.py         # Phase 5a: 300-DPI charts strictly from summary_metrics.json
-│   └── audit_pdf.py               # Phase 5b: PyMuPDF visual fill, overflow & PNG exporter
-└── report/
-    ├── assets/                    # Rendered 300-DPI chart PNGs
-    ├── compile_deck_16x9.py       # 16:9 presentation compiler latched to verify_integrity.py
-    └── compile_report_letter.py   # Letter report compiler latched to verify_integrity.py
+│   └── pipeline.zig               # Pure-Zig 0.17 ingestion, bounds, sealing & pure-vector SVGs
+├── report/
+│   ├── figures/                   # Pure-vector SVG exhibits (∞ DPI)
+│   ├── plates/                    # Optional >=300-DPI feathered plates via `vedit plate`
+│   ├── main.typ                   # Rust-native Typst 0.15.1 PDF/UA-1 master
+│   └── OUTPUT_UA1.pdf             # 6-gate certified ISO 14289-1 publication
+└── run_pipeline.sh                # Zero-Python build script latched to `vedit latch` & `vedit audit-all`
 ```
 
 ---
@@ -187,26 +175,24 @@ Any metric in `summary_metrics.json` lacking a verified ledger tuple—or whose 
 
 ---
 
-## Runnable Drop-In Templates (`templates/`)
+## Runnable Zero-Python Templates (`templates/`) & Sovereign Zig CLI (`vedit v0.6.0-zig`)
 
-Copy and adapt the tested, production-hardened scripts in `templates/`:
+Adapt the pure Zig 0.17.0 + Typst starter files in `templates/`:
 
-- **`templates/fetch_data.py`**: Atomic HTTP downloader writing a **deduplicated, sorted** `data/manifest.sha256` (safe to re-run without duplicating manifest lines).
-- **`templates/validate_reality.py`**: Pydantic v2 domain validator with sentinel-to-null handling and cross-field physics/accounting checks.
-- **`templates/verify_integrity.py`**: Full Phase 4 Veto Gate implementing SHA-256 manifest verification, a Python `ast` Rule 3 literal-assertion linter, 100% provenance ledger coverage verification, and raw-source cross-checking.
-- **`templates/audit_pdf.py`**: Post-render PyMuPDF (`fitz`) layout auditor measuring combined text blocks, embedded images, and non-background vector drawings across both **Letter portrait (`612×792 pt`)** and **16:9 widescreen (`960×540 pt`)** layouts, plus automatic PNG preview export.
-- **`templates/audit_contrast.py`**: Background-sampled **WCAG 2.1 contrast auditor** that strips `BT...ET` text streams in an in-memory PDF clone, renders a text-free background raster at 72 DPI, and samples actual pixels behind every text span's bounding box (accurately auditing dark modes, gradients, and photo overlays).
-- **`templates/render_spreads.py`**: Facing-spread contact-sheet assembler that stitches interior facing pages (`[2|3]`, `[4|5]`, …) onto an archival desk mat with a realistic central spine-gutter shadow for true spread-level visual QA.
-- **Unified Installable CLI (`pip install -e .` → `vedit`):** Exposes all automated verification & production gates directly from the terminal:
-  - `vedit contrast` — background-sampled WCAG 2.1 AA contrast across light, dark, SVG, and PDF/UA-1 tagged streams (`BT/Span` delimiter-safe recursive Form XObject stripping).
-  - `vedit geometry` — text collisions, `W n` PDF clip-path slicing, trim overflow, headline orphan wraps, and photo-overlay texture energy.
-  - `vedit coverage` — clip-aware dual-key visible photography coverage (`>= 50%`).
-  - `vedit prose` — Rule 10 post-render PDF prose-to-ledger grounding (full IEEE-754 `f64` half-ULP precision at displayed decimals, zero blanket structurals, sign-aware `-45%` vs `+45%`, scientific-exponent aware `10^7`/`10⁷`/`9.7×10⁹`, fullwidth digit normalization).
-  - `vedit links` — Rule 11 clickable PDF resource link & live anti-hallucination verifier: requires every printed URL/DOI and every citation/ledger URL to be a real clickable PDF `/URI` annotation (`>= 2×2 pt` visible rect, zero placeholders), and visits every link live (CNRI/IDF DOI Handle Registry `doi.org/api/handles/<doi>`, open-science REST APIs, and live HTTP GET rejecting 404/410/403/5xx, Soft-404s, and HTTP-200 bot-challenge walls like `Client Challenge`). Pass `--verify-links` to `vedit audit-all` (or `--offline` for air-gapped structural checks).
-  - `vedit prepress` — print pre-press & ISO accessibility certification: effective placed DPI (`native_px / placed_inches`, skipping synthetic `xref == 0` CSS soft-masks), embedded font subsetting, `/MediaBox`/`/TrimBox`/`/BleedBox`, simulated CMYK GCR Total Area Coverage (`TAC <= 300%`), pure-PyMuPDF PDF/UA-1 tag-tree inspection, and live **`veraPDF`** (`verapdf --flavour ua1 --format json`) ISO 14289-1 certification.
-  - `vedit fetch-fonts` — provisions and SHA-256-verifies 8 cross-platform SIL-OFL open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) for bit-exact macOS and Ubuntu Linux builds.
-  - `vedit spreads` & `vedit audit-all` — facing-spread contact sheet renderer and one-command multi-gate CI runner, hardened by our **adversarial sabotage, `p2zig` kernel parity, and closed-loop synthesis `pytest` suite (`tests/test_adversarial_gates.py`)**.
-- **Sovereign Bare-Metal Zig 0.17.0 Agent Harness (`zig/zig-out/bin/vedit`, `v0.5.0-zig`):** Zero-Python native CLI with **100% 6-Gate Court parity**, compiling all **12** core math/audit/dissection/coverage kernels via `p2zig --strict` (`verifiable_editorial/kernels_p2zig_src.py` → `zig/src/kernels_p2zig.zig`) + pure-C `mutool` + live `veraPDF`. Exposes `vedit latch` (pure-Zig SHA-256 + Rule 4 verification), `vedit contrast`, `vedit geometry` (incl. 4-corner glyph ink-core `W`/`W*` clip-path slicing), `vedit coverage` (pure-Zig dual-key image XObject rewriting), `vedit prose` (Rule 10 half-ULP + scientific exponents), `vedit links` (Rule 11 clickable link coverage + live DOI Handle / HTTP anti-hallucination verifier), `vedit prepress` (live `veraPDF`), `vedit audit-all` (`--plate-pages`, `--verify-links`, `--json`), **PDF Sample Dissection & Archetype Injection** (`vedit inject <sample.pdf> --name <slug>`), and zero-Python project scaffolding (`vedit init <dir> --archetype <slug>`).
+- **`templates/pipeline_template.zig`**: Zero-Python Zig 0.17.0 starter reading immutable `data/raw/` files, enforcing Rule 2 physical/accounting invariants, sealing `data/manifest.sha256`, and emitting 1:1 `data/provenance_ledger.json` + `data/summary_metrics.json`.
+- **`templates/build.sh`**: Fail-closed build script executing `zig run scripts/pipeline.zig` → `vedit latch` (Rule 4/6) → `vedit fetch-fonts` → `typst compile --pdf-standard ua-1` → `vedit audit-all --require-ua --verify-links` → `mutool draw` PNG previews.
+- **Sovereign Bare-Metal Zig 0.17.0 CLI (`zig/zig-out/bin/vedit`, `v0.6.0-zig`, Zero Python):**
+  - `vedit latch <dir>` — pure-Zig SHA-256 manifest + Rule 4 provenance ledger compilation latch.
+  - `vedit contrast <pdf>` — background-sampled WCAG 2.1 AA contrast (strips `BT..ET` streams recursively, samples real rendered pixels).
+  - `vedit geometry <pdf>` — AABB text collisions, 4-corner glyph ink-core `W`/`W*` clip-path slicing, trim overflow, headline orphan wraps, and photo-overlay texture energy.
+  - `vedit coverage <pdf>` — clip-aware dual-key Image XObject visible photography coverage (`>= 50%`).
+  - `vedit prose <pdf>` — Rule 10 post-render half-ULP `f64` prose grounding (sign-aware `-45%` vs `+45%`, scientific exponents `10^7`/`10⁷`/`9.7×10⁹`, fullwidth digit normalization).
+  - `vedit links <pdf>` — Rule 11 clickable PDF `/URI` coverage + live anti-hallucination verification (DOI Handle Registry `doi.org/api/handles/<doi>`, open-science APIs, live HTTP `GET` rejecting 404/410/403/5xx, Soft-404s, and HTTP-200 bot challenges).
+  - `vedit prepress <pdf>` — effective placed DPI (`>= 300`), font embedding, Trim/BleedBox, CMYK GCR TAC (`<= 300%`), PDF/UA-1 tag-tree inspection, and live `veraPDF` ISO 14289-1 certification.
+  - `vedit fetch-fonts` — provisions & SHA-256-verifies all 8 SIL-OFL open-source editorial fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*).
+  - `vedit plate <in> <out>` — pure-Zig panoramic center-crop, 10th-percentile black-point alignment to exact canvas RGB (`#07090F`), and raised-cosine edge feathering into Baseline 4:4:4 JPEG or compressed PNG at `>= 300 DPI`.
+  - `vedit spreads <pdf> <out_dir>` — pure-Zig facing-spread contact-sheet composer (`[2|3]`, `[4|5]`) with central spine shadow.
+  - `vedit inject` / `vedit init` / `vedit audit-all` — dissect any reference PDF into `archetypes/<slug>/`, scaffold a zero-Python Typst PDF/UA-1 project, and execute the full 6-gate court in one call (verified by `zig build test && zig build test-court` in `Debug` and `--release=safe`).
 
 ## Rule 11 Pre-Finalization Agent Protocol (Zero Hallucinated Links)
 
@@ -223,20 +209,13 @@ Before delivering ANY compiled PDF report to the user, the authoring agent MUST 
 3. **Inspect the resolved `<title>` / DOI target of every single `[OK]` entry** to confirm the real destination matches the cited claim (not an unrelated homepage or wrong paper).
 4. **Fix or remove any failing link (`[!]`)** — if a URL returns `404`, `Soft-404`, `HALLUCINATED_DOI`, `BOT_CHALLENGE_UNVERIFIED`, or `UNLINKED_TEXT_RESOURCE`, **never ignore or fabricate**; find the true canonical URL/DOI from the primary registry or remove the unverified claim before re-compiling.
 
-## Compilation Latch Pattern (Rule 6)
+## Compilation Latch Pattern (Rule 6 — Zero Python)
 
-Every PDF builder must gate execution behind `verify_integrity.py`:
+Every PDF build script MUST gate Typst compilation behind `vedit latch`:
 
-```python
-import subprocess
-import sys
-from pathlib import Path
-
-def engage_verification_latch(verify_script: Path) -> None:
-    res = subprocess.run([sys.executable, str(verify_script)], capture_output=True, text=True, check=False)
-    if res.returncode != 0:
-        print("[!] COMPILATION ABORTED: Phase 4 integrity verification failed.", file=sys.stderr)
-        print(res.stdout, file=sys.stderr)
-        print(res.stderr, file=sys.stderr)
-        sys.exit(1)
+```bash
+set -euo pipefail
+vedit latch "$PROJECT_DIR"
+typst compile --pdf-standard ua-1 --root "$PROJECT_DIR" --font-path "$FONT_DIR" "$PROJECT_DIR/report/main.typ" "$OUT_PDF"
+vedit audit-all "$OUT_PDF" --ledger "$PROJECT_DIR/data/provenance_ledger.json" --summary "$PROJECT_DIR/data/summary_metrics.json" --citations "$PROJECT_DIR/data/background_citations.json" --manifest "$PROJECT_DIR/data/manifest.sha256" --require-ua --verify-links
 ```

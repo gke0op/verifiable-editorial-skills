@@ -174,7 +174,7 @@ For keynote-grade decks modeled on flagship 2023 institutional publications (*Qu
 
 ---
 
-## 6. Supporting References & Runnable Examples
+## 6. Supporting References & Zero-Python Starter
 - `references/design_laws_and_lexicon.md` — Extended design grammar, Gestalt spacing, and institutional style lexicon.
-- `references/image_generation_recipes.md` — Fixed-spec visual continuity prompts for multi-asset cover/architecture illustrations.
-- `examples/reportlab_premium_template.py` — Clean, runnable dual-mode (`--mode dark|light`) & dual-format (`--format 16x9|letter`) starter template with full-bleed background painting, safe Inter registration, hairline KPI strips, and Tufte ledgers.
+- `references/image_generation_recipes.md` — Fixed-spec visual continuity prompts for multi-asset cover/architecture illustrations (pair with `vedit plate` in pure Zig for exact-slot `>= 300 DPI` cropping, black-point lifting, and raised-cosine void feathering).
+- `examples/typst_premium_template.typ` — Clean, runnable dual-polarity (`--input mode=dark|light`) zero-box Typst 0.15.1 `PDF/UA-1` starter template with subtle opposite-corner brackets (`┌ ... ┘`), matte OLED bold grey (`#B6C0CE`), and a 2-line Rule 11 source/folio bar.
