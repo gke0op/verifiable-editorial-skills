@@ -6,6 +6,7 @@ const std = @import("std");
 const kernels = @import("kernels_p2zig.zig");
 const mupdf = @import("mupdf.zig");
 const audit = @import("audit.zig");
+const links = @import("links.zig");
 const dissect = @import("dissect.zig");
 const scaffold = @import("scaffold.zig");
 
@@ -41,10 +42,12 @@ fn printUsage(io: std.Io) !void {
         \\  vedit coverage <pdf> [--min-pct 50] [--min-bleed 2] [--pages "1,4-9"] [--json]
         \\      Exact clip-aware dual-key pixel-diff visible photography coverage gate (p2zig kernel)
         \\  vedit prose <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--json]
-        \\      Rule 10 post-render signed + superscript-safe prose grounding gate (p2zig kernel)
+        \\      Rule 10 post-render signed + superscript-safe prose grounding gate (half-ULP f64)
+        \\  vedit links <pdf> [--citations F] [--ledger F] [--min-links 1] [--offline] [--timeout 10] [--json]
+        \\      Rule 11 clickable PDF resource link coverage & live anti-hallucination verifier
         \\  vedit prepress <pdf> [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
         \\      Effective DPI, font embedding, Trim/BleedBox, CMYK GCR TAC & live veraPDF ISO 14289-1 gate
-        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--plate-pages "1,4-9"] [--min-dpi 300] [--require-bleed] [--require-ua] [--no-verapdf] [--json]
+        \\  vedit audit-all <pdf> [--ledger F] [--summary F] [--citations F] [--manifest F] [--plate-pages "1,4-9"] [--min-dpi 300] [--require-bleed] [--require-ua] [--verify-links|--check-links-offline] [--no-verapdf] [--json]
         \\      Run all applicable verification gates in one invocation (exits non-zero on any failure)
         \\  vedit version
         \\
@@ -341,6 +344,48 @@ pub fn main(init: std.process.Init) !void {
         return;
     }
 
+    if (std.mem.eql(u8, cmd, "links")) {
+        const min_l: usize = if (getOpt(sub_args, "--min-links")) |v| std.fmt.parseInt(usize, v, 10) catch 1 else 1;
+        const tout: u32 = if (getOpt(sub_args, "--timeout")) |v| std.fmt.parseInt(u32, v, 10) catch 10 else 10;
+        const live = !hasFlag(sub_args, "--offline");
+        const allow_local = hasFlag(sub_args, "--allow-localhost");
+        const rep = try links.auditLinks(
+            alloc,
+            io,
+            pdf_path,
+            pages,
+            getOpt(sub_args, "--citations"),
+            getOpt(sub_args, "--ledger"),
+            min_l,
+            live,
+            tout,
+            allow_local,
+        );
+        if (as_json) {
+            try writeOut(io, try std.fmt.allocPrint(alloc,
+                \\{{ "gate": "rule11_links", "pdf": "{s}", "passed": {}, "clickable_links": {d}, "unique_uris": {d}, "text_resources": {d}, "declared_resources": {d}, "live_checked": {}, "failures": {d} }}
+                \\
+            , .{ pdf_name, rep.passed, rep.clickable_links, rep.unique_uris, rep.text_resources, rep.declared_resources, rep.live_checked, rep.failures.len }));
+        } else {
+            const st: []const u8 = if (rep.passed) "PASS" else "FAIL";
+            const mode_s: []const u8 = if (rep.live_checked) "live" else "offline";
+            try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:rule11_links] {s} -> {s}\n  clickable={d} | unique={d} | text_urls={d} | declared={d} | mode={s} | failures={d}\n", .{
+                st, pdf_name, rep.clickable_links, rep.unique_uris, rep.text_resources, rep.declared_resources, mode_s, rep.failures.len,
+            }));
+            for (rep.live_results) |lr| {
+                const mk: []const u8 = if (lr.passed) "OK" else "!";
+                try writeOut(io, try std.fmt.allocPrint(alloc, "  [{s}] {s} -> {s} ({s})\n", .{
+                    mk, lr.uri, lr.verdict, lr.title[0..@min(lr.title.len, 64)],
+                }));
+            }
+            for (rep.failures[0..@min(rep.failures.len, 16)]) |f| {
+                try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] p.{d} {s}: {s}\n", .{ f.page, f.kind, f.detail }));
+            }
+        }
+        if (!rep.passed) std.process.exit(1);
+        return;
+    }
+
     if (std.mem.eql(u8, cmd, "prepress")) {
         const cat = try mupdf.inspectCatalog(alloc, io, pdf_path);
         const min_dpi: f64 = if (getOpt(sub_args, "--min-dpi")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
@@ -420,6 +465,38 @@ pub fn main(init: std.process.Init) !void {
         const min_dpi: f64 = if (getOpt(sub_args, "--min-dpi")) |v| std.fmt.parseFloat(f64, v) catch 300.0 else 300.0;
         const pp = try audit.auditPrepress(alloc, io, pdf_path, pages, cat, min_dpi, 300.0, hasFlag(sub_args, "--require-bleed"), hasFlag(sub_args, "--require-ua"), !hasFlag(sub_args, "--no-verapdf"), tmp_tag);
         if (!pp.passed) all_ok = false;
+
+        const verify_links = hasFlag(sub_args, "--verify-links");
+        const check_links_off = hasFlag(sub_args, "--check-links-offline");
+        if (verify_links or check_links_off) {
+            const min_l: usize = if (getOpt(sub_args, "--min-links")) |v| std.fmt.parseInt(usize, v, 10) catch 1 else 1;
+            const lr = try links.auditLinks(
+                alloc,
+                io,
+                pdf_path,
+                pages,
+                getOpt(sub_args, "--citations"),
+                lp,
+                min_l,
+                verify_links,
+                10,
+                hasFlag(sub_args, "--allow-localhost"),
+            );
+            if (!lr.passed) all_ok = false;
+            if (!as_json) {
+                try writeOut(io, try std.fmt.allocPrint(alloc, "[vedit:rule11_links] {s} -> {s} (clickable={d}, unique={d}, mode={s}, failures={d})\n", .{
+                    if (lr.passed) "PASS" else "FAIL",
+                    pdf_name,
+                    lr.clickable_links,
+                    lr.unique_uris,
+                    if (lr.live_checked) "live" else "offline",
+                    lr.failures.len,
+                }));
+                for (lr.failures[0..@min(lr.failures.len, 10)]) |f| {
+                    try writeOut(io, try std.fmt.allocPrint(alloc, "  [!] links p.{d} {s}: {s}\n", .{ f.page, f.kind, f.detail }));
+                }
+            }
+        }
 
         if (as_json) {
             try writeOut(io, try std.fmt.allocPrint(alloc,
@@ -522,6 +599,7 @@ test {
     std.testing.refAllDecls(@This());
     std.testing.refAllDecls(mupdf);
     std.testing.refAllDecls(audit);
+    std.testing.refAllDecls(links);
     std.testing.refAllDecls(dissect);
     std.testing.refAllDecls(scaffold);
 }

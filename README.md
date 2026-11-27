@@ -5,7 +5,7 @@
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
 
 **Bare-metal Zig 0.17.0 editorial harness + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
-Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Every published PDF passes a **5-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + W/W* clip geometry + dual-key photo coverage` · `Rule 10 signed prose grounding` · `pre-press + live veraPDF ISO 14289-1`) hardened by **23 adversarial sabotage tests** on Ubuntu Linux CI.
+Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `WCAG 2.1 pixel contrast` · `AABB + 4-corner W/W* clip geometry + dual-key photo coverage` · `Rule 10 half-ULP signed & exponent-aware prose grounding` · `pre-press + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **29 adversarial sabotage tests** on Ubuntu Linux CI.
 
 Drop any external PDF into `vedit inject` to dissect its trim, margins, 60-30-10 palette, font ladder, and page cadence into a reusable harness archetype — then spawn new verified publications from it with zero Python.
 
@@ -94,24 +94,29 @@ cd zig && zig build --release=safe && cd ..
 ./zig/zig-out/bin/vedit init ./new-report --archetype dark-obsidian-keynote --title "Q4 Telemetry"
 VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
-# Run the full 5-gate court on any PDF (--json for direct agent consumption)
+# Run the full 6-gate court on any PDF (--json for direct agent consumption; --verify-links visits every URL/DOI live)
 ./zig/zig-out/bin/vedit audit-all demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf \
   --ledger demos/exomundus-nasa-telemetry/data/provenance_ledger.json \
   --summary demos/exomundus-nasa-telemetry/data/summary_metrics.json \
   --citations demos/exomundus-nasa-telemetry/data/background_citations.json \
   --manifest demos/exomundus-nasa-telemetry/data/manifest.sha256 \
-  --require-ua
+  --require-ua \
+  --verify-links
+
+# Standalone Rule 11 clickable link & live anti-hallucination audit
+./zig/zig-out/bin/vedit links demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf
 ```
 
-### The 5-Gate Court
+### The 6-Gate Court
 
 | Gate | Command | What It Kills |
 | :--- | :--- | :--- |
 | **1. Cryptographic Latch** | `vedit latch <dir>` | Raw-file tampering (`SHA-256`) and unbacked metrics (`Rule 4` 1:1 ledger). |
 | **2. Pixel WCAG Contrast** | `vedit contrast <pdf>` | Unreadable dark-mode, gradient, SVG, and photo-overlay text (strips `BT..ET`, samples real pixels). |
-| **3. Geometry & Coverage** | `vedit geometry` · `vedit coverage` | Overlapping spans, `W`/`W*` clip-path character slicing, trim overflow, orphan headlines, noisy overlays, and clip-inflated `<50%` photos. |
-| **4. Rule 10 Prose Grounding** | `vedit prose <pdf>` | Hallucinated prose stats and silent sign flips (`-45%` vs `+45%`), superscript-safe (`10^6` ≠ `106`). |
+| **3. Geometry & Coverage** | `vedit geometry` · `vedit coverage` | Overlapping spans, 4-corner `W`/`W*` clip-path character slicing, trim overflow, orphan headlines, noisy overlays, and clip-inflated `<50%` photos. |
+| **4. Rule 10 Prose Grounding** | `vedit prose <pdf>` | Hallucinated prose stats, silent sign flips (`-45%` vs `+45%`), and wrong exponents (`10^7` vs `10^6`) at half-ULP `f64` precision. |
 | **5. Pre-Press & PDF/UA-1** | `vedit prepress <pdf>` | Low-DPI upscaled rasters, unembedded Base-14 fonts, missing bleed boxes, CMYK TAC `>300%`, and ISO 14289-1 failures via live `veraPDF`. |
+| **6. Rule 11 Clickable Links** | `vedit links <pdf>` | Plain-text unclickable URLs/DOIs, missing citation annotations, dead/404/hallucinated DOIs (checked via live DOI Handle Registry), HTTP-200 Soft-404s, and HTTP-200 bot-challenge walls. |
 
 ### Dissected Archetypes ([`archetypes/`](archetypes/README.md))
 
@@ -144,22 +149,22 @@ cp -r skills/* ~/.claude/skills/          # Claude Code
 # Build Zig 0.17.0 harness + run unit tests (Debug & ReleaseSafe)
 (cd zig && zig build test && zig build test --release=safe && zig build --release=safe)
 
-# Optional: Python CLI + 23-test adversarial sabotage & parity suite
+# Optional: Python CLI + 29-test adversarial sabotage & parity suite
 pip install -e ".[dev]" && pytest
 ```
 
 ### Repo Map
 
 ```
-zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 5-gate court
+zig/                     Sovereign Zig 0.17.0 CLI (`vedit`), 12 p2zig kernels, PDF dissector & 6-gate court
 archetypes/              8 dissected PDF Design DNAs (`blueprint.json`, `skeleton.typ`, `AGENT_CARD.md`)
 skills/                  3 composable Agent Skills (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
 demos/                   9 live open-data & physics publications (PRL, CAIE/OR-Library, NASA, NOAA, World Bank, GBIF, iNaturalist, OpenTree)
 verifiable_editorial/    Python `vedit` reference package + `kernels_p2zig_src.py` transpilation source
-tests/                   23-test adversarial sabotage, p2zig parity & zero-Python closed-loop suite
+tests/                   29-test adversarial sabotage, live link anti-hallucination, p2zig parity & zero-Python closed-loop suite
 ```
 
-### The 10 Anti-Cheat Rules
+### The 11 Anti-Cheat Rules
 1. **Zero-Handwritten-Data Air-Gap** — parse every number from immutable `data/raw/`.
 2. **Reality Compiler** — enforce domain physics & accounting invariants before typesetting.
 3. **Anti-Circular AST Check** — ban asserting domain variables against hardcoded numeric literals.
@@ -169,7 +174,8 @@ tests/                   23-test adversarial sabotage, p2zig parity & zero-Pytho
 7. **Unit & Scope Guard** — never blend incommensurable metrics without explicit conversion.
 8. **Statutory Proof** — cite official gazette/statute IDs for any regulatory claim.
 9. **Taxonomy Reconciliation** — verify binomials, authorities, phylogeny & IUCN status from live registries.
-10. **Post-Render Prose Grounding** — verify every numeral extracted from final compiled PDF bytes.
+10. **Post-Render Prose Grounding** — verify every numeral and scientific exponent extracted from final compiled PDF bytes at half-ULP `f64` precision.
+11. **Clickable Resource Links & Live Anti-Hallucination (`vedit links`)** — every external resource/URL/DOI must be a clickable PDF `/Subtype /Link` `/URI` annotation with a visible bounding box, and the agent must visit every link live before finalizing (DOI Handle Registry, open-science APIs, and live HTTP `GET` with Soft-404 and bot-challenge rejection).
 
 ---
 

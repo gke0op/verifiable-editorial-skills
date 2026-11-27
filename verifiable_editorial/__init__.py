@@ -6,6 +6,7 @@ from .contrast import audit_contrast
 from .coverage import audit_coverage
 from .fonts import fetch_fonts
 from .geometry import audit_geometry
+from .links import audit_links
 from .prepress import audit_prepress
 from .prose import audit_prose
 from .spreads import render_spreads
@@ -14,6 +15,7 @@ __all__ = [
     "audit_contrast",
     "audit_coverage",
     "audit_geometry",
+    "audit_links",
     "audit_prepress",
     "audit_prose",
     "fetch_fonts",

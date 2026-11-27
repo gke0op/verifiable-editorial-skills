@@ -52,6 +52,15 @@ pub const FillSample = struct {
     linewidth: f64,
 };
 
+pub const PageLink = struct {
+    page: usize,
+    uri: []const u8,
+    x0: f64,
+    y0: f64,
+    x1: f64,
+    y1: f64,
+};
+
 pub const PageData = struct {
     page_num: usize,
     width: f64,
@@ -1190,6 +1199,165 @@ fn parseBoxArray(obj_txt: []const u8, key: []const u8) ?[4]f64 {
     var nums: [4]f64 = .{ 0, 0, 0, 0 };
     if (parseFloatSlice(obj_txt[lbr + 1 .. rbr], &nums) == 4) return nums;
     return null;
+}
+
+/// Decode a PDF `/URI (...)` literal string or `/URI <hex>` string inside an annotation or action dictionary.
+pub fn parsePdfUriField(alloc: std.mem.Allocator, dict: []const u8) !?[]u8 {
+    var search_pos: usize = 0;
+    while (std.mem.findPos(u8, dict, search_pos, "/URI")) |upos| {
+        const after_key = upos + 4;
+        if (after_key < dict.len and isPdfIdentChar(dict[after_key]) and dict[after_key] != '/') {
+            search_pos = after_key;
+            continue;
+        }
+        var k = after_key;
+        while (k < dict.len and isWs(dict[k])) : (k += 1) {}
+        if (k >= dict.len) return null;
+        if (dict[k] == '(') {
+            k += 1;
+            var depth: usize = 1;
+            var out: std.ArrayList(u8) = .empty;
+            while (k < dict.len and depth > 0) : (k += 1) {
+                const ch = dict[k];
+                if (ch == '\\' and k + 1 < dict.len) {
+                    k += 1;
+                    const esc = dict[k];
+                    switch (esc) {
+                        'n' => try out.append(alloc, '\n'),
+                        'r' => try out.append(alloc, '\r'),
+                        't' => try out.append(alloc, '\t'),
+                        '\r', '\n' => {},
+                        else => try out.append(alloc, esc),
+                    }
+                } else if (ch == '(') {
+                    depth += 1;
+                    try out.append(alloc, '(');
+                } else if (ch == ')') {
+                    depth -= 1;
+                    if (depth > 0) try out.append(alloc, ')');
+                } else {
+                    try out.append(alloc, ch);
+                }
+            }
+            return try out.toOwnedSlice(alloc);
+        } else if (dict[k] == '<' and (k + 1 >= dict.len or dict[k + 1] != '<')) {
+            k += 1;
+            const hend = std.mem.findScalarPos(u8, dict, k, '>') orelse return null;
+            var out: std.ArrayList(u8) = .empty;
+            var hi: ?u8 = null;
+            for (dict[k..hend]) |ch| {
+                const nib: u8 = if (ch >= '0' and ch <= '9')
+                    ch - '0'
+                else if (ch >= 'a' and ch <= 'f')
+                    ch - 'a' + 10
+                else if (ch >= 'A' and ch <= 'F')
+                    ch - 'A' + 10
+                else
+                    continue;
+                if (hi) |h| {
+                    try out.append(alloc, (h << 4) | nib);
+                    hi = null;
+                } else {
+                    hi = nib;
+                }
+            }
+            return try out.toOwnedSlice(alloc);
+        }
+        search_pos = after_key;
+    }
+    return null;
+}
+
+fn parseIndirectActionObj(dict: []const u8) ?[]const u8 {
+    var pos: usize = 0;
+    while (std.mem.findPos(u8, dict, pos, "/A")) |apos| {
+        const after = apos + 2;
+        if (after >= dict.len or !isWs(dict[after])) {
+            pos = after;
+            continue;
+        }
+        const rest = std.mem.trimStart(u8, dict[after..], " \t\r\n");
+        if (rest.len > 0 and rest[0] >= '0' and rest[0] <= '9') {
+            var it = std.mem.tokenizeAny(u8, rest, " \t\r\n");
+            const id_tok = it.next() orelse return null;
+            _ = it.next() orelse return null; // gen
+            const r_tok = it.next() orelse return null;
+            if (std.mem.eql(u8, r_tok, "R")) return id_tok;
+        }
+        pos = after;
+    }
+    return null;
+}
+
+/// Extract all clickable external `/Subtype /Link` `/URI` annotations across every page of a PDF via `mutool show`.
+pub fn extractPageLinks(alloc: std.mem.Allocator, io: std.Io, pdf_path: []const u8) ![]PageLink {
+    const pages_res = try runCmd(alloc, io, &.{ "mutool", "show", pdf_path, "pages" }, null);
+    if (pages_res.exit_code != 0) return &.{};
+
+    var out: std.ArrayList(PageLink) = .empty;
+    var pg_num: usize = 0;
+    var pg_it = std.mem.splitScalar(u8, pages_res.stdout, '\n');
+    while (pg_it.next()) |pln| {
+        if (!std.mem.startsWith(u8, pln, "page ")) continue;
+        pg_num += 1;
+        const eq = std.mem.find(u8, pln, "= ") orelse continue;
+        var tok_it = std.mem.tokenizeAny(u8, pln[eq + 2 ..], " \t\r\n");
+        const pobj = tok_it.next() orelse continue;
+
+        const ann_path = try std.fmt.allocPrint(alloc, "{s}/Annots", .{pobj});
+        const ann_res = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, ann_path }, null) catch continue;
+        if (ann_res.exit_code != 0 or ann_res.stdout.len == 0) continue;
+        if (std.mem.eql(u8, std.mem.trim(u8, ann_res.stdout, " \t\r\n"), "null")) continue;
+
+        // Collect all indirect annotation object IDs `<id> 0 R` for batch `mutool show`
+        var argv: std.ArrayList([]const u8) = .empty;
+        try argv.appendSlice(alloc, &.{ "mutool", "show", pdf_path });
+        var prev2: []const u8 = "";
+        var prev1: []const u8 = "";
+        var ait = std.mem.tokenizeAny(u8, ann_res.stdout, " \t\r\n[]");
+        var ref_cnt: usize = 0;
+        while (ait.next()) |tok| {
+            if (std.mem.eql(u8, tok, "R") and prev2.len > 0 and prev2[0] >= '0' and prev2[0] <= '9') {
+                try argv.append(alloc, prev2);
+                ref_cnt += 1;
+            }
+            prev2 = prev1;
+            prev1 = tok;
+        }
+
+        const blobs: []const u8 = if (ref_cnt > 0) blk: {
+            const bres = runCmd(alloc, io, argv.items, null) catch continue;
+            break :blk bres.stdout;
+        } else ann_res.stdout;
+
+        // Split into individual object blocks (by `endobj` or whole inline array)
+        var obj_it = std.mem.splitSequence(u8, blobs, "endobj");
+        while (obj_it.next()) |chunk| {
+            if (std.mem.find(u8, chunk, "/Subtype /Link") == null and std.mem.find(u8, chunk, "/Subtype/Link") == null) {
+                continue;
+            }
+            var uri_opt = try parsePdfUriField(alloc, chunk);
+            if (uri_opt == null) {
+                if (parseIndirectActionObj(chunk)) |act_id| {
+                    const ares = runCmd(alloc, io, &.{ "mutool", "show", pdf_path, act_id }, null) catch null;
+                    if (ares) |ar| {
+                        uri_opt = try parsePdfUriField(alloc, ar.stdout);
+                    }
+                }
+            }
+            const uri = uri_opt orelse continue;
+            const rect = parseBoxArray(chunk, "/Rect") orelse [4]f64{ 0, 0, 0, 0 };
+            try out.append(alloc, .{
+                .page = pg_num,
+                .uri = std.mem.trim(u8, uri, " \t\r\n"),
+                .x0 = @min(rect[0], rect[2]),
+                .y0 = @min(rect[1], rect[3]),
+                .x1 = @max(rect[0], rect[2]),
+                .y1 = @max(rect[1], rect[3]),
+            });
+        }
+    }
+    return out.toOwnedSlice(alloc);
 }
 
 /// Inspect PDF Catalog, PDF/UA-1 structural tags, embedded fonts, and TrimBox/BleedBox via `mutool`.

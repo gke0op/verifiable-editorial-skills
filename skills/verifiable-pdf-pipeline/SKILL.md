@@ -2,12 +2,13 @@
 name: verifiable-pdf-pipeline
 description: >-
   Turnkey open-data verification pipeline for publication-grade PDF presentations, institutional reports, and
-  scientific monographs. Enforces 10 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
+  scientific monographs. Enforces 11 machine-checked anti-cheat rules: zero hardcoded data, SHA-256 raw manifests,
   Pydantic domain bounds, atomic provenance ledgers, AST anti-circular verification, explicit N/A handling,
-  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding (signed &
-  superscript-safe), geometric collision/clipping linting, background-sampled WCAG contrast, print pre-press
-  preflight (effective DPI, embedded fonts, bleed/trim boxes, CMYK TAC, live veraPDF ISO 14289-1 PDF/UA-1),
-  and cross-platform SIL-OFL font provisioning via the `vedit` CLI.
+  compilation latching, scientific taxonomy verification, post-render Rule 10 PDF prose grounding (half-ULP
+  precision, signed & exponent-aware), Rule 11 clickable PDF resource links & live anti-hallucination URL/DOI
+  verification (`vedit links`), geometric collision/4-corner glyph clip linting, background-sampled WCAG contrast,
+  print pre-press preflight (effective DPI, embedded fonts, bleed/trim boxes, CMYK TAC, live veraPDF ISO 14289-1
+  PDF/UA-1), and cross-platform SIL-OFL font provisioning via the `vedit` CLI.
 ---
 
 # Verifiable Factual PDF & Data Presentation Pipeline
@@ -18,7 +19,7 @@ Every published number must be streamed from genuine upstream sources into immut
 
 ---
 
-## The 10 Inviolable Anti-Cheat Rules
+## The 11 Inviolable Anti-Cheat Rules
 
 These rules apply unconditionally across domains—macroeconomics, climate telemetry, botany/biodiversity, energy grids, logistics, finance, semiconductors, or healthcare:
 
@@ -66,10 +67,26 @@ These rules apply unconditionally across domains—macroeconomics, climate telem
 │         iNaturalist) — unlinked statuses stay explicit [N/A].          │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Rule 10: Post-Render Prose-to-Ledger Grounding (`vedit prose`)         │
-│         Every quantitative number extracted from the FINAL compiled    │
-│         PDF bytes must trace back to `provenance_ledger.json`,         │
-│         `summary_metrics.json`, or an explicit DOI-backed entry in     │
-│         `data/background_citations.json` — closing narrative drift.    │
+│         Every quantitative number & scientific exponent (`10^7`,       │
+│         `9.7×10⁹`) extracted from FINAL PDF bytes must trace back at   │
+│         exact half-ULP displayed precision to `provenance_ledger.json`,│
+│         `summary_metrics.json`, or `data/background_citations.json`.   │
+├────────────────────────────────────────────────────────────────────────┤
+│ Rule 11: Clickable Resource Links & Live Anti-Hallucination Gate       │
+│         (`vedit links`) — MANDATORY BEFORE FINALIZING ANY REPORT:      │
+│         (a) Every cited resource, dataset, agency, paper, URL, or DOI  │
+│             MUST be a real clickable PDF `/URI` link (`>= 2×2 pt` rect)│
+│             — zero dead plain-text URLs/DOIs, zero placeholders.       │
+│         (b) Every resource declared in `background_citations.json` /   │
+│             `provenance_ledger.json` MUST be clickable in the PDF.     │
+│         (c) BEFORE finalizing, the agent MUST visit & verify EVERY     │
+│             link live (`vedit links <pdf>`): DOIs via CNRI/IDF Handle  │
+│             Registry (`doi.org/api/handles/<doi>`), open-science       │
+│             portals via public APIs, and web pages via live HTTP GET   │
+│             inspecting status, `<title>`, and `<h1>` to reject 404/    │
+│             410/403/5xx, DNS errors, Soft-404s, HTTP-200 bot walls     │
+│             (`Client Challenge`, `Just a moment`), and semantic        │
+│             mismatches. Never finalize a report with unverified links! │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -184,11 +201,27 @@ Copy and adapt the tested, production-hardened scripts in `templates/`:
   - `vedit contrast` — background-sampled WCAG 2.1 AA contrast across light, dark, SVG, and PDF/UA-1 tagged streams (`BT/Span` delimiter-safe recursive Form XObject stripping).
   - `vedit geometry` — text collisions, `W n` PDF clip-path slicing, trim overflow, headline orphan wraps, and photo-overlay texture energy.
   - `vedit coverage` — clip-aware dual-key visible photography coverage (`>= 50%`).
-  - `vedit prose` — Rule 10 post-render PDF prose-to-ledger grounding (sign-aware so `-45.0%` vs `+45.0%` sign flips fail, superscript-aware so `10^6` never fuses into `106`, DOI/URL/hash-aware).
+  - `vedit prose` — Rule 10 post-render PDF prose-to-ledger grounding (full IEEE-754 `f64` half-ULP precision at displayed decimals, zero blanket structurals, sign-aware `-45%` vs `+45%`, scientific-exponent aware `10^7`/`10⁷`/`9.7×10⁹`, fullwidth digit normalization).
+  - `vedit links` — Rule 11 clickable PDF resource link & live anti-hallucination verifier: requires every printed URL/DOI and every citation/ledger URL to be a real clickable PDF `/URI` annotation (`>= 2×2 pt` visible rect, zero placeholders), and visits every link live (CNRI/IDF DOI Handle Registry `doi.org/api/handles/<doi>`, open-science REST APIs, and live HTTP GET rejecting 404/410/403/5xx, Soft-404s, and HTTP-200 bot-challenge walls like `Client Challenge`). Pass `--verify-links` to `vedit audit-all` (or `--offline` for air-gapped structural checks).
   - `vedit prepress` — print pre-press & ISO accessibility certification: effective placed DPI (`native_px / placed_inches`, skipping synthetic `xref == 0` CSS soft-masks), embedded font subsetting, `/MediaBox`/`/TrimBox`/`/BleedBox`, simulated CMYK GCR Total Area Coverage (`TAC <= 300%`), pure-PyMuPDF PDF/UA-1 tag-tree inspection, and live **`veraPDF`** (`verapdf --flavour ua1 --format json`) ISO 14289-1 certification.
   - `vedit fetch-fonts` — provisions and SHA-256-verifies 8 cross-platform SIL-OFL open-source fonts (*Cormorant Garamond*, *Source Serif 4*, *Inter*, *IBM Plex Mono*) for bit-exact macOS and Ubuntu Linux builds.
-  - `vedit spreads` & `vedit audit-all` — facing-spread contact sheet renderer and one-command multi-gate CI runner, hardened by a **20-test adversarial sabotage, `p2zig` kernel parity, and closed-loop synthesis `pytest` suite (`tests/test_adversarial_gates.py`)**.
-- **Sovereign Bare-Metal Zig 0.17.0 Agent Harness (`zig/zig-out/bin/vedit`, `v0.5.0-zig`):** Zero-Python native CLI with **100% 5-Gate Court parity**, compiling all **12** core math/audit/dissection/coverage kernels via `p2zig --strict` (`verifiable_editorial/kernels_p2zig_src.py` → `zig/src/kernels_p2zig.zig`) + pure-C `mutool` + live `veraPDF`. Exposes `vedit latch` (pure-Zig SHA-256 + Rule 4 verification), `vedit contrast`, `vedit geometry` (incl. pure-Zig `W`/`W*` clip-path character slicing), `vedit coverage` (pure-Zig dual-key image XObject rewriting), `vedit prose` (Rule 10 signed+superscript), `vedit prepress` (live `veraPDF`), `vedit audit-all` (`--plate-pages`, `--json`), **PDF Sample Dissection & Archetype Injection** (`vedit inject <sample.pdf> --name <slug>`), and zero-Python project scaffolding (`vedit init <dir> --archetype <slug>`).
+  - `vedit spreads` & `vedit audit-all` — facing-spread contact sheet renderer and one-command multi-gate CI runner, hardened by our **adversarial sabotage, `p2zig` kernel parity, and closed-loop synthesis `pytest` suite (`tests/test_adversarial_gates.py`)**.
+- **Sovereign Bare-Metal Zig 0.17.0 Agent Harness (`zig/zig-out/bin/vedit`, `v0.5.0-zig`):** Zero-Python native CLI with **100% 6-Gate Court parity**, compiling all **12** core math/audit/dissection/coverage kernels via `p2zig --strict` (`verifiable_editorial/kernels_p2zig_src.py` → `zig/src/kernels_p2zig.zig`) + pure-C `mutool` + live `veraPDF`. Exposes `vedit latch` (pure-Zig SHA-256 + Rule 4 verification), `vedit contrast`, `vedit geometry` (incl. 4-corner glyph ink-core `W`/`W*` clip-path slicing), `vedit coverage` (pure-Zig dual-key image XObject rewriting), `vedit prose` (Rule 10 half-ULP + scientific exponents), `vedit links` (Rule 11 clickable link coverage + live DOI Handle / HTTP anti-hallucination verifier), `vedit prepress` (live `veraPDF`), `vedit audit-all` (`--plate-pages`, `--verify-links`, `--json`), **PDF Sample Dissection & Archetype Injection** (`vedit inject <sample.pdf> --name <slug>`), and zero-Python project scaffolding (`vedit init <dir> --archetype <slug>`).
+
+## Rule 11 Pre-Finalization Agent Protocol (Zero Hallucinated Links)
+
+Before delivering ANY compiled PDF report to the user, the authoring agent MUST execute this closed loop:
+
+1. **Every resource must be a clickable link:**
+   - **Typst:** `#link("https://doi.org/10.1038/nature02417")[Koch et al. (2004)]` (and use a bibliography style that renders clickable DOIs/URLs, e.g. `style: "ieee"`, or explicit `#link(...)` references).
+   - **HTML / WeasyPrint:** `<a href="https://doi.org/...">Source Label</a>`.
+   - **ReportLab:** `canvas.linkURL("https://...", (x0, y0, x1, y1), relative=0)` on every citation/source label.
+2. **Visit and verify EVERY link live before finalizing:**
+   ```bash
+   vedit links report/OUTPUT.pdf --citations data/background_citations.json --ledger data/provenance_ledger.json
+   ```
+3. **Inspect the resolved `<title>` / DOI target of every single `[OK]` entry** to confirm the real destination matches the cited claim (not an unrelated homepage or wrong paper).
+4. **Fix or remove any failing link (`[!]`)** — if a URL returns `404`, `Soft-404`, `HALLUCINATED_DOI`, `BOT_CHALLENGE_UNVERIFIED`, or `UNLINKED_TEXT_RESOURCE`, **never ignore or fabricate**; find the true canonical URL/DOI from the primary registry or remove the unverified claim before re-compiling.
 
 ## Compilation Latch Pattern (Rule 6)
 

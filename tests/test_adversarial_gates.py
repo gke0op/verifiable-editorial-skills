@@ -21,6 +21,7 @@ import pytest
 from verifiable_editorial.contrast import audit_contrast
 from verifiable_editorial.coverage import audit_coverage
 from verifiable_editorial.geometry import audit_geometry
+from verifiable_editorial.links import audit_links
 from verifiable_editorial.prepress import audit_prepress
 from verifiable_editorial.prose import audit_prose
 
@@ -870,3 +871,172 @@ def test_sabotage_geometry_rejects_horizontal_and_bottom_half_glyph_slicing(tmp_
             assert (z.returncode != 0) is expect_fail, f"Zig geometry mismatch on {name}:\n{z.stdout}"
             if expect_fail:
                 assert "clip_path_sliced_text" in z.stdout, z.stdout
+
+
+# ==============================================================================
+# 5. RULE 11 — CLICKABLE RESOURCE LINK & LIVE ANTI-HALLUCINATION COURT TESTS
+# ==============================================================================
+
+
+def test_sabotage_rule11_rejects_unlinked_text_placeholders_hidden_rects_and_missing_citations(tmp_path: Path) -> None:
+    """Rule 11A/B: Plain-text dead URLs/DOIs, 0-link PDFs, placeholders, 0x0 rects & unlinked citations MUST fail both courts."""
+
+    def _check_both(pdf: Path, *, citations: Path | None = None, expect_pass: bool) -> dict:
+        py = audit_links(pdf, citations_path=citations, live=False)
+        assert py["passed"] is expect_pass, f"Python Rule 11 mismatch on {pdf.name}: {py}"
+        if ZIG_VEDIT.exists() and shutil.which("mutool"):
+            cmd = [str(ZIG_VEDIT), "links", str(pdf), "--offline"]
+            if citations is not None:
+                cmd += ["--citations", str(citations)]
+            z = subprocess.run(cmd, capture_output=True, text=True)
+            assert (z.returncode == 0) is expect_pass, f"Zig Rule 11 mismatch on {pdf.name}:\n{z.stdout}\n{z.stderr}"
+        return py
+
+    # 1. Zero clickable links -> FAIL
+    p_none = tmp_path / "no_links.pdf"
+    c = canvas.Canvas(str(p_none), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "A report with zero clickable links.")
+    c.showPage()
+    c.save()
+    res = _check_both(p_none, expect_pass=False)
+    assert any(f["kind"] == "INSUFFICIENT_CLICKABLE_LINKS" for f in res["failures"])
+
+    # 2. Dead plain-text URL + DOI without PDF /URI annotation -> FAIL
+    p_dead = tmp_path / "unlinked_text.pdf"
+    c = canvas.Canvas(str(p_dead), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 720, "Verified source: https://typst.app/docs/reference/pdf/")
+    c.linkURL("https://typst.app/docs/reference/pdf/", (50, 716, 300, 732), relative=0)
+    c.drawString(50, 690, "Unlinked dead text: doi:10.1038/nature02417")
+    c.showPage()
+    c.save()
+    res = _check_both(p_dead, expect_pass=False)
+    assert any(f["kind"] == "UNLINKED_TEXT_RESOURCE" for f in res["failures"])
+
+    # 3. Placeholder domain (example.com) + degenerate 0x0 link rect -> FAIL
+    p_ph = tmp_path / "placeholder_and_tiny.pdf"
+    c = canvas.Canvas(str(p_ph), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "Fake placeholder source")
+    c.linkURL("https://example.com/fabricated-study", (50, 696, 180, 712), relative=0)
+    c.linkURL("https://typst.app/docs/", (50, 680, 50.5, 680.5), relative=0)
+    c.showPage()
+    c.save()
+    res = _check_both(p_ph, expect_pass=False)
+    kinds = {f["kind"] for f in res["failures"]}
+    assert any("PLACEHOLDER" in k for k in kinds)
+    assert "DEGENERATE_OR_HIDDEN_LINK_RECT" in kinds
+
+    # 4. Citation declared in background_citations.json missing clickable link in PDF -> FAIL
+    cits = tmp_path / "background_citations.json"
+    cits.write_text(
+        json.dumps(
+            {
+                "citations": [
+                    {"id": "c1", "values": [100], "source": "Typst Docs", "doi_or_url": "https://typst.app/docs/reference/pdf/"},
+                    {"id": "c2", "values": [115], "source": "Koch 2004", "doi_or_url": "https://doi.org/10.1038/nature02417"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    p_miss = tmp_path / "missing_declared_link.pdf"
+    c = canvas.Canvas(str(p_miss), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 700, "Only c1 linked here")
+    c.linkURL("https://typst.app/docs/reference/pdf/", (50, 696, 180, 712), relative=0)
+    c.showPage()
+    c.save()
+    res = _check_both(p_miss, citations=cits, expect_pass=False)
+    assert any(f["kind"] == "DECLARED_RESOURCE_NOT_CLICKABLE" for f in res["failures"])
+
+    # 5. Control: both declared citations linked with visible rects -> PASS
+    p_ok = tmp_path / "all_linked_ok.pdf"
+    c = canvas.Canvas(str(p_ok), pagesize=(612, 792))
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 720, "Typst Spec")
+    c.linkURL("https://typst.app/docs/reference/pdf/", (50, 716, 140, 732), relative=0)
+    c.drawString(50, 690, "Koch et al. (2004) doi:10.1038/nature02417")
+    c.linkURL("https://doi.org/10.1038/nature02417", (50, 686, 280, 702), relative=0)
+    c.showPage()
+    c.save()
+    _check_both(p_ok, citations=cits, expect_pass=True)
+
+
+def test_sabotage_rule11_live_http_rejects_404_soft404_bot_challenge_and_403_on_both_courts(tmp_path: Path) -> None:
+    """Rule 11C: Live HTTP court MUST pass real 200 pages and reject 404, HTTP-200 Soft-404, HTTP-200 Client Challenge & 403."""
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    import threading
+
+    routes: dict[str, tuple[int, str]] = {
+        "/real-report": (200, "<html><head><title>Verified Climate Telemetry 2026</title></head><body><h1>Mauna Loa</h1></body></html>"),
+        "/hallucinated-404": (404, "<html><head><title>Not Found</title></head><body>Missing</body></html>"),
+        "/soft-404": (200, "<html><head><title>404 - Page Not Found | Journal</title></head><body><h1>Article not found</h1></body></html>"),
+        "/bot-challenge": (200, "<html><head><title>Client Challenge</title></head><body>Enable JavaScript</body></html>"),
+        "/forbidden-403": (403, "<html><head><title>Just a moment...</title></head><body>Forbidden</body></html>"),
+    }
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:  # noqa: N802
+            code, body = routes.get(self.path, (404, "<html><title>404 Not Found</title></html>"))
+            payload = body.encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, fmt: str, *args: object) -> None:
+            return
+
+    srv = HTTPServer(("127.0.0.1", 0), _Handler)
+    port = srv.server_address[1]
+    th = threading.Thread(target=srv.serve_forever, daemon=True)
+    th.start()
+    try:
+        cases = [
+            ("real_200_ok", "/real-report", True),
+            ("dead_404", "/hallucinated-404", False),
+            ("soft_404_200", "/soft-404", False),
+            ("bot_challenge_200", "/bot-challenge", False),
+            ("waf_403", "/forbidden-403", False),
+        ]
+        for name, route, expect_pass in cases:
+            url = f"http://127.0.0.1:{port}{route}"
+            pdf = tmp_path / f"live_{name}.pdf"
+            c = canvas.Canvas(str(pdf), pagesize=(612, 792))
+            c.setFont("Helvetica", 11)
+            c.drawString(50, 700, f"Source link: {url}")
+            c.linkURL(url, (50, 696, 320, 712), relative=0)
+            c.showPage()
+            c.save()
+
+            py = audit_links(pdf, live=True, timeout=5.0, allow_localhost=True)
+            assert py["passed"] is expect_pass, f"Python live Rule 11 mismatch on {name}: {py}"
+            if ZIG_VEDIT.exists() and shutil.which("mutool"):
+                z = subprocess.run(
+                    [str(ZIG_VEDIT), "links", str(pdf), "--timeout", "5", "--allow-localhost"],
+                    capture_output=True,
+                    text=True,
+                )
+                assert (z.returncode == 0) is expect_pass, f"Zig live Rule 11 mismatch on {name}:\n{z.stdout}\n{z.stderr}"
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_published_flagship_demos_pass_rule11_clickable_link_integrity_offline() -> None:
+    """All clickable-reference flagship PDFs MUST pass Rule 11 structural/clickable parity on BOTH Python and Zig."""
+    for pdf in [
+        BOTANICA / "report" / "BOTANICA_VERIDICA_MONOGRAPH.pdf",
+        REPO_ROOT / "demos/caie-flowshop-journal/report/CAIE_FLOWSHOP_MANUSCRIPT_UA1.pdf",
+        REPO_ROOT / "demos/exomundus-nasa-telemetry/report/EXOMUNDUS_NASA_TELEMETRY_UA1.pdf",
+        REPO_ROOT / "demos/prl-yang-mills-chaos/report/PRL_YANG_MILLS_CHAOS_UA1.pdf",
+        TYPST_DEMO / "report" / "TYPST_CARBON_MONOGRAPH_UA1.pdf",
+    ]:
+        py = audit_links(pdf, live=False)
+        assert py["passed"] is True, f"Python Rule 11 offline failed on {pdf.name}: {py}"
+        if ZIG_VEDIT.exists() and shutil.which("mutool"):
+            z = subprocess.run([str(ZIG_VEDIT), "links", str(pdf), "--offline"], capture_output=True, text=True)
+            assert z.returncode == 0, f"Zig Rule 11 offline failed on {pdf.name}:\n{z.stdout}\n{z.stderr}"

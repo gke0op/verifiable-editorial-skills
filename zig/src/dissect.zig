@@ -679,7 +679,7 @@ pub fn generateTypstSkeleton(alloc: std.mem.Allocator, bp: Blueprint) ![]u8 {
         \\    [
         \\      #text(font: "{s}", size: 6.8pt, weight: "bold", fill: c-acc2, tracking: 0.12em)[DESIGN DNA PROVENANCE]
         \\      #v(4pt)
-        \\      Cloned from dissected archetype `{s}` ({d:.0}×{d:.0} pt, {s} polarity, verified WCAG contrast).
+        \\      Cloned from dissected archetype `{s}` ({d:.0}×{d:.0} pt, {s} polarity, verified WCAG contrast) via #link("https://github.com/gke0op/verifiable-editorial-skills")[verifiable-editorial-skills].
         \\    ],
         \\  ),
         \\)

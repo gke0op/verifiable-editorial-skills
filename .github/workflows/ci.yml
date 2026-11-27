@@ -52,7 +52,7 @@ jobs:
       - name: Build & Test Sovereign Zig 0.17.0 Agent Harness (Debug + ReleaseSafe + fmt)
         run: |
           cd zig
-          zig fmt --check build.zig src/mupdf.zig src/audit.zig src/dissect.zig src/scaffold.zig src/main.zig
+          zig fmt --check build.zig src/mupdf.zig src/audit.zig src/links.zig src/dissect.zig src/scaffold.zig src/main.zig
           zig build test
           zig build test --release=safe
           zig build --release=safe
@@ -87,8 +87,8 @@ jobs:
           ./zig/zig-out/bin/vedit coverage demos/botanica-veridica/report/BOTANICA_VERIDICA_MONOGRAPH.pdf --min-pct 50 --pages "1,4-9"
           ./zig/zig-out/bin/vedit archetypes
 
-      - name: Run Full 23-Test Adversarial Sabotage, p2zig & Closed-Loop Harness Suite (pytest)
-        run: pytest
+      - name: Run Full Adversarial Sabotage, p2zig, Rule 10/11 & Closed-Loop Harness Suite (pytest)
+        run: pytest -v
 
       - name: Run Rule 3/4/6/9 integrity verifiers across live open-data demos
         run: |

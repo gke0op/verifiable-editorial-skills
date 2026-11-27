@@ -11,6 +11,7 @@ from .contrast import audit_contrast
 from .coverage import audit_coverage
 from .fonts import fetch_fonts
 from .geometry import audit_geometry
+from .links import audit_links
 from .prepress import audit_prepress
 from .prose import audit_prose
 from .spreads import render_spreads
@@ -97,6 +98,18 @@ def _emit(result: dict, json_path: Path | None) -> int:
             print(f"  [warn] {w}")
         for f in result.get("failures", []):
             print(f"  [!] {f}")
+    elif gate == "rule11_links":
+        mode = "live" if result["live_checked"] else "offline"
+        print(
+            f"  clickable={result['clickable_links']} | unique={result['unique_uris']} | "
+            f"text_urls={result['text_resources_found']} | declared={result['declared_resources_checked']} | "
+            f"mode={mode} | failures={len(result['failures'])}"
+        )
+        for lr in result.get("live_results", []):
+            mark = "OK" if lr["passed"] else "!"
+            print(f"  [{mark}] {lr['uri']} -> {lr['verdict']} ({lr['title'][:64]})")
+        for f in result.get("failures", []):
+            print(f"  [!] p.{f['page']} {f['kind']}: {f['detail']}")
 
     return 0 if passed else 1
 
@@ -130,6 +143,16 @@ def main(argv: list[str] | None = None) -> int:
     p_pr.add_argument("--manifest", type=Path, default=None)
     p_pr.add_argument("--json", type=Path, default=None)
 
+    p_lk = sub.add_parser("links", help="Rule 11 clickable PDF resource link & live anti-hallucination auditor.")
+    p_lk.add_argument("pdf", type=Path)
+    p_lk.add_argument("--citations", type=Path, default=None)
+    p_lk.add_argument("--ledger", type=Path, default=None)
+    p_lk.add_argument("--min-links", type=int, default=1)
+    p_lk.add_argument("--offline", action="store_true", help="Check PDF clickable annotations & coverage without live HTTP probing.")
+    p_lk.add_argument("--timeout", type=float, default=10.0)
+    p_lk.add_argument("--allow-localhost", action="store_true", help="Allow 127.0.0.1/localhost URLs (strictly for local tests).")
+    p_lk.add_argument("--json", type=Path, default=None)
+
     p_sp = sub.add_parser("spreads", help="Render facing-spread contact sheets ([2|3], [4|5], ...).")
     p_sp.add_argument("pdf", type=Path)
     p_sp.add_argument("--out-dir", type=Path, required=True)
@@ -159,6 +182,9 @@ def main(argv: list[str] | None = None) -> int:
     p_all.add_argument("--min-photo-pct", type=float, default=50.0)
     p_all.add_argument("--prepress-dpi", type=float, default=None, help="Also run prepress gate with this min DPI.")
     p_all.add_argument("--require-ua", action="store_true")
+    p_all.add_argument("--verify-links", action="store_true", help="Also run Rule 11 clickable + live anti-hallucination link audit.")
+    p_all.add_argument("--check-links-offline", action="store_true", help="Run Rule 11 clickable link audit without live HTTP probing.")
+    p_all.add_argument("--min-links", type=int, default=1)
 
     args = ap.parse_args(argv)
 
@@ -173,6 +199,19 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.cmd == "prose":
         return _emit(audit_prose(args.pdf, args.ledger, args.summary, args.citations, args.manifest), args.json)
+    if args.cmd == "links":
+        return _emit(
+            audit_links(
+                args.pdf,
+                citations_path=args.citations,
+                ledger_path=args.ledger,
+                min_links=args.min_links,
+                live=not args.offline,
+                timeout=args.timeout,
+                allow_localhost=args.allow_localhost,
+            ),
+            args.json,
+        )
     if args.cmd == "spreads":
         written = render_spreads(args.pdf, args.out_dir, dpi=args.dpi, width=args.width)
         print(f"[vedit:spreads] Wrote {len(written)} facing spread(s) -> {args.out_dir}")
@@ -209,6 +248,17 @@ def main(argv: list[str] | None = None) -> int:
                     args.pdf,
                     min_dpi=args.prepress_dpi if args.prepress_dpi is not None else 0.0,
                     require_ua=args.require_ua,
+                ),
+                None,
+            )
+        if args.verify_links or args.check_links_offline:
+            rc |= _emit(
+                audit_links(
+                    args.pdf,
+                    citations_path=args.citations,
+                    ledger_path=args.ledger,
+                    min_links=args.min_links,
+                    live=args.verify_links,
                 ),
                 None,
             )

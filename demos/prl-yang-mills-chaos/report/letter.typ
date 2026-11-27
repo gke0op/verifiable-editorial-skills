@@ -181,7 +181,7 @@
     ]
     #v(4pt)
     #text(font: "Inter", size: 6.3pt, fill: c-muted)[
-      DOI: `10.0000/OpenArchive.PRL.137.014101` · PhySH: Quantum chaos, Random matrix theory, Symplectic integrators · SHA-256: #raw(raw-sha.slice(0, 16) + "…")
+      #link("https://github.com/gke0op/verifiable-editorial-skills")[Open Archive · `verifiable-editorial-skills`] · PhySH: Quantum chaos, Random matrix theory, Symplectic integrators · SHA-256: #raw(raw-sha.slice(0, 16) + "…")
     ]
   ],
 ))
@@ -383,9 +383,9 @@ The inset of Fig. 3 directly contrasts fourth-order Yoshida symplectic integrati
 #v(3pt)
 #set par(first-line-indent: 0pt, leading: 0.46em, spacing: 0.35em)
 #text(size: 7.4pt, fill: c-muted)[
-  #super[\*] Open-source reproduction package (`scripts/pipeline.zig`, `data/raw/yang_mills_protocol.csv`, `provenance_ledger.json`, `letter.typ`) archived in `verifiable-editorial-skills`.
+  #super[\*] Open-source reproduction package (`scripts/pipeline.zig`, `data/raw/yang_mills_protocol.csv`, `provenance_ledger.json`, `letter.typ`) archived in #link("https://github.com/gke0op/verifiable-editorial-skills")[`verifiable-editorial-skills`].
 ]
 #v(4pt)
 #set text(size: 7.45pt, fill: c-body)
 #set par(leading: 0.45em, spacing: 0.34em)
-#bibliography("references.bib", title: none, style: "american-physics-society")
+#bibliography("references.bib", title: none, style: "ieee")
