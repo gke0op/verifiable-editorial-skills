@@ -102,6 +102,7 @@ jobs:
           ./zig/zig-out/bin/vedit plate demos/cosmos-mobile-primer/report/plates/plate_04_67p.jpg /tmp/ci_plate.jpg --width-pt 304 --height-pt 118 --bg "#07090F"
           test -s /tmp/ci_plate.jpg
 
-      - name: Privacy & host-path hygiene scan
+      - name: Privacy, installer syntax & host-path hygiene scan
         run: |
-          ! git grep -InE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" -- README.md skills/ zig/ archetypes/ tests/ demos/
+          sh -n install.sh
+          ! git grep -InE "/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/|C:\\\\Users\\\\" -- README.md install.sh .github/workflows/release.yml skills/ zig/ archetypes/ tests/ demos/

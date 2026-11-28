@@ -3,6 +3,7 @@
 ![Verifiable Editorial — Zig 0.17 + Typst PDF/UA-1 Engine & 6-Gate Court](assets/social_preview.png)
 
 [![CI](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/gke0op/verifiable-editorial-skills/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/gke0op/verifiable-editorial-skills?label=vedit)](https://github.com/gke0op/verifiable-editorial-skills/releases/latest)
 
 **100% Zero-Python bare-metal Zig 0.17.0 editorial harness (`vedit v0.7.0-zig`) + Typst `PDF/UA-1` engine + 3 Agent Skills.**  
 Zero Python. Zero fabricated numbers. Zero clipped glyphs. Zero blind layouts. Zero hallucinated links. Every published PDF passes a **6-gate post-render court** (`SHA-256 latch` · `composited 144-DPI WCAG 2.1 pixel contrast` · `OBB/AABB + Bezier W/W* clip geometry + dual-key tonal photo coverage` · `Rule 10 half-ULP signed, exponent-aware & ToUnicode-hardened prose grounding` · `pre-press real CMYK PAM TAC + live veraPDF ISO 14289-1` · `Rule 11 clickable PDF resource links & live anti-hallucination`) hardened by **51 pure-Zig adversarial sabotage, live-HTTP & flagship tests** (`zig build test-court`) on Ubuntu Linux CI (`Debug` + `--release=safe`).
@@ -149,7 +150,20 @@ VEDIT_BIN="$(pwd)/zig/zig-out/bin/vedit" bash ./new-report/build.sh
 
 ---
 
-## Install Skills & Run the Court
+## Install `vedit` & Agent Skills
+
+### Option A — One-Line Pre-Built Binary (Zero Zig Toolchain Required)
+
+```bash
+# Downloads portable macOS arm64 / static-musl Linux (x86_64, aarch64) binary & verifies SHA256SUMS.txt
+curl -fsSL https://raw.githubusercontent.com/gke0op/verifiable-editorial-skills/main/install.sh | sh
+
+# Runtime companions: mupdf-tools (`mutool`), Typst 0.15.1, optional veraPDF
+# Ubuntu: sudo apt install mupdf-tools   |   macOS: brew install mupdf-tools typst
+vedit fetch-fonts
+```
+
+### Option B — Build from Source & Install Skills
 
 ```bash
 git clone https://github.com/gke0op/verifiable-editorial-skills.git
@@ -158,9 +172,6 @@ cd verifiable-editorial-skills
 # Install Agent Skills (Antigravity / Claude Code / Codex / Cursor)
 cp -r skills/* ~/.gemini/config/skills/   # Antigravity
 cp -r skills/* ~/.claude/skills/          # Claude Code
-
-# System deps: Zig 0.17.0, Typst 0.15.1, mupdf-tools (`mutool`), optional veraPDF
-# Ubuntu: sudo apt install mupdf-tools   |   macOS: brew install mupdf-tools typst
 
 # Build Zig 0.17.0 harness + run unit tests & full 51-test adversarial sabotage court (Debug & ReleaseSafe, Zero Python)
 (cd zig && zig build test && zig build test --release=safe && zig build test-court && zig build test-court --release=safe)
@@ -173,6 +184,7 @@ zig/                     100% Zero-Python Zig 0.17.0 CLI (`vedit v0.7.0-zig`), 1
 archetypes/              9 dissected PDF Design DNAs (incl. `mobile-primer`, `aps-prl-letter`, `elsevier-caie-journal`)
 skills/                  3 composable Zero-Python Agent Skills + Zig/Typst templates (`verifiable-pdf-pipeline`, `editorial-page-layout-guidelines`, `premium-pdf-design`)
 demos/                   5 live zero-Python Zig 0.17 + Typst PDF/UA-1 publications (Cosmos Mobile Primer, PRL, CAIE, EXOMUNDUS, Global Carbon) + 5 certified archival showcases
+install.sh               SHA-256-verified cross-platform pre-built `vedit` binary installer (macOS arm64, static-musl Linux x86_64/aarch64)
 tests/                   Pointers to the pure-Zig `zig build test-court` adversarial sabotage & regression suite
 ```
 

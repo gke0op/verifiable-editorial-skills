@@ -1,0 +1,165 @@
+name: Release vedit Binaries (Zero-Python Zig 0.17)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.7.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-binaries:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            zig_url: "https://ziglang.org/download/0.17.0/zig-x86_64-linux-0.17.0.tar.xz"
+            zig_sha256: "1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026"
+            zig_dir: "zig-x86_64-linux-0.17.0"
+            zig_target: "x86_64-linux-musl"
+            target_name: "linux-x86_64"
+          - os: ubuntu-24.04-arm
+            zig_url: "https://ziglang.org/download/0.17.0/zig-aarch64-linux-0.17.0.tar.xz"
+            zig_sha256: "9e8d11661d4ae3bd57702a3832781e23ad151dde5798e16a5ccd503f65234ff8"
+            zig_dir: "zig-aarch64-linux-0.17.0"
+            zig_target: "aarch64-linux-musl"
+            target_name: "linux-aarch64"
+          - os: macos-14
+            zig_url: "https://ziglang.org/download/0.17.0/zig-aarch64-macos-0.17.0.tar.xz"
+            zig_sha256: "b607e9b9234790a008116ae5bdb71c6243b84b9fb42a53a9e70fde41c06c536a"
+            zig_dir: "zig-aarch64-macos-0.17.0"
+            zig_target: "aarch64-macos"
+            target_name: "macos-arm64"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install & SHA-256 Verify Zig 0.17.0
+        env:
+          ZIG_URL: ${{ matrix.zig_url }}
+          ZIG_SHA256: ${{ matrix.zig_sha256 }}
+          ZIG_DIR: ${{ matrix.zig_dir }}
+        run: |
+          curl -fsSL "$ZIG_URL" -o /tmp/zig.tar.xz
+          if command -v sha256sum >/dev/null 2>&1; then
+            ACTUAL_SHA="$(sha256sum /tmp/zig.tar.xz | awk '{ print $1 }')"
+          else
+            ACTUAL_SHA="$(shasum -a 256 /tmp/zig.tar.xz | awk '{ print $1 }')"
+          fi
+          if [ "$ACTUAL_SHA" != "$ZIG_SHA256" ]; then
+            echo "Zig tarball SHA-256 mismatch: expected=$ZIG_SHA256 actual=$ACTUAL_SHA" >&2
+            exit 1
+          fi
+          tar -xf /tmp/zig.tar.xz -C /tmp
+          echo "/tmp/${ZIG_DIR}" >> "$GITHUB_PATH"
+          "/tmp/${ZIG_DIR}/zig" version
+
+      - name: Format-Check, Unit-Test & Build Portable ReleaseSafe Binary
+        env:
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          ZIG_TARGET: ${{ matrix.zig_target }}
+          TARGET_NAME: ${{ matrix.target_name }}
+        run: |
+          cd zig
+          zig fmt --check build.zig src/mupdf.zig src/audit.zig src/links.zig src/dissect.zig src/scaffold.zig src/media.zig src/court_tests.zig src/main.zig
+          zig build test --release=safe
+          zig build -Dtarget="$ZIG_TARGET" -Dcpu=baseline --release=safe
+          VER_OUT="$(./zig-out/bin/vedit version)"
+          echo "$VER_OUT"
+          EXPECTED_VER="${TAG_NAME#v}-zig"
+          case "$VER_OUT" in
+            *"$EXPECTED_VER"*) ;;
+            *)
+              echo "Version mismatch: binary reports '${VER_OUT}' but release tag is '${TAG_NAME}' (expected '${EXPECTED_VER}')" >&2
+              exit 1
+              ;;
+          esac
+          file ./zig-out/bin/vedit
+          case "$TARGET_NAME" in
+            linux-*)
+              file ./zig-out/bin/vedit | grep -qi "statically linked"
+              ;;
+            macos-*)
+              otool -L ./zig-out/bin/vedit
+              ;;
+          esac
+
+      - name: Package Tarball
+        env:
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          TARGET_NAME: ${{ matrix.target_name }}
+        run: |
+          mkdir -p dist
+          ASSET="vedit-${TAG_NAME}-${TARGET_NAME}.tar.gz"
+          COPYFILE_DISABLE=1 tar -C zig/zig-out/bin -czf "dist/${ASSET}" vedit
+          CONTENTS="$(tar -tzf "dist/${ASSET}")"
+          echo "Tarball entries: $CONTENTS"
+          test "$CONTENTS" = "vedit"
+          ls -lh "dist/${ASSET}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vedit-${{ matrix.target_name }}
+          path: dist/*.tar.gz
+
+  publish-release:
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download All Binary Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Verify Matrix Completeness & Generate SHA256SUMS.txt
+        env:
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          cd release-assets
+          for t in linux-x86_64 linux-aarch64 macos-arm64; do
+            test -s "vedit-${TAG_NAME}-${t}.tar.gz"
+          done
+          LC_ALL=C sha256sum vedit-*.tar.gz | LC_ALL=C sort -k2 > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          RELEASE_NOTES=$(cat <<'EOF'
+          Pre-built **ReleaseSafe** sovereign Zig 0.17.0 `vedit` binaries (100% Zero-Python, baseline CPU ISA):
+          - **Linux x86_64** (`x86_64-linux-musl`, statically linked — zero glibc dependency)
+          - **Linux aarch64** (`aarch64-linux-musl`, statically linked — zero glibc dependency)
+          - **macOS Apple Silicon** (`aarch64-macos`, arm64)
+
+          All tarballs are unit-tested on native runner hardware and cryptographically verified via `SHA256SUMS.txt`.
+
+          ### One-Line Install
+          ```sh
+          curl -fsSL https://raw.githubusercontent.com/gke0op/verifiable-editorial-skills/main/install.sh | sh
+          ```
+          EOF
+          )
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" release-assets/* --clobber
+          else
+            gh release create "$TAG_NAME" release-assets/* \
+              --title "vedit ${TAG_NAME} (Sovereign Zig 0.17.0 Zero-Python Editorial Harness)" \
+              --notes "$RELEASE_NOTES"
+          fi
