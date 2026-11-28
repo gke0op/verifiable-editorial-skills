@@ -32,7 +32,7 @@ jobs:
             zig_dir: "zig-aarch64-linux-0.17.0"
             zig_target: "aarch64-linux-musl"
             target_name: "linux-aarch64"
-          - os: macos-14
+          - os: macos-15
             zig_url: "https://ziglang.org/download/0.17.0/zig-aarch64-macos-0.17.0.tar.xz"
             zig_sha256: "b607e9b9234790a008116ae5bdb71c6243b84b9fb42a53a9e70fde41c06c536a"
             zig_dir: "zig-aarch64-macos-0.17.0"
